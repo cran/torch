@@ -27,22 +27,6 @@ document.addEventListener('DOMContentLoaded', function(e) {
   }
 });
 </script>
-<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
-// v0.0.1
-// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
-
-document.addEventListener('DOMContentLoaded', function() {
-  const codeList = document.getElementsByClassName("sourceCode");
-  for (var i = 0; i < codeList.length; i++) {
-    var linkList = codeList[i].getElementsByTagName('a');
-    for (var j = 0; j < linkList.length; j++) {
-      if (linkList[j].innerHTML === "") {
-        linkList[j].setAttribute('aria-hidden', 'true');
-      }
-    }
-  }
-});
-</script>
 
 
 <style type="text/css">code{white-space: pre;}</style>
@@ -331,70 +315,70 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(torch)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">library</span>(torch)</span></code></pre></div>
 <p>In this article we describe the indexing operator for torch tensors and how it compares to the R indexing operator for arrays.</p>
 <p>Torch’s indexing semantics are closer to numpy’s semantics than R’s. You will find a lot of similarities between this article and the <code>numpy</code> indexing article available <a href="https://docs.scipy.org/doc/numpy-1.10.0/user/basics.indexing.html">here</a>.</p>
 <div id="single-element-indexing" class="section level2">
 <h2>Single element indexing</h2>
 <p>Single element indexing for a 1-D tensors works mostly as expected. Like R, it is 1-based. Unlike R though, it accepts negative indices for indexing from the end of the array. (In R, negative indices are used to remove elements.)</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>)</span>
-<span id="cb2-2"><a href="#cb2-2"></a>x[<span class="dv">1</span>]</span>
-<span id="cb2-3"><a href="#cb2-3"></a>x[<span class="op">-</span><span class="dv">1</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a>x &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>x[<span class="dv">1</span>]</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>x[<span class="op">-</span><span class="dv">1</span>]</span></code></pre></div>
 <p>You can also subset matrices and higher dimensions arrays using the same syntax:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>x &lt;-<span class="st"> </span>x<span class="op">$</span><span class="kw">reshape</span>(<span class="dt">shape =</span> <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">5</span>))</span>
-<span id="cb3-2"><a href="#cb3-2"></a>x</span>
-<span id="cb3-3"><a href="#cb3-3"></a>x[<span class="dv">1</span>,<span class="dv">3</span>]</span>
-<span id="cb3-4"><a href="#cb3-4"></a>x[<span class="dv">1</span>,<span class="op">-</span><span class="dv">1</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>x &lt;-<span class="st"> </span>x<span class="op">$</span><span class="kw">reshape</span>(<span class="dt">shape =</span> <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">5</span>))</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>x</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>x[<span class="dv">1</span>,<span class="dv">3</span>]</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>x[<span class="dv">1</span>,<span class="op">-</span><span class="dv">1</span>]</span></code></pre></div>
 <p>Note that if one indexes a multidimensional tensor with fewer indices than dimensions, one gets an error, unlike in R that would flatten the array. For example:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>x[<span class="dv">1</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a>x[<span class="dv">1</span>]</span></code></pre></div>
 </div>
 <div id="slicing-and-striding" class="section level2">
 <h2>Slicing and striding</h2>
 <p>It is possible to slice and stride arrays to extract sub-arrays of the same number of dimensions, but of different sizes than the original. This is best illustrated by a few examples:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>)</span>
-<span id="cb5-2"><a href="#cb5-2"></a>x</span>
-<span id="cb5-3"><a href="#cb5-3"></a>x[<span class="dv">2</span><span class="op">:</span><span class="dv">5</span>]</span>
-<span id="cb5-4"><a href="#cb5-4"></a>x[<span class="dv">1</span><span class="op">:</span>(<span class="op">-</span><span class="dv">7</span>)]</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>x &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>x</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>x[<span class="dv">2</span><span class="op">:</span><span class="dv">5</span>]</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>x[<span class="dv">1</span><span class="op">:</span>(<span class="op">-</span><span class="dv">7</span>)]</span></code></pre></div>
 <p>You can also use the <code>1:10:2</code> syntax which means: In the range from 1 to 10, take every second item. For example:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>x[<span class="dv">1</span><span class="op">:</span><span class="dv">5</span><span class="op">:</span><span class="dv">2</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a>x[<span class="dv">1</span><span class="op">:</span><span class="dv">5</span><span class="op">:</span><span class="dv">2</span>]</span></code></pre></div>
 <p>Another special syntax is the <code>N</code>, meaning the size of the specified dimension.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>x[<span class="dv">5</span><span class="op">:</span>N]</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a>x[<span class="dv">5</span><span class="op">:</span>N]</span></code></pre></div>
 </div>
 <div id="getting-the-complete-dimension" class="section level2">
 <h2>Getting the complete dimension</h2>
 <p>Like in R, you can take all elements in a dimension by leaving an index empty.</p>
 <p>Consider a matrix:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_randn</span>(<span class="dv">2</span>, <span class="dv">3</span>)</span>
-<span id="cb8-2"><a href="#cb8-2"></a>x</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a>x &lt;-<span class="st"> </span><span class="kw">torch_randn</span>(<span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>x</span></code></pre></div>
 <p>The following syntax will give you the first row:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>x[<span class="dv">1</span>,]</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a>x[<span class="dv">1</span>,]</span></code></pre></div>
 <p>And this would give you the first 2 columns:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>x[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a>x[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]</span></code></pre></div>
 </div>
 <div id="dropping-dimensions" class="section level2">
 <h2>Dropping dimensions</h2>
 <p>By default, when indexing by a single integer, this dimension will be dropped to avoid the singleton dimension:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_randn</span>(<span class="dv">2</span>, <span class="dv">3</span>)</span>
-<span id="cb11-2"><a href="#cb11-2"></a>x[<span class="dv">1</span>,]<span class="op">$</span>shape</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a>x &lt;-<span class="st"> </span><span class="kw">torch_randn</span>(<span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>x[<span class="dv">1</span>,]<span class="op">$</span>shape</span></code></pre></div>
 <p>You can optionally use the <code>drop = FALSE</code> argument to avoid dropping the dimension.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>x[<span class="dv">1</span>,,drop =<span class="st"> </span><span class="ot">FALSE</span>]<span class="op">$</span>shape</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a>x[<span class="dv">1</span>,,drop =<span class="st"> </span><span class="ot">FALSE</span>]<span class="op">$</span>shape</span></code></pre></div>
 </div>
 <div id="adding-a-new-dimension" class="section level2">
 <h2>Adding a new dimension</h2>
 <p>It’s possible to add a new dimension to a tensor using index-like syntax:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="kw">c</span>(<span class="dv">10</span>))</span>
-<span id="cb13-2"><a href="#cb13-2"></a>x<span class="op">$</span>shape</span>
-<span id="cb13-3"><a href="#cb13-3"></a>x[, newaxis]<span class="op">$</span>shape</span>
-<span id="cb13-4"><a href="#cb13-4"></a>x[, newaxis, newaxis]<span class="op">$</span>shape</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a>x &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="kw">c</span>(<span class="dv">10</span>))</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>x<span class="op">$</span>shape</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>x[, newaxis]<span class="op">$</span>shape</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a>x[, newaxis, newaxis]<span class="op">$</span>shape</span></code></pre></div>
 <p>You can also use <code>NULL</code> instead of <code>newaxis</code>:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>x[,<span class="ot">NULL</span>]<span class="op">$</span>shape</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a>x[,<span class="ot">NULL</span>]<span class="op">$</span>shape</span></code></pre></div>
 </div>
 <div id="dealing-with-variable-number-of-indices" class="section level2">
 <h2>Dealing with variable number of indices</h2>
 <p>Sometimes we don’t know how many dimensions a tensor has, but we do know what to do with the last available dimension, or the first one. To subsume all others, we can use <code>..</code>:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>z &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">125</span>)<span class="op">$</span><span class="kw">reshape</span>(<span class="kw">c</span>(<span class="dv">5</span>,<span class="dv">5</span>,<span class="dv">5</span>))</span>
-<span id="cb15-2"><a href="#cb15-2"></a>z[<span class="dv">1</span>,..]</span>
-<span id="cb15-3"><a href="#cb15-3"></a>z[..,<span class="dv">1</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a>z &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">125</span>)<span class="op">$</span><span class="kw">reshape</span>(<span class="kw">c</span>(<span class="dv">5</span>,<span class="dv">5</span>,<span class="dv">5</span>))</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>z[<span class="dv">1</span>,..]</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>z[..,<span class="dv">1</span>]</span></code></pre></div>
 </div>
 
 

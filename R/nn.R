@@ -14,7 +14,7 @@ nn_Module <- R6::R6Class(
     add_module = function(name, module) {
       
       if (is.numeric(name))
-        name <- paste0("m", name)
+        name <- as.character(name)
       
       private$modules_[[name]] <- module
     },
@@ -246,7 +246,7 @@ is_nn_buffer <- function(x) {
 }
 
 is_nn_module <- function(x) {
-  inherits(x, "nn_module")
+  inherits(x, "nn_module") && !inherits(x, "nn_module_generator")
 }
 
 #' Base class for all neural network modules.
@@ -259,6 +259,7 @@ is_nn_module <- function(x) {
 #' @param classname an optional name for the module
 #' @param inherit an optional module to inherit from
 #' @param ... methods implementation 
+#' @param parent_env passed to [R6::R6Class()].
 #' 
 #' @examples 
 #' model <- nn_module(
@@ -276,10 +277,14 @@ is_nn_module <- function(x) {
 #' )
 #' 
 #' @export
-nn_module <- function(classname = NULL, inherit = nn_Module, ...) {
+nn_module <- function(classname = NULL, inherit = nn_Module, ..., 
+                      parent_env = parent.frame()) {
   
   if (inherits(inherit, "nn_module"))
     inherit <- attr(inherit, "module")
+  
+  e <- new.env(parent = parent_env)
+  e$inherit <- inherit
     
   classes <- c(classname, "nn_module")
   
@@ -290,7 +295,8 @@ nn_module <- function(classname = NULL, inherit = nn_Module, ...) {
     public = list(
       .classes = classes,
       ...
-    )
+    ),
+    parent_env = e
   )
   
   init <- get_init(Module)
@@ -302,7 +308,7 @@ nn_module <- function(classname = NULL, inherit = nn_Module, ...) {
       create_nn_module_callable(instance)
     })
   )
-  attr(fun, "class") <- classes
+  attr(fun, "class") <- c(classes, "nn_module_generator")
   attr(fun, "module") <- Module
   fun
 }
@@ -420,9 +426,9 @@ nn_sequential <- function(... , name = NULL) {
   module <- nn_module(
     classname = ifelse(is.null(name), "nn_sequential", name),
     initialize = function(...) {
-      modules <- list(...)
+      modules <- rlang::list2(...)
       for (i in seq_along(modules)) {
-        self$add_module(name = i, module = modules[[i]])  
+        self$add_module(name = i - 1, module = modules[[i]])  
       }
     },
     forward = function(input) {

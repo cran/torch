@@ -39,13 +39,37 @@ test_that("Numeric tensors", {
 test_that("Integer tensors", {
   
   x <- 1:4
-  expect_equal_to_r(torch_tensor(x), x)
+  expect_equal_to_r(torch_tensor(x)$to(dtype = torch_int()), x)
+  
+  x <- matrix(c(1:4), ncol = 2)
+  expect_equal_to_r(torch_tensor(x)$to(dtype = torch_int()), x)
+  
+  x <- array(c(1:8), dim = c(2,2,2))
+  expect_equal_to_r(torch_tensor(x)$to(dtype = torch_int()), x)
+  
+  x <- 1:5
+  expect_equal_to_r(torch_tensor(1:5), x)
   
   x <- matrix(c(1:4), ncol = 2)
   expect_equal_to_r(torch_tensor(x), x)
   
   x <- array(c(1:8), dim = c(2,2,2))
   expect_equal_to_r(torch_tensor(x), x)
+  
+  x <- 1:5
+  expect_equal_to_r(torch_tensor(bit64::as.integer64(x)), x)
+  
+  x <- array(c(1:8), dim = c(2,2,2))
+  o <- as.integer64(torch_tensor(x))
+  expect_s3_class(o, "integer64")
+  expect_s3_class(o, "array")
+  expect_equal(dim(o), dim(x))
+  
+  x <- as.integer64(.Machine$integer)*2
+  y <- torch_tensor(x)
+  z <- as.integer64(y)
+  
+  expect_equal(as.integer64(z), x)
   
 })
 

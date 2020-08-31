@@ -222,10 +222,7 @@ install_type <- function(version) {
 #' 
 #' @export
 install_torch <- function(version = "1.5.0", type = install_type(version = version), reinstall = FALSE,
-                          path = NULL, ...) {
-  
-  if (is.null(path))
-    stop("Please provide an installation path. We suggest setting Sys.setenv(TORCH_HOME=torch::insall_path())")
+                          path = install_path(), ...) {
   
   if (reinstall) {
     unlink(path, recursive = TRUE)

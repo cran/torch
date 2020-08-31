@@ -67,6 +67,16 @@ nnf_kl_div <- function(input, target, reduction = "mean") {
 #' @export
 nnf_mse_loss <- function(input, target, reduction = "mean") {
   
+  if (!all(target$shape == input$shape)) {
+    
+    target_shape <- paste0("(", paste(target$shape, collapse = ","), ")")
+    input_shape <- paste0("(", paste(input$shape, collapse = ","), ")")
+    
+    warn("Using a target size {target_shape} that is different to the input size {input_shape}. ",
+         "This will likely lead to incorrect results due to broadcasting. ",
+         "Please ensure they have the same size.")
+  }
+  
   if (target$requires_grad) {
     ret <- (input - target) ^ 2
     if (!is.null(reduction)) {
@@ -406,6 +416,7 @@ nnf_nll_loss <- function(input, target, weight = NULL, ignore_index = -100,
 #' @export
 nnf_cross_entropy <- function(input, target, weight=NULL, ignore_index=-100, 
                               reduction=c("mean", "sum", "none")) {
+  reduction <- match.arg(reduction)
   torch_nll_loss(self = torch_log_softmax(input, 1), target = target, weight = weight, 
                  reduction = reduction_enum(reduction), ignore_index = ignore_index)
 }
@@ -427,6 +438,7 @@ nnf_cross_entropy <- function(input, target, weight=NULL, ignore_index=-100,
 nnf_binary_cross_entropy_with_logits <- function(input, target, weight = NULL, 
                                                  reduction = c("mean", "sum", "none"), 
                                                  pos_weight = NULL) {
+  reduction <- match.arg(reduction)
   torch_binary_cross_entropy_with_logits(input, target, weight, pos_weight, 
                                          reduction_enum(reduction))
 }
