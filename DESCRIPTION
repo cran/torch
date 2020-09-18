@@ -1,7 +1,7 @@
 Package: torch
 Type: Package
 Title: Tensors and Neural Networks with 'GPU' Acceleration
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: c(
     person("Daniel", "Falbel", email = "daniel@rstudio.com", role = c("aut", "cre", "cph")),
     person("Javier", "Luraschi", email = "javier@rstudio.com", role = c("aut", "cph")),
@@ -20,9 +20,10 @@ Encoding: UTF-8
 LazyData: true
 SystemRequirements: C++11, LibTorch (https://pytorch.org/)
 LinkingTo: Rcpp
-Imports: Rcpp, R6, withr, rlang, methods, utils, stats, bit64
+Imports: Rcpp, R6, withr, rlang, methods, utils, stats, bit64, magrittr
 RoxygenNote: 7.1.1
-Suggests: testthat (>= 2.1.0), covr, knitr, rmarkdown, magrittr, glue
+Suggests: testthat (>= 2.1.0), covr, knitr, rmarkdown, glue,
+        palmerpenguins
 VignetteBuilder: knitr
 Collate: 'R7.R' 'RcppExports.R' 'tensor.R' 'autograd.R' 'backends.R'
         'codegen-utils.R' 'conditions.R' 'creation-ops.R' 'cuda.R'
@@ -44,10 +45,10 @@ Collate: 'R7.R' 'RcppExports.R' 'tensor.R' 'autograd.R' 'backends.R'
         'tensor_list.R' 'tensor_options.R' 'type-info.R'
         'utils-data-collate.R' 'utils-data-dataloader.R'
         'utils-data-enum.R' 'utils-data-fetcher.R'
-        'utils-data-sampler.R' 'utils.R' 'variable_list.R'
-        'with-indices.R' 'wrapers.R'
+        'utils-data-sampler.R' 'utils-pipe.R' 'utils.R'
+        'variable_list.R' 'with-indices.R' 'wrapers.R'
 NeedsCompilation: yes
-Packaged: 2020-08-29 15:28:15 UTC; dfalbel
+Packaged: 2020-09-17 21:56:47 UTC; dfalbel
 Author: Daniel Falbel [aut, cre, cph],
   Javier Luraschi [aut, cph],
   Dmitriy Selivanov [ctb],
@@ -55,4 +56,4 @@ Author: Daniel Falbel [aut, cre, cph],
   RStudio [cph]
 Maintainer: Daniel Falbel <daniel@rstudio.com>
 Repository: CRAN
-Date/Publication: 2020-08-31 07:00:02 UTC
+Date/Publication: 2020-09-18 08:10:03 UTC

@@ -27,6 +27,22 @@ document.addEventListener('DOMContentLoaded', function(e) {
   }
 });
 </script>
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
 
 
 <style type="text/css">code{white-space: pre;}</style>
@@ -315,25 +331,25 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">library</span>(torch)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(torch)</span></code></pre></div>
 <div id="datasets-and-data-loaders" class="section level2">
 <h2>Datasets and data loaders</h2>
 <p>Central to data ingestion and preprocessing are datasets and data loaders.</p>
 <p><code>torch</code> comes equipped with a bag of datasets related to, mostly, image recognition and natural language processing (e.g., <code>mnist_dataset()</code>), which can be iterated over by means of <code>dataloader</code>s:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="co"># ...</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>ds &lt;-<span class="st"> </span><span class="kw">mnist_dataset</span>(</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>  dir, </span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>  <span class="dt">download =</span> <span class="ot">TRUE</span>, </span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>  <span class="dt">transform =</span> <span class="cf">function</span>(x) {</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>    x &lt;-<span class="st"> </span>x<span class="op">$</span><span class="kw">to</span>(<span class="dt">dtype =</span> <span class="kw">torch_float</span>())<span class="op">/</span><span class="dv">256</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>    x[newaxis,..]</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>  }</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>dl &lt;-<span class="st"> </span><span class="kw">dataloader</span>(ds, <span class="dt">batch_size =</span> <span class="dv">32</span>, <span class="dt">shuffle =</span> <span class="ot">TRUE</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a><span class="cf">for</span> (b <span class="cf">in</span> <span class="kw">enumerate</span>(dl)) {</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>  <span class="co"># ...</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># ...</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>ds &lt;-<span class="st"> </span><span class="kw">mnist_dataset</span>(</span>
+<span id="cb2-3"><a href="#cb2-3"></a>  dir, </span>
+<span id="cb2-4"><a href="#cb2-4"></a>  <span class="dt">download =</span> <span class="ot">TRUE</span>, </span>
+<span id="cb2-5"><a href="#cb2-5"></a>  <span class="dt">transform =</span> <span class="cf">function</span>(x) {</span>
+<span id="cb2-6"><a href="#cb2-6"></a>    x &lt;-<span class="st"> </span>x<span class="op">$</span><span class="kw">to</span>(<span class="dt">dtype =</span> <span class="kw">torch_float</span>())<span class="op">/</span><span class="dv">256</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>    x[newaxis,..]</span>
+<span id="cb2-8"><a href="#cb2-8"></a>  }</span>
+<span id="cb2-9"><a href="#cb2-9"></a>)</span>
+<span id="cb2-10"><a href="#cb2-10"></a></span>
+<span id="cb2-11"><a href="#cb2-11"></a>dl &lt;-<span class="st"> </span><span class="kw">dataloader</span>(ds, <span class="dt">batch_size =</span> <span class="dv">32</span>, <span class="dt">shuffle =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb2-12"><a href="#cb2-12"></a></span>
+<span id="cb2-13"><a href="#cb2-13"></a><span class="cf">for</span> (b <span class="cf">in</span> <span class="kw">enumerate</span>(dl)) {</span>
+<span id="cb2-14"><a href="#cb2-14"></a>  <span class="co"># ...</span></span></code></pre></div>
 <p>Cf. <code>vignettes/examples/mnist-cnn.R</code> for a complete example.</p>
 <p>What if you want to train on a different dataset? In these cases, you subclass <code>Dataset</code>, an abstract container that needs to know how to iterate over the given data. To that purpose, your subclass needs to implement <code>.getitem()</code>, and say what should be returned when the data loader is asking for the next batch.</p>
 <p>In <code>.getitem()</code>, you can implement whatever preprocessing you require. Additionally, you should implement <code>.length()</code>, so users can find out how many items there are in the dataset.</p>
@@ -341,97 +357,97 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="a-custom-dataset" class="section level2">
 <h2>A custom dataset</h2>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">library</span>(palmerpenguins)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="kw">library</span>(magrittr)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>penguins</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">library</span>(palmerpenguins)</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="kw">library</span>(magrittr)</span>
+<span id="cb3-3"><a href="#cb3-3"></a></span>
+<span id="cb3-4"><a href="#cb3-4"></a>penguins</span></code></pre></div>
 <p><code>Dataset</code>s are R6 classes created using the <code>dataset()</code> constructor. You can pass a <code>name</code> and various member functions. Among those should be <code>initialize()</code>, to create instance variables, <code>.getitem()</code>, to indicate how the data should be returned, and <code>.length()</code>, to say how many items we have.</p>
 <p>In addition, any number of helper functions can be defined.</p>
 <p>Here, we assume the <code>penguins</code> have already been loaded, and all preprocessing consists in removing lines with <code>NA</code> values, transforming <code>factor</code>s to numbers starting from 0, and converting from R data types to <code>torch</code> tensors.</p>
 <p>In <code>.getitem</code>, we essentially decide how this data is going to be used: All variables besides <code>species</code> go into <code>x</code>, the predictor, and <code>species</code> will constitute <code>y</code>, the target. Predictor and target are returned in a list, to be accessed as <code>batch[[1]]</code> and <code>batch[[2]]</code> during training.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a>penguins_dataset &lt;-<span class="st"> </span><span class="kw">dataset</span>(</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>  </span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>  <span class="dt">name =</span> <span class="st">&quot;penguins_dataset&quot;</span>,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>  </span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>  <span class="dt">initialize =</span> <span class="cf">function</span>() {</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>    self<span class="op">$</span>data &lt;-<span class="st"> </span>self<span class="op">$</span><span class="kw">prepare_penguin_data</span>()</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>  },</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a>  </span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a>  <span class="dt">.getitem =</span> <span class="cf">function</span>(index) {</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a>    </span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a>    x &lt;-<span class="st"> </span>self<span class="op">$</span>data[index, <span class="dv">2</span><span class="op">:-</span><span class="dv">1</span>]</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a>    y &lt;-<span class="st"> </span>self<span class="op">$</span>data[index, <span class="dv">1</span>]<span class="op">$</span><span class="kw">to</span>(<span class="kw">torch_long</span>())</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a>    </span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true"></a>    <span class="kw">list</span>(x, y)</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true"></a>  },</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true"></a>  </span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true"></a>  <span class="dt">.length =</span> <span class="cf">function</span>() {</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true"></a>    self<span class="op">$</span>data<span class="op">$</span><span class="kw">size</span>()[[<span class="dv">1</span>]]</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true"></a>  },</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true"></a>  </span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true"></a>  <span class="dt">prepare_penguin_data =</span> <span class="cf">function</span>() {</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true"></a>    </span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true"></a>    input &lt;-<span class="st"> </span><span class="kw">na.omit</span>(penguins) </span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true"></a>    <span class="co"># conveniently, the categorical data are already factors</span></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true"></a>    input<span class="op">$</span>species &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(input<span class="op">$</span>species)</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true"></a>    input<span class="op">$</span>island &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(input<span class="op">$</span>island)</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true"></a>    input<span class="op">$</span>sex &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(input<span class="op">$</span>sex)</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true"></a>    </span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true"></a>    input &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(input)</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true"></a>    <span class="kw">torch_tensor</span>(input)</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true"></a>  }</span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>penguins_dataset &lt;-<span class="st"> </span><span class="kw">dataset</span>(</span>
+<span id="cb4-2"><a href="#cb4-2"></a>  </span>
+<span id="cb4-3"><a href="#cb4-3"></a>  <span class="dt">name =</span> <span class="st">&quot;penguins_dataset&quot;</span>,</span>
+<span id="cb4-4"><a href="#cb4-4"></a>  </span>
+<span id="cb4-5"><a href="#cb4-5"></a>  <span class="dt">initialize =</span> <span class="cf">function</span>() {</span>
+<span id="cb4-6"><a href="#cb4-6"></a>    self<span class="op">$</span>data &lt;-<span class="st"> </span>self<span class="op">$</span><span class="kw">prepare_penguin_data</span>()</span>
+<span id="cb4-7"><a href="#cb4-7"></a>  },</span>
+<span id="cb4-8"><a href="#cb4-8"></a>  </span>
+<span id="cb4-9"><a href="#cb4-9"></a>  <span class="dt">.getitem =</span> <span class="cf">function</span>(index) {</span>
+<span id="cb4-10"><a href="#cb4-10"></a>    </span>
+<span id="cb4-11"><a href="#cb4-11"></a>    x &lt;-<span class="st"> </span>self<span class="op">$</span>data[index, <span class="dv">2</span><span class="op">:-</span><span class="dv">1</span>]</span>
+<span id="cb4-12"><a href="#cb4-12"></a>    y &lt;-<span class="st"> </span>self<span class="op">$</span>data[index, <span class="dv">1</span>]<span class="op">$</span><span class="kw">to</span>(<span class="kw">torch_long</span>())</span>
+<span id="cb4-13"><a href="#cb4-13"></a>    </span>
+<span id="cb4-14"><a href="#cb4-14"></a>    <span class="kw">list</span>(x, y)</span>
+<span id="cb4-15"><a href="#cb4-15"></a>  },</span>
+<span id="cb4-16"><a href="#cb4-16"></a>  </span>
+<span id="cb4-17"><a href="#cb4-17"></a>  <span class="dt">.length =</span> <span class="cf">function</span>() {</span>
+<span id="cb4-18"><a href="#cb4-18"></a>    self<span class="op">$</span>data<span class="op">$</span><span class="kw">size</span>()[[<span class="dv">1</span>]]</span>
+<span id="cb4-19"><a href="#cb4-19"></a>  },</span>
+<span id="cb4-20"><a href="#cb4-20"></a>  </span>
+<span id="cb4-21"><a href="#cb4-21"></a>  <span class="dt">prepare_penguin_data =</span> <span class="cf">function</span>() {</span>
+<span id="cb4-22"><a href="#cb4-22"></a>    </span>
+<span id="cb4-23"><a href="#cb4-23"></a>    input &lt;-<span class="st"> </span><span class="kw">na.omit</span>(penguins) </span>
+<span id="cb4-24"><a href="#cb4-24"></a>    <span class="co"># conveniently, the categorical data are already factors</span></span>
+<span id="cb4-25"><a href="#cb4-25"></a>    input<span class="op">$</span>species &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(input<span class="op">$</span>species)</span>
+<span id="cb4-26"><a href="#cb4-26"></a>    input<span class="op">$</span>island &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(input<span class="op">$</span>island)</span>
+<span id="cb4-27"><a href="#cb4-27"></a>    input<span class="op">$</span>sex &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(input<span class="op">$</span>sex)</span>
+<span id="cb4-28"><a href="#cb4-28"></a>    </span>
+<span id="cb4-29"><a href="#cb4-29"></a>    input &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(input)</span>
+<span id="cb4-30"><a href="#cb4-30"></a>    <span class="kw">torch_tensor</span>(input)</span>
+<span id="cb4-31"><a href="#cb4-31"></a>  }</span>
+<span id="cb4-32"><a href="#cb4-32"></a>)</span></code></pre></div>
 <p>Let’s create the dataset , query for it’s length, and look at its first item:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>tuxes &lt;-<span class="st"> </span><span class="kw">penguins_dataset</span>()</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>tuxes<span class="op">$</span><span class="kw">.length</span>()</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>tuxes<span class="op">$</span><span class="kw">.getitem</span>(<span class="dv">1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>tuxes &lt;-<span class="st"> </span><span class="kw">penguins_dataset</span>()</span>
+<span id="cb5-2"><a href="#cb5-2"></a>tuxes<span class="op">$</span><span class="kw">.length</span>()</span>
+<span id="cb5-3"><a href="#cb5-3"></a>tuxes<span class="op">$</span><span class="kw">.getitem</span>(<span class="dv">1</span>)</span></code></pre></div>
 <p>To be able to iterate over <code>tuxes</code>, we need a data loader (we override the default batch size of <code>1</code>):</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a>dl &lt;-tuxes <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">dataloader</span>(<span class="dt">batch_size =</span> <span class="dv">8</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>dl &lt;-tuxes <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">dataloader</span>(<span class="dt">batch_size =</span> <span class="dv">8</span>)</span></code></pre></div>
 <p>Calling <code>.length()</code> on a data loader (as opposed to a dataset) will return the number of <code>batches</code> we have:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a>dl<span class="op">$</span><span class="kw">.length</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>dl<span class="op">$</span><span class="kw">.length</span>()</span></code></pre></div>
 <p>And we can create an iterator to inspect the first batch:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a>iter &lt;-<span class="st"> </span>dl<span class="op">$</span><span class="kw">.iter</span>()</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>b &lt;-<span class="st"> </span>iter<span class="op">$</span><span class="kw">.next</span>()</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>b</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>iter &lt;-<span class="st"> </span>dl<span class="op">$</span><span class="kw">.iter</span>()</span>
+<span id="cb8-2"><a href="#cb8-2"></a>b &lt;-<span class="st"> </span>iter<span class="op">$</span><span class="kw">.next</span>()</span>
+<span id="cb8-3"><a href="#cb8-3"></a>b</span></code></pre></div>
 <p>To train a network, we can use <code>enumerate</code> to iterate over batches.</p>
 </div>
 <div id="training-with-data-loaders" class="section level2">
 <h2>Training with data loaders</h2>
 <p>Our example network is very simple. (In reality, we would want to treat <code>island</code> as the categorical variable it is, and either one-hot-encode or embed it.)</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a>net &lt;-<span class="st"> </span><span class="kw">nn_module</span>(</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>  <span class="st">&quot;PenguinNet&quot;</span>,</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>  <span class="dt">initialize =</span> <span class="cf">function</span>() {</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>    self<span class="op">$</span>fc1 &lt;-<span class="st"> </span><span class="kw">nn_linear</span>(<span class="dv">6</span>, <span class="dv">32</span>)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>    self<span class="op">$</span>fc2 &lt;-<span class="st"> </span><span class="kw">nn_linear</span>(<span class="dv">32</span>, <span class="dv">3</span>)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a>  },</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a>  <span class="dt">forward =</span> <span class="cf">function</span>(x) {</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a>    x <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a><span class="st">      </span>self<span class="op">$</span><span class="kw">fc1</span>() <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a><span class="st">      </span><span class="kw">nnf_relu</span>() <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true"></a><span class="st">      </span>self<span class="op">$</span><span class="kw">fc2</span>() <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true"></a><span class="st">      </span><span class="kw">nnf_log_softmax</span>(<span class="dt">dim =</span> <span class="dv">1</span>)</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true"></a>  }</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true"></a>)</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true"></a></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true"></a>model &lt;-<span class="st"> </span><span class="kw">net</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>net &lt;-<span class="st"> </span><span class="kw">nn_module</span>(</span>
+<span id="cb9-2"><a href="#cb9-2"></a>  <span class="st">&quot;PenguinNet&quot;</span>,</span>
+<span id="cb9-3"><a href="#cb9-3"></a>  <span class="dt">initialize =</span> <span class="cf">function</span>() {</span>
+<span id="cb9-4"><a href="#cb9-4"></a>    self<span class="op">$</span>fc1 &lt;-<span class="st"> </span><span class="kw">nn_linear</span>(<span class="dv">7</span>, <span class="dv">32</span>)</span>
+<span id="cb9-5"><a href="#cb9-5"></a>    self<span class="op">$</span>fc2 &lt;-<span class="st"> </span><span class="kw">nn_linear</span>(<span class="dv">32</span>, <span class="dv">3</span>)</span>
+<span id="cb9-6"><a href="#cb9-6"></a>  },</span>
+<span id="cb9-7"><a href="#cb9-7"></a>  <span class="dt">forward =</span> <span class="cf">function</span>(x) {</span>
+<span id="cb9-8"><a href="#cb9-8"></a>    x <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb9-9"><a href="#cb9-9"></a><span class="st">      </span>self<span class="op">$</span><span class="kw">fc1</span>() <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb9-10"><a href="#cb9-10"></a><span class="st">      </span><span class="kw">nnf_relu</span>() <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb9-11"><a href="#cb9-11"></a><span class="st">      </span>self<span class="op">$</span><span class="kw">fc2</span>() <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb9-12"><a href="#cb9-12"></a><span class="st">      </span><span class="kw">nnf_log_softmax</span>(<span class="dt">dim =</span> <span class="dv">1</span>)</span>
+<span id="cb9-13"><a href="#cb9-13"></a>  }</span>
+<span id="cb9-14"><a href="#cb9-14"></a>)</span>
+<span id="cb9-15"><a href="#cb9-15"></a></span>
+<span id="cb9-16"><a href="#cb9-16"></a>model &lt;-<span class="st"> </span><span class="kw">net</span>()</span></code></pre></div>
 <p>We still need an optimizer:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a>optimizer &lt;-<span class="st"> </span><span class="kw">optim_sgd</span>(model<span class="op">$</span>parameters, <span class="dt">lr =</span> <span class="fl">0.01</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>optimizer &lt;-<span class="st"> </span><span class="kw">optim_sgd</span>(model<span class="op">$</span>parameters, <span class="dt">lr =</span> <span class="fl">0.01</span>)</span></code></pre></div>
 <p>And we’re ready to train:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="cf">for</span> (epoch <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">10</span>) {</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>  </span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a>  l &lt;-<span class="st"> </span><span class="kw">c</span>()</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a>  </span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true"></a>  <span class="cf">for</span> (b <span class="cf">in</span> <span class="kw">enumerate</span>(dl)) {</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true"></a>    optimizer<span class="op">$</span><span class="kw">zero_grad</span>()</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true"></a>    output &lt;-<span class="st"> </span><span class="kw">model</span>(b[[<span class="dv">1</span>]])</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true"></a>    loss &lt;-<span class="st"> </span><span class="kw">nnf_nll_loss</span>(output, b[[<span class="dv">2</span>]])</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true"></a>    loss<span class="op">$</span><span class="kw">backward</span>()</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true"></a>    optimizer<span class="op">$</span><span class="kw">step</span>()</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true"></a>    l &lt;-<span class="st"> </span><span class="kw">c</span>(l, loss<span class="op">$</span><span class="kw">item</span>())</span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true"></a>  }</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true"></a>  </span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true"></a>  <span class="kw">cat</span>(<span class="kw">sprintf</span>(<span class="st">&quot;Loss at epoch %d: %3f</span><span class="ch">\n</span><span class="st">&quot;</span>, epoch, <span class="kw">mean</span>(l)))</span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="cf">for</span> (epoch <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">10</span>) {</span>
+<span id="cb11-2"><a href="#cb11-2"></a>  </span>
+<span id="cb11-3"><a href="#cb11-3"></a>  l &lt;-<span class="st"> </span><span class="kw">c</span>()</span>
+<span id="cb11-4"><a href="#cb11-4"></a>  </span>
+<span id="cb11-5"><a href="#cb11-5"></a>  <span class="cf">for</span> (b <span class="cf">in</span> <span class="kw">enumerate</span>(dl)) {</span>
+<span id="cb11-6"><a href="#cb11-6"></a>    optimizer<span class="op">$</span><span class="kw">zero_grad</span>()</span>
+<span id="cb11-7"><a href="#cb11-7"></a>    output &lt;-<span class="st"> </span><span class="kw">model</span>(b[[<span class="dv">1</span>]])</span>
+<span id="cb11-8"><a href="#cb11-8"></a>    loss &lt;-<span class="st"> </span><span class="kw">nnf_nll_loss</span>(output, b[[<span class="dv">2</span>]])</span>
+<span id="cb11-9"><a href="#cb11-9"></a>    loss<span class="op">$</span><span class="kw">backward</span>()</span>
+<span id="cb11-10"><a href="#cb11-10"></a>    optimizer<span class="op">$</span><span class="kw">step</span>()</span>
+<span id="cb11-11"><a href="#cb11-11"></a>    l &lt;-<span class="st"> </span><span class="kw">c</span>(l, loss<span class="op">$</span><span class="kw">item</span>())</span>
+<span id="cb11-12"><a href="#cb11-12"></a>  }</span>
+<span id="cb11-13"><a href="#cb11-13"></a>  </span>
+<span id="cb11-14"><a href="#cb11-14"></a>  <span class="kw">cat</span>(<span class="kw">sprintf</span>(<span class="st">&quot;Loss at epoch %d: %3f</span><span class="ch">\n</span><span class="st">&quot;</span>, epoch, <span class="kw">mean</span>(l)))</span>
+<span id="cb11-15"><a href="#cb11-15"></a>}</span></code></pre></div>
 </div>
 
 

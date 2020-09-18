@@ -2,7 +2,7 @@
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = identical(Sys.getenv("TORCH_TEST", unset = 0), 1)
+  eval = identical(Sys.getenv("TORCH_TEST", unset = "0"), "1")
 )
 
 ## ----setup--------------------------------------------------------------------
@@ -86,7 +86,7 @@ knitr::opts_chunk$set(
 #  net <- nn_module(
 #    "PenguinNet",
 #    initialize = function() {
-#      self$fc1 <- nn_linear(6, 32)
+#      self$fc1 <- nn_linear(7, 32)
 #      self$fc2 <- nn_linear(32, 3)
 #    },
 #    forward = function(x) {

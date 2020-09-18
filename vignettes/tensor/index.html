@@ -1,0 +1,3196 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Tensor objects</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Tensor objects</h1>
+
+
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(torch)</span></code></pre></div>
+<p>Central to torch is the <code>torch_tensor</code> objects. <code>torch_tensor</code>’s are R objects very similar to R6 instances. Tensors have a large amount of methods that can be called using the <code>$</code> operator.</p>
+<p>Following is a list of all methods that can be called by tensor objects and their documentation. You can also look at <a href="https://pytorch.org/docs/stable/tensors.html">PyTorch’s documentation</a> for additional details.</p>
+<div id="t" class="section level2">
+<h2>T</h2>
+<p>Is this Tensor with its dimensions reversed.</p>
+<p>If <code>n</code> is the number of dimensions in <code>x</code>, <code>x$T</code> is equivalent to <code>x$permute(n-1, n-2, ..., 0)</code>.</p>
+</div>
+<div id="abs" class="section level2">
+<h2>abs</h2>
+<p>abs() -&gt; Tensor</p>
+<p>See ?torch_abs()</p>
+</div>
+<div id="abs_" class="section level2">
+<h2>abs_</h2>
+<p>abs_() -&gt; Tensor</p>
+<p>In-place version of <code>$abs</code></p>
+</div>
+<div id="absolute" class="section level2">
+<h2>absolute</h2>
+<p>absolute() -&gt; Tensor</p>
+<p>Alias for [$abs()]</p>
+</div>
+<div id="absolute_" class="section level2">
+<h2>absolute_</h2>
+<p>absolute_() -&gt; Tensor</p>
+<p>In-place version of <code>$absolute</code> Alias for [$abs_()]</p>
+</div>
+<div id="acos" class="section level2">
+<h2>acos</h2>
+<p>acos() -&gt; Tensor</p>
+<p>See ?torch_acos()</p>
+</div>
+<div id="acos_" class="section level2">
+<h2>acos_</h2>
+<p>acos_() -&gt; Tensor</p>
+<p>In-place version of <code>$acos</code></p>
+</div>
+<div id="acosh" class="section level2">
+<h2>acosh</h2>
+<p>acosh() -&gt; Tensor</p>
+<p>See ?torch_acosh()</p>
+</div>
+<div id="acosh_" class="section level2">
+<h2>acosh_</h2>
+<p>acosh_() -&gt; Tensor</p>
+<p>In-place version of <code>$acosh</code></p>
+</div>
+<div id="add" class="section level2">
+<h2>add</h2>
+<p>add(other, *, alpha=1) -&gt; Tensor</p>
+<p>Add a scalar or tensor to <code>self</code> tensor. If both <code>alpha</code> and <code>other</code> are specified, each element of <code>other</code> is scaled by <code>alpha</code> before being used.</p>
+<p>When <code>other</code> is a tensor, the shape of <code>other</code> must be broadcastable with the shape of the underlying tensor</p>
+<p>See ?torch_add()</p>
+</div>
+<div id="add_" class="section level2">
+<h2>add_</h2>
+<p>add_(other, *, alpha=1) -&gt; Tensor</p>
+<p>In-place version of <code>$add</code></p>
+</div>
+<div id="addbmm" class="section level2">
+<h2>addbmm</h2>
+<p>addbmm(batch1, batch2, *, beta=1, alpha=1) -&gt; Tensor</p>
+<p>See ?torch_addbmm()</p>
+</div>
+<div id="addbmm_" class="section level2">
+<h2>addbmm_</h2>
+<p>addbmm_(batch1, batch2, *, beta=1, alpha=1) -&gt; Tensor</p>
+<p>In-place version of <code>$addbmm</code></p>
+</div>
+<div id="addcdiv" class="section level2">
+<h2>addcdiv</h2>
+<p>addcdiv(tensor1, tensor2, *, value=1) -&gt; Tensor</p>
+<p>See ?torch_addcdiv()</p>
+</div>
+<div id="addcdiv_" class="section level2">
+<h2>addcdiv_</h2>
+<p>addcdiv_(tensor1, tensor2, *, value=1) -&gt; Tensor</p>
+<p>In-place version of <code>$addcdiv</code></p>
+</div>
+<div id="addcmul" class="section level2">
+<h2>addcmul</h2>
+<p>addcmul(tensor1, tensor2, *, value=1) -&gt; Tensor</p>
+<p>See ?torch_addcmul()</p>
+</div>
+<div id="addcmul_" class="section level2">
+<h2>addcmul_</h2>
+<p>addcmul_(tensor1, tensor2, *, value=1) -&gt; Tensor</p>
+<p>In-place version of <code>$addcmul</code></p>
+</div>
+<div id="addmm" class="section level2">
+<h2>addmm</h2>
+<p>addmm(mat1, mat2, *, beta=1, alpha=1) -&gt; Tensor</p>
+<p>See ?torch_addmm()</p>
+</div>
+<div id="addmm_" class="section level2">
+<h2>addmm_</h2>
+<p>addmm_(mat1, mat2, *, beta=1, alpha=1) -&gt; Tensor</p>
+<p>In-place version of <code>$addmm</code></p>
+</div>
+<div id="addmv" class="section level2">
+<h2>addmv</h2>
+<p>addmv(mat, vec, *, beta=1, alpha=1) -&gt; Tensor</p>
+<p>See ?torch_addmv()</p>
+</div>
+<div id="addmv_" class="section level2">
+<h2>addmv_</h2>
+<p>addmv_(mat, vec, *, beta=1, alpha=1) -&gt; Tensor</p>
+<p>In-place version of <code>$addmv</code></p>
+</div>
+<div id="addr" class="section level2">
+<h2>addr</h2>
+<p>addr(vec1, vec2, *, beta=1, alpha=1) -&gt; Tensor</p>
+<p>See ?torch_addr()</p>
+</div>
+<div id="addr_" class="section level2">
+<h2>addr_</h2>
+<p>addr_(vec1, vec2, *, beta=1, alpha=1) -&gt; Tensor</p>
+<p>In-place version of <code>$addr</code></p>
+</div>
+<div id="align_as" class="section level2">
+<h2>align_as</h2>
+<p>align_as(other) -&gt; Tensor</p>
+<p>Permutes the dimensions of the <code>self</code> tensor to match the dimension order in the <code>other</code> tensor, adding size-one dims for any new names.</p>
+<p>This operation is useful for explicit broadcasting by names (see examples).</p>
+<p>All of the dims of <code>self</code> must be named in order to use this method. The resulting tensor is a view on the original tensor.</p>
+<p>All dimension names of <code>self</code> must be present in <code>other$names</code>. <code>other</code> may contain named dimensions that are not in <code>self$names</code>; the output tensor has a size-one dimension for each of those new names.</p>
+<p>To align a tensor to a specific order, use <code>$align_to</code>.</p>
+<div id="examples" class="section level3">
+<h3>Examples:</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Example 1: Applying a mask</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>mask &lt;-<span class="st"> </span><span class="kw">torch_randint</span>(<span class="dt">low =</span> <span class="dv">0</span>, <span class="dt">high =</span> <span class="dv">2</span>, <span class="dt">size =</span> <span class="kw">c</span>(<span class="dv">127</span>, <span class="dv">128</span>), <span class="dt">dtype=</span><span class="kw">torch_bool</span>())<span class="op">$</span><span class="kw">refine_names</span>(<span class="kw">c</span>(<span class="st">&#39;W&#39;</span>, <span class="st">&#39;H&#39;</span>))</span>
+<span id="cb2-3"><a href="#cb2-3"></a>imgs &lt;-<span class="st"> </span><span class="kw">torch_randn</span>(<span class="dv">32</span>, <span class="dv">128</span>, <span class="dv">127</span>, <span class="dv">3</span>, <span class="dt">names=</span><span class="kw">c</span>(<span class="st">&#39;N&#39;</span>, <span class="st">&#39;H&#39;</span>, <span class="st">&#39;W&#39;</span>, <span class="st">&#39;C&#39;</span>))</span>
+<span id="cb2-4"><a href="#cb2-4"></a>imgs<span class="op">$</span><span class="kw">masked_fill_</span>(mask<span class="op">$</span><span class="kw">align_as</span>(imgs), <span class="dv">0</span>)</span>
+<span id="cb2-5"><a href="#cb2-5"></a></span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="co"># Example 2: Applying a per-channel-scale</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>scale_channels &lt;-<span class="st"> </span><span class="cf">function</span>(input, scale) {</span>
+<span id="cb2-8"><a href="#cb2-8"></a>  scale &lt;-<span class="st"> </span>scale<span class="op">$</span><span class="kw">refine_names</span>(<span class="st">&quot;C&quot;</span>)</span>
+<span id="cb2-9"><a href="#cb2-9"></a>  input <span class="op">*</span><span class="st"> </span>scale<span class="op">$</span><span class="kw">align_as</span>(input)</span>
+<span id="cb2-10"><a href="#cb2-10"></a>}</span>
+<span id="cb2-11"><a href="#cb2-11"></a></span>
+<span id="cb2-12"><a href="#cb2-12"></a>num_channels &lt;-<span class="st"> </span><span class="dv">3</span></span>
+<span id="cb2-13"><a href="#cb2-13"></a>scale &lt;-<span class="st"> </span><span class="kw">torch_randn</span>(num_channels, <span class="dt">names=</span><span class="st">&#39;C&#39;</span>)</span>
+<span id="cb2-14"><a href="#cb2-14"></a>imgs &lt;-<span class="st"> </span><span class="kw">torch_rand</span>(<span class="dv">32</span>, <span class="dv">128</span>, <span class="dv">128</span>, num_channels, <span class="dt">names=</span><span class="kw">c</span>(<span class="st">&#39;N&#39;</span>, <span class="st">&#39;H&#39;</span>, <span class="st">&#39;W&#39;</span>, <span class="st">&#39;C&#39;</span>))</span>
+<span id="cb2-15"><a href="#cb2-15"></a>more_imgs =<span class="st"> </span><span class="kw">torch_rand</span>(<span class="dv">32</span>, num_channels, <span class="dv">128</span>, <span class="dv">128</span>, <span class="dt">names=</span><span class="kw">c</span>(<span class="st">&#39;N&#39;</span>, <span class="st">&#39;C&#39;</span>, <span class="st">&#39;H&#39;</span>, <span class="st">&#39;W&#39;</span>))</span>
+<span id="cb2-16"><a href="#cb2-16"></a>videos =<span class="st"> </span><span class="kw">torch_randn</span>(<span class="dv">3</span>, num_channels, <span class="dv">128</span>, <span class="dv">128</span>, <span class="dv">128</span>, <span class="dt">names=</span><span class="kw">c</span>(<span class="st">&#39;N&#39;</span>, <span class="st">&#39;C&#39;</span>, <span class="st">&#39;H&#39;</span>, <span class="st">&#39;W&#39;</span>, <span class="st">&#39;D&#39;</span>))</span>
+<span id="cb2-17"><a href="#cb2-17"></a></span>
+<span id="cb2-18"><a href="#cb2-18"></a><span class="co"># scale_channels is agnostic to the dimension order of the input</span></span>
+<span id="cb2-19"><a href="#cb2-19"></a><span class="kw">scale_channels</span>(imgs, scale)</span>
+<span id="cb2-20"><a href="#cb2-20"></a><span class="kw">scale_channels</span>(more_imgs, scale)</span>
+<span id="cb2-21"><a href="#cb2-21"></a><span class="kw">scale_channels</span>(videos, scale)</span></code></pre></div>
+</div>
+<div id="warning" class="section level3">
+<h3>Warning:</h3>
+<p>The named tensor API is experimental and subject to change.</p>
+</div>
+</div>
+<div id="align_to" class="section level2">
+<h2>align_to</h2>
+<p>Permutes the dimensions of the <code>self</code> tensor to match the order specified in <code>names</code>, adding size-one dims for any new names.</p>
+<p>All of the dims of <code>self</code> must be named in order to use this method. The resulting tensor is a view on the original tensor.</p>
+<p>All dimension names of <code>self</code> must be present in <code>names</code>. <code>names</code> may contain additional names that are not in <code>self$names</code>; the output tensor has a size-one dimension for each of those new names.</p>
+<div id="arguments" class="section level3">
+<h3>Arguments:</h3>
+<ul>
+<li>names (iterable of str): The desired dimension ordering of the output tensor. May contain up to one Ellipsis that is expanded to all unmentioned dim names of <code>self</code>.</li>
+</ul>
+</div>
+<div id="examples-1" class="section level3">
+<h3>Examples:</h3>
+<div id="warning-1" class="section level4">
+<h4>Warning:</h4>
+<p>The named tensor API is experimental and subject to change.</p>
+</div>
+</div>
+</div>
+<div id="all" class="section level2">
+<h2>all</h2>
+<p>all() -&gt; bool</p>
+<p>Returns TRUE if all elements in the tensor are TRUE, FALSE otherwise.</p>
+<div id="examples-2" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>a &lt;-<span class="st"> </span><span class="kw">torch_rand</span>(<span class="dv">1</span>, <span class="dv">2</span>)<span class="op">$</span><span class="kw">to</span>(<span class="dt">dtype =</span> <span class="kw">torch_bool</span>())</span>
+<span id="cb3-2"><a href="#cb3-2"></a>a</span>
+<span id="cb3-3"><a href="#cb3-3"></a>a<span class="op">$</span><span class="kw">all</span>()</span></code></pre></div>
+<p>all(dim, keepdim=FALSE, out=NULL) -&gt; Tensor</p>
+<p>Returns TRUE if all elements in each row of the tensor in the given dimension <code>dim</code> are TRUE, FALSE otherwise.</p>
+<p>If <code>keepdim</code> is <code>TRUE</code>, the output tensor is of the same size as <code>input</code> except in the dimension <code>dim</code> where it is of size 1. Otherwise, <code>dim</code> is squeezed (see ?torch_squeeze()), resulting in the output tensor having 1 fewer dimension than <code>input</code>.</p>
+</div>
+<div id="arguments-1" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>dim (int): the dimension to reduce</li>
+<li>keepdim (bool): whether the output tensor has <code>dim</code> retained or not</li>
+<li>out (Tensor, optional): the output tensor</li>
+</ul>
+</div>
+<div id="examples-3" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>a &lt;-<span class="st"> </span><span class="kw">torch_rand</span>(<span class="dv">4</span>, <span class="dv">2</span>)<span class="op">$</span><span class="kw">to</span>(<span class="dt">dtype =</span> <span class="kw">torch_bool</span>())</span>
+<span id="cb4-2"><a href="#cb4-2"></a>a</span>
+<span id="cb4-3"><a href="#cb4-3"></a>a<span class="op">$</span><span class="kw">all</span>(<span class="dt">dim=</span><span class="dv">2</span>)</span>
+<span id="cb4-4"><a href="#cb4-4"></a>a<span class="op">$</span><span class="kw">all</span>(<span class="dt">dim=</span><span class="dv">1</span>)</span></code></pre></div>
+</div>
+</div>
+<div id="allclose" class="section level2">
+<h2>allclose</h2>
+<p>allclose(other, rtol=1e-05, atol=1e-08, equal_nan=FALSE) -&gt; Tensor</p>
+<p>See ?torch_allclose()</p>
+</div>
+<div id="angle" class="section level2">
+<h2>angle</h2>
+<p>angle() -&gt; Tensor</p>
+<p>See ?torch_angle()</p>
+</div>
+<div id="any" class="section level2">
+<h2>any</h2>
+<p>any() -&gt; bool</p>
+<p>Returns TRUE if any elements in the tensor are TRUE, FALSE otherwise.</p>
+<div id="examples-4" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>a &lt;-<span class="st"> </span><span class="kw">torch_rand</span>(<span class="dv">1</span>, <span class="dv">2</span>)<span class="op">$</span><span class="kw">to</span>(<span class="dt">dtype =</span> <span class="kw">torch_bool</span>())</span>
+<span id="cb5-2"><a href="#cb5-2"></a>a</span>
+<span id="cb5-3"><a href="#cb5-3"></a>a<span class="op">$</span><span class="kw">any</span>()</span></code></pre></div>
+<p>any(dim, keepdim=FALSE, out=NULL) -&gt; Tensor</p>
+<p>Returns TRUE if any elements in each row of the tensor in the given dimension <code>dim</code> are TRUE, FALSE otherwise.</p>
+<p>If <code>keepdim</code> is <code>TRUE</code>, the output tensor is of the same size as <code>input</code> except in the dimension <code>dim</code> where it is of size 1. Otherwise, <code>dim</code> is squeezed (see ?torch_squeeze()), resulting in the output tensor having 1 fewer dimension than <code>input</code>.</p>
+</div>
+<div id="arguments-2" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>dim (int): the dimension to reduce</li>
+<li>keepdim (bool): whether the output tensor has <code>dim</code> retained or not</li>
+<li>out (Tensor, optional): the output tensor</li>
+</ul>
+</div>
+<div id="examples-5" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>a &lt;-<span class="st"> </span><span class="kw">torch_randn</span>(<span class="dv">4</span>, <span class="dv">2</span>) <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>a</span>
+<span id="cb6-3"><a href="#cb6-3"></a>a<span class="op">$</span><span class="kw">any</span>(<span class="dv">2</span>)</span>
+<span id="cb6-4"><a href="#cb6-4"></a>a<span class="op">$</span><span class="kw">any</span>(<span class="dv">1</span>)</span></code></pre></div>
+</div>
+</div>
+<div id="apply_" class="section level2">
+<h2>apply_</h2>
+<p>apply_(callable) -&gt; Tensor</p>
+<p>Applies the function <code>callable</code> to each element in the tensor, replacing each element with the value returned by <code>callable</code>.</p>
+<div id="note" class="section level4">
+<h4>Note:</h4>
+<p>This function only works with CPU tensors and should not be used in code sections that require high performance.</p>
+</div>
+</div>
+<div id="argmax" class="section level2">
+<h2>argmax</h2>
+<p>argmax(dim=NULL, keepdim=FALSE) -&gt; LongTensor</p>
+<p>See ?torch_argmax()</p>
+</div>
+<div id="argmin" class="section level2">
+<h2>argmin</h2>
+<p>argmin(dim=NULL, keepdim=FALSE) -&gt; LongTensor</p>
+<p>See ?torch_argmin()</p>
+</div>
+<div id="argsort" class="section level2">
+<h2>argsort</h2>
+<p>argsort(dim=-1, descending=FALSE) -&gt; LongTensor</p>
+<p>See ?torch_argsort()</p>
+</div>
+<div id="as_strided" class="section level2">
+<h2>as_strided</h2>
+<p>as_strided(size, stride, storage_offset=0) -&gt; Tensor</p>
+<p>See [torch_as_strided()]</p>
+</div>
+<div id="as_subclass" class="section level2">
+<h2>as_subclass</h2>
+<p>as_subclass(cls) -&gt; Tensor</p>
+<p>Makes a <code>cls</code> instance with the same data pointer as <code>self</code>. Changes in the output mirror changes in <code>self</code>, and the output stays attached to the autograd graph. <code>cls</code> must be a subclass of <code>Tensor</code>.</p>
+</div>
+<div id="asin" class="section level2">
+<h2>asin</h2>
+<p>asin() -&gt; Tensor</p>
+<p>See ?torch_asin()</p>
+</div>
+<div id="asin_" class="section level2">
+<h2>asin_</h2>
+<p>asin_() -&gt; Tensor</p>
+<p>In-place version of <code>$asin</code></p>
+</div>
+<div id="asinh" class="section level2">
+<h2>asinh</h2>
+<p>asinh() -&gt; Tensor</p>
+<p>See ?torch_asinh()</p>
+</div>
+<div id="asinh_" class="section level2">
+<h2>asinh_</h2>
+<p>asinh_() -&gt; Tensor</p>
+<p>In-place version of <code>$asinh</code></p>
+</div>
+<div id="atan" class="section level2">
+<h2>atan</h2>
+<p>atan() -&gt; Tensor</p>
+<p>See ?torch_atan()</p>
+</div>
+<div id="atan2" class="section level2">
+<h2>atan2</h2>
+<p>atan2(other) -&gt; Tensor</p>
+<p>See [torch_atan2()]</p>
+</div>
+<div id="atan2_" class="section level2">
+<h2>atan2_</h2>
+<p>atan2_(other) -&gt; Tensor</p>
+<p>In-place version of <code>$atan2</code></p>
+</div>
+<div id="atan_" class="section level2">
+<h2>atan_</h2>
+<p>atan_() -&gt; Tensor</p>
+<p>In-place version of <code>$atan</code></p>
+</div>
+<div id="atanh" class="section level2">
+<h2>atanh</h2>
+<p>atanh() -&gt; Tensor</p>
+<p>See ?torch_atanh()</p>
+</div>
+<div id="atanh_" class="section level2">
+<h2>atanh_</h2>
+<p>In-place version of <code>$atanh</code></p>
+</div>
+<div id="backward" class="section level2">
+<h2>backward</h2>
+<p>Computes the gradient of current tensor w.r.t. graph leaves.</p>
+<p>The graph is differentiated using the chain rule. If the tensor is non-scalar (i.e. its data has more than one element) and requires gradient, the function additionally requires specifying <code>gradient</code>. It should be a tensor of matching type and location, that contains the gradient of the differentiated function w.r.t. <code>self</code>.</p>
+<p>This function accumulates gradients in the leaves - you might need to zero <code>$grad</code> attributes or set them to <code>NULL</code> before calling it. See <code>Default gradient layouts&lt;default-grad-layouts&gt;</code> for details on the memory layout of accumulated gradients.</p>
+<div id="arguments-3" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>gradient (Tensor or NULL): Gradient w.r.t. the tensor. If it is a tensor, it will be automatically converted to a Tensor that does not require grad unless <code>create_graph</code> is TRUE. NULL values can be specified for scalar Tensors or ones that don’t require grad. If a NULL value would be acceptable then this argument is optional.</li>
+<li>retain_graph (bool, optional): If <code>FALSE</code>, the graph used to compute the grads will be freed. Note that in nearly all cases setting this option to TRUE is not needed and often can be worked around in a much more efficient way. Defaults to the value of <code>create_graph</code>.</li>
+<li>create_graph (bool, optional): If <code>TRUE</code>, graph of the derivative will be constructed, allowing to compute higher order derivative products. Defaults to <code>FALSE</code>.</li>
+</ul>
+</div>
+</div>
+<div id="baddbmm" class="section level2">
+<h2>baddbmm</h2>
+<p>baddbmm(batch1, batch2, *, beta=1, alpha=1) -&gt; Tensor</p>
+<p>See ?torch_baddbmm()</p>
+</div>
+<div id="baddbmm_" class="section level2">
+<h2>baddbmm_</h2>
+<p>baddbmm_(batch1, batch2, *, beta=1, alpha=1) -&gt; Tensor</p>
+<p>In-place version of <code>$baddbmm</code></p>
+</div>
+<div id="bernoulli" class="section level2">
+<h2>bernoulli</h2>
+<p>bernoulli(*, generator=NULL) -&gt; Tensor</p>
+<p>Returns a result tensor where each <code>\texttt{result[i]}</code> is independently sampled from <code>\text{Bernoulli}(\texttt{self[i]})</code>. <code>self</code> must have floating point <code>dtype</code>, and the result will have the same <code>dtype</code>.</p>
+<p>See ?torch_bernoulli()</p>
+</div>
+<div id="bernoulli_" class="section level2">
+<h2>bernoulli_</h2>
+<p>bernoulli_(p=0.5, *, generator=NULL) -&gt; Tensor</p>
+<p>Fills each location of <code>self</code> with an independent sample from <code>\text{Bernoulli}(\texttt{p})</code>. <code>self</code> can have integral <code>dtype</code>.</p>
+<p>bernoulli_(p_tensor, *, generator=NULL) -&gt; Tensor</p>
+<p><code>p_tensor</code> should be a tensor containing probabilities to be used for drawing the binary random number.</p>
+<p>The <code>\text{i}^{th}</code> element of <code>self</code> tensor will be set to a value sampled from <code>\text{Bernoulli}(\texttt{p\_tensor[i]})</code>.</p>
+<p><code>self</code> can have integral <code>dtype</code>, but <code>p_tensor</code> must have floating point <code>dtype</code>.</p>
+<p>See also <code>$bernoulli</code> and ?torch_bernoulli()</p>
+</div>
+<div id="bfloat16" class="section level2">
+<h2>bfloat16</h2>
+<p>bfloat16(memory_format=torch_preserve_format) -&gt; Tensor <code>self$bfloat16()</code> is equivalent to <code>self$to(torch_bfloat16)</code>. See [to()].</p>
+<div id="arguments-4" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>memory_format (<code>torch_memory_format</code>, optional): the desired memory format of</li>
+<li>returned Tensor. Default: <code>torch_preserve_format</code>.</li>
+</ul>
+</div>
+</div>
+<div id="bincount" class="section level2">
+<h2>bincount</h2>
+<p>bincount(weights=NULL, minlength=0) -&gt; Tensor</p>
+<p>See ?torch_bincount()</p>
+</div>
+<div id="bitwise_and" class="section level2">
+<h2>bitwise_and</h2>
+<p>bitwise_and() -&gt; Tensor</p>
+<p>See [torch_bitwise_and()]</p>
+</div>
+<div id="bitwise_and_" class="section level2">
+<h2>bitwise_and_</h2>
+<p>bitwise_and_() -&gt; Tensor</p>
+<p>In-place version of <code>$bitwise_and</code></p>
+</div>
+<div id="bitwise_not" class="section level2">
+<h2>bitwise_not</h2>
+<p>bitwise_not() -&gt; Tensor</p>
+<p>See [torch_bitwise_not()]</p>
+</div>
+<div id="bitwise_not_" class="section level2">
+<h2>bitwise_not_</h2>
+<p>bitwise_not_() -&gt; Tensor</p>
+<p>In-place version of <code>$bitwise_not</code></p>
+</div>
+<div id="bitwise_or" class="section level2">
+<h2>bitwise_or</h2>
+<p>bitwise_or() -&gt; Tensor</p>
+<p>See [torch_bitwise_or()]</p>
+</div>
+<div id="bitwise_or_" class="section level2">
+<h2>bitwise_or_</h2>
+<p>bitwise_or_() -&gt; Tensor</p>
+<p>In-place version of <code>$bitwise_or</code></p>
+</div>
+<div id="bitwise_xor" class="section level2">
+<h2>bitwise_xor</h2>
+<p>bitwise_xor() -&gt; Tensor</p>
+<p>See [torch_bitwise_xor()]</p>
+</div>
+<div id="bitwise_xor_" class="section level2">
+<h2>bitwise_xor_</h2>
+<p>bitwise_xor_() -&gt; Tensor</p>
+<p>In-place version of <code>$bitwise_xor</code></p>
+</div>
+<div id="bmm" class="section level2">
+<h2>bmm</h2>
+<p>bmm(batch2) -&gt; Tensor</p>
+<p>See ?torch_bmm()</p>
+</div>
+<div id="bool" class="section level2">
+<h2>bool</h2>
+<p>bool(memory_format=torch_preserve_format) -&gt; Tensor</p>
+<p><code>self$bool()</code> is equivalent to <code>self$to(torch_bool)</code>. See [to()].</p>
+<div id="arguments-5" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>memory_format (<code>torch_memory_format</code>, optional): the desired memory format of</li>
+<li>returned Tensor. Default: <code>torch_preserve_format</code>.</li>
+</ul>
+</div>
+</div>
+<div id="byte" class="section level2">
+<h2>byte</h2>
+<p>byte(memory_format=torch_preserve_format) -&gt; Tensor</p>
+<p><code>self$byte()</code> is equivalent to <code>self$to(torch_uint8)</code>. See [to()].</p>
+<div id="arguments-6" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>memory_format (<code>torch_memory_format</code>, optional): the desired memory format of</li>
+<li>returned Tensor. Default: <code>torch_preserve_format</code>.</li>
+</ul>
+</div>
+</div>
+<div id="cauchy_" class="section level2">
+<h2>cauchy_</h2>
+<p>cauchy_(median=0, sigma=1, *, generator=NULL) -&gt; Tensor</p>
+<p>Fills the tensor with numbers drawn from the Cauchy distribution:</p>
+<p><span class="math display">\[
+f(x) = \dfrac{1}{\pi} \dfrac{\sigma}{(x - \text{median})^2 + \sigma^2}
+\]</span></p>
+</div>
+<div id="ceil" class="section level2">
+<h2>ceil</h2>
+<p>ceil() -&gt; Tensor</p>
+<p>See ?torch_ceil()</p>
+</div>
+<div id="ceil_" class="section level2">
+<h2>ceil_</h2>
+<p>ceil_() -&gt; Tensor</p>
+<p>In-place version of <code>$ceil</code></p>
+</div>
+<div id="char" class="section level2">
+<h2>char</h2>
+<p>char(memory_format=torch_preserve_format) -&gt; Tensor</p>
+<p><code>self$char()</code> is equivalent to <code>self$to(torch_int8)</code>. See [to()].</p>
+<div id="arguments-7" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>memory_format (<code>torch_memory_format</code>, optional): the desired memory format of</li>
+<li>returned Tensor. Default: <code>torch_preserve_format</code>.</li>
+</ul>
+</div>
+</div>
+<div id="cholesky" class="section level2">
+<h2>cholesky</h2>
+<p>cholesky(upper=FALSE) -&gt; Tensor</p>
+<p>See ?torch_cholesky()</p>
+</div>
+<div id="cholesky_inverse" class="section level2">
+<h2>cholesky_inverse</h2>
+<p>cholesky_inverse(upper=FALSE) -&gt; Tensor</p>
+<p>See [torch_cholesky_inverse()]</p>
+</div>
+<div id="cholesky_solve" class="section level2">
+<h2>cholesky_solve</h2>
+<p>cholesky_solve(input2, upper=FALSE) -&gt; Tensor</p>
+<p>See [torch_cholesky_solve()]</p>
+</div>
+<div id="chunk" class="section level2">
+<h2>chunk</h2>
+<p>chunk(chunks, dim=0) -&gt; List of Tensors</p>
+<p>See ?torch_chunk()</p>
+</div>
+<div id="clamp" class="section level2">
+<h2>clamp</h2>
+<p>clamp(min, max) -&gt; Tensor</p>
+<p>See ?torch_clamp()</p>
+</div>
+<div id="clamp_" class="section level2">
+<h2>clamp_</h2>
+<p>clamp_(min, max) -&gt; Tensor</p>
+<p>In-place version of <code>$clamp</code></p>
+</div>
+<div id="clone" class="section level2">
+<h2>clone</h2>
+<p>clone(memory_format=torch_preserve_format) -&gt; Tensor</p>
+<p>Returns a copy of the <code>self</code> tensor. The copy has the same size and data type as <code>self</code>.</p>
+<div id="note-1" class="section level4">
+<h4>Note:</h4>
+<p>Unlike <code>copy_()</code>, this function is recorded in the computation graph. Gradients propagating to the cloned tensor will propagate to the original tensor.</p>
+</div>
+<div id="arguments-8" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>memory_format (<code>torch_memory_format</code>, optional): the desired memory format of</li>
+<li>returned Tensor. Default: <code>torch_preserve_format</code>.</li>
+</ul>
+</div>
+</div>
+<div id="conj" class="section level2">
+<h2>conj</h2>
+<p>conj() -&gt; Tensor</p>
+<p>See ?torch_conj()</p>
+</div>
+<div id="contiguous" class="section level2">
+<h2>contiguous</h2>
+<p>contiguous(memory_format=torch_contiguous_format) -&gt; Tensor</p>
+<p>Returns a contiguous in memory tensor containing the same data as <code>self</code> tensor. If <code>self</code> tensor is already in the specified memory format, this function returns the <code>self</code> tensor.</p>
+<div id="arguments-9" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>memory_format (<code>torch_memory_format</code>, optional): the desired memory format of</li>
+<li>returned Tensor. Default: <code>torch_contiguous_format</code>.</li>
+</ul>
+</div>
+</div>
+<div id="copy_" class="section level2">
+<h2>copy_</h2>
+<p>copy_(src, non_blocking=FALSE) -&gt; Tensor</p>
+<p>Copies the elements from <code>src</code> into <code>self</code> tensor and returns <code>self</code>.</p>
+<p>The <code>src</code> tensor must be :ref:<code>broadcastable &lt;broadcasting-semantics&gt;</code> with the <code>self</code> tensor. It may be of a different data type or reside on a different device.</p>
+<div id="arguments-10" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>src (Tensor): the source tensor to copy from</li>
+<li>non_blocking (bool): if <code>TRUE</code> and this copy is between CPU and GPU,</li>
+<li>the copy may occur asynchronously with respect to the host. For other</li>
+<li>cases, this argument has no effect.</li>
+</ul>
+</div>
+</div>
+<div id="cos" class="section level2">
+<h2>cos</h2>
+<p>cos() -&gt; Tensor</p>
+<p>See ?torch_cos()</p>
+</div>
+<div id="cos_" class="section level2">
+<h2>cos_</h2>
+<p>cos_() -&gt; Tensor</p>
+<p>In-place version of <code>$cos</code></p>
+</div>
+<div id="cosh" class="section level2">
+<h2>cosh</h2>
+<p>cosh() -&gt; Tensor</p>
+<p>See ?torch_cosh()</p>
+</div>
+<div id="cosh_" class="section level2">
+<h2>cosh_</h2>
+<p>cosh_() -&gt; Tensor</p>
+<p>In-place version of <code>$cosh</code></p>
+</div>
+<div id="cpu" class="section level2">
+<h2>cpu</h2>
+<p>cpu(memory_format=torch_preserve_format) -&gt; Tensor</p>
+<p>Returns a copy of this object in CPU memory.</p>
+<p>If this object is already in CPU memory and on the correct device, then no copy is performed and the original object is returned.</p>
+<div id="arguments-11" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>memory_format (<code>torch_memory_format</code>, optional): the desired memory format of</li>
+<li>returned Tensor. Default: <code>torch_preserve_format</code>.</li>
+</ul>
+</div>
+</div>
+<div id="cross" class="section level2">
+<h2>cross</h2>
+<p>cross(other, dim=-1) -&gt; Tensor</p>
+<p>See ?torch_cross()</p>
+</div>
+<div id="cuda" class="section level2">
+<h2>cuda</h2>
+<p>cuda(device=NULL, non_blocking=FALSE, memory_format=torch_preserve_format) -&gt; Tensor</p>
+<p>Returns a copy of this object in CUDA memory.</p>
+<p>If this object is already in CUDA memory and on the correct device, then no copy is performed and the original object is returned.</p>
+<div id="arguments-12" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>device (<code>torch_device</code>): The destination GPU device. Defaults to the current CUDA device.</li>
+<li>non_blocking (bool): If <code>TRUE</code> and the source is in pinned memory, the copy will be asynchronous with respect to the host. Otherwise, the argument has no effect. Default: <code>FALSE</code>.</li>
+<li>memory_format (<code>torch_memory_format</code>, optional): the desired memory format of</li>
+<li>returned Tensor. Default: <code>torch_preserve_format</code>.</li>
+</ul>
+</div>
+</div>
+<div id="cummax" class="section level2">
+<h2>cummax</h2>
+<p>cummax(dim) -&gt; (Tensor, Tensor)</p>
+<p>See ?torch_cummax()</p>
+</div>
+<div id="cummin" class="section level2">
+<h2>cummin</h2>
+<p>cummin(dim) -&gt; (Tensor, Tensor)</p>
+<p>See ?torch_cummin()</p>
+</div>
+<div id="cumprod" class="section level2">
+<h2>cumprod</h2>
+<p>cumprod(dim, dtype=NULL) -&gt; Tensor</p>
+<p>See ?torch_cumprod()</p>
+</div>
+<div id="cumsum" class="section level2">
+<h2>cumsum</h2>
+<p>cumsum(dim, dtype=NULL) -&gt; Tensor</p>
+<p>See ?torch_cumsum()</p>
+</div>
+<div id="data_ptr" class="section level2">
+<h2>data_ptr</h2>
+<p>data_ptr() -&gt; int</p>
+<p>Returns the address of the first element of <code>self</code> tensor.</p>
+</div>
+<div id="deg2rad" class="section level2">
+<h2>deg2rad</h2>
+<p>deg2rad() -&gt; Tensor</p>
+<p>See [torch_deg2rad()]</p>
+</div>
+<div id="deg2rad_" class="section level2">
+<h2>deg2rad_</h2>
+<p>deg2rad_() -&gt; Tensor</p>
+<p>In-place version of <code>$deg2rad</code></p>
+</div>
+<div id="dense_dim" class="section level2">
+<h2>dense_dim</h2>
+<p>dense_dim() -&gt; int</p>
+<p>If <code>self</code> is a sparse COO tensor (i.e., with <code>torch_sparse_coo</code> layout), this returns the number of dense dimensions. Otherwise, this throws an error.</p>
+<p>See also <code>$sparse_dim</code>.</p>
+</div>
+<div id="dequantize" class="section level2">
+<h2>dequantize</h2>
+<p>dequantize() -&gt; Tensor</p>
+<p>Given a quantized Tensor, dequantize it and return the dequantized float Tensor.</p>
+</div>
+<div id="det" class="section level2">
+<h2>det</h2>
+<p>det() -&gt; Tensor</p>
+<p>See ?torch_det()</p>
+</div>
+<div id="detach" class="section level2">
+<h2>detach</h2>
+<p>Returns a new Tensor, detached from the current graph.</p>
+<p>The result will never require gradient.</p>
+<div id="note-2" class="section level4">
+<h4>Note:</h4>
+<p>Returned Tensor shares the same storage with the original one. In-place modifications on either of them will be seen, and may trigger errors in correctness checks. IMPORTANT NOTE: Previously, in-place size / stride / storage changes (such as <code>resize_</code> / <code>resize_as_</code> / <code>set_</code> / <code>transpose_</code>) to the returned tensor also update the original tensor. Now, these in-place changes will not update the original tensor anymore, and will instead trigger an error. For sparse tensors: In-place indices / values changes (such as <code>zero_</code> / <code>copy_</code> / <code>add_</code>) to the returned tensor will not update the original tensor anymore, and will instead trigger an error.</p>
+</div>
+</div>
+<div id="detach_" class="section level2">
+<h2>detach_</h2>
+<p>Detaches the Tensor from the graph that created it, making it a leaf. Views cannot be detached in-place.</p>
+</div>
+<div id="device" class="section level2">
+<h2>device</h2>
+<p>Is the <code>torch_device</code> where this Tensor is.</p>
+</div>
+<div id="diag" class="section level2">
+<h2>diag</h2>
+<p>diag(diagonal=0) -&gt; Tensor</p>
+<p>See ?torch_diag()</p>
+</div>
+<div id="diag_embed" class="section level2">
+<h2>diag_embed</h2>
+<p>diag_embed(offset=0, dim1=-2, dim2=-1) -&gt; Tensor</p>
+<p>See [torch_diag_embed()]</p>
+</div>
+<div id="diagflat" class="section level2">
+<h2>diagflat</h2>
+<p>diagflat(offset=0) -&gt; Tensor</p>
+<p>See ?torch_diagflat()</p>
+</div>
+<div id="diagonal" class="section level2">
+<h2>diagonal</h2>
+<p>diagonal(offset=0, dim1=0, dim2=1) -&gt; Tensor</p>
+<p>See ?torch_diagonal()</p>
+</div>
+<div id="digamma" class="section level2">
+<h2>digamma</h2>
+<p>digamma() -&gt; Tensor</p>
+<p>See ?torch_digamma()</p>
+</div>
+<div id="digamma_" class="section level2">
+<h2>digamma_</h2>
+<p>digamma_() -&gt; Tensor</p>
+<p>In-place version of <code>$digamma</code></p>
+</div>
+<div id="dim" class="section level2">
+<h2>dim</h2>
+<p>dim() -&gt; int</p>
+<p>Returns the number of dimensions of <code>self</code> tensor.</p>
+</div>
+<div id="dist" class="section level2">
+<h2>dist</h2>
+<p>dist(other, p=2) -&gt; Tensor</p>
+<p>See ?torch_dist()</p>
+</div>
+<div id="div" class="section level2">
+<h2>div</h2>
+<p>div(value) -&gt; Tensor</p>
+<p>See ?torch_div()</p>
+</div>
+<div id="div_" class="section level2">
+<h2>div_</h2>
+<p>div_(value) -&gt; Tensor</p>
+<p>In-place version of <code>$div</code></p>
+</div>
+<div id="dot" class="section level2">
+<h2>dot</h2>
+<p>dot(tensor2) -&gt; Tensor</p>
+<p>See ?torch_dot()</p>
+</div>
+<div id="double" class="section level2">
+<h2>double</h2>
+<p>double(memory_format=torch_preserve_format) -&gt; Tensor</p>
+<p><code>self$double()</code> is equivalent to <code>self$to(torch_float64)</code>. See [to()].</p>
+<div id="arguments-13" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>memory_format (<code>torch_memory_format</code>, optional): the desired memory format of</li>
+<li>returned Tensor. Default: <code>torch_preserve_format</code>.</li>
+</ul>
+</div>
+</div>
+<div id="eig" class="section level2">
+<h2>eig</h2>
+<p>eig(eigenvectors=FALSE) -&gt; (Tensor, Tensor)</p>
+<p>See ?torch_eig()</p>
+</div>
+<div id="element_size" class="section level2">
+<h2>element_size</h2>
+<p>element_size() -&gt; int</p>
+<p>Returns the size in bytes of an individual element.</p>
+<div id="examples-6" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">torch_tensor</span>(<span class="kw">c</span>(<span class="dv">1</span>))<span class="op">$</span><span class="kw">element_size</span>()</span></code></pre></div>
+</div>
+</div>
+<div id="eq" class="section level2">
+<h2>eq</h2>
+<p>eq(other) -&gt; Tensor</p>
+<p>See ?torch_eq()</p>
+</div>
+<div id="eq_" class="section level2">
+<h2>eq_</h2>
+<p>eq_(other) -&gt; Tensor</p>
+<p>In-place version of <code>$eq</code></p>
+</div>
+<div id="equal" class="section level2">
+<h2>equal</h2>
+<p>equal(other) -&gt; bool</p>
+<p>See ?torch_equal()</p>
+</div>
+<div id="erf" class="section level2">
+<h2>erf</h2>
+<p>erf() -&gt; Tensor</p>
+<p>See ?torch_erf()</p>
+</div>
+<div id="erf_" class="section level2">
+<h2>erf_</h2>
+<p>erf_() -&gt; Tensor</p>
+<p>In-place version of <code>$erf</code></p>
+</div>
+<div id="erfc" class="section level2">
+<h2>erfc</h2>
+<p>erfc() -&gt; Tensor</p>
+<p>See ?torch_erfc()</p>
+</div>
+<div id="erfc_" class="section level2">
+<h2>erfc_</h2>
+<p>erfc_() -&gt; Tensor</p>
+<p>In-place version of <code>$erfc</code></p>
+</div>
+<div id="erfinv" class="section level2">
+<h2>erfinv</h2>
+<p>erfinv() -&gt; Tensor</p>
+<p>See ?torch_erfinv()</p>
+</div>
+<div id="erfinv_" class="section level2">
+<h2>erfinv_</h2>
+<p>erfinv_() -&gt; Tensor</p>
+<p>In-place version of <code>$erfinv</code></p>
+</div>
+<div id="exp" class="section level2">
+<h2>exp</h2>
+<p>exp() -&gt; Tensor</p>
+<p>See ?torch_exp()</p>
+</div>
+<div id="exp_" class="section level2">
+<h2>exp_</h2>
+<p>exp_() -&gt; Tensor</p>
+<p>In-place version of <code>$exp</code></p>
+</div>
+<div id="expand" class="section level2">
+<h2>expand</h2>
+<p>expand(*sizes) -&gt; Tensor</p>
+<p>Returns a new view of the <code>self</code> tensor with singleton dimensions expanded to a larger size.</p>
+<p>Passing -1 as the size for a dimension means not changing the size of that dimension.</p>
+<p>Tensor can be also expanded to a larger number of dimensions, and the new ones will be appended at the front. For the new dimensions, the size cannot be set to -1.</p>
+<p>Expanding a tensor does not allocate new memory, but only creates a new view on the existing tensor where a dimension of size one is expanded to a larger size by setting the <code>stride</code> to 0. Any dimension of size 1 can be expanded to an arbitrary value without allocating new memory.</p>
+<div id="arguments-14" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>sizes (torch_Size or int…): the desired expanded size</li>
+</ul>
+</div>
+<div id="warning-2" class="section level4">
+<h4>Warning:</h4>
+<p>More than one element of an expanded tensor may refer to a single memory location. As a result, in-place operations (especially ones that are vectorized) may result in incorrect behavior. If you need to write to the tensors, please clone them first.</p>
+</div>
+<div id="examples-7" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="kw">matrix</span>(<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>), <span class="dt">ncol =</span> <span class="dv">1</span>))</span>
+<span id="cb8-2"><a href="#cb8-2"></a>x<span class="op">$</span><span class="kw">size</span>()</span>
+<span id="cb8-3"><a href="#cb8-3"></a>x<span class="op">$</span><span class="kw">expand</span>(<span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">4</span>))</span>
+<span id="cb8-4"><a href="#cb8-4"></a>x<span class="op">$</span><span class="kw">expand</span>(<span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">4</span>))  <span class="co"># -1 means not changing the size of that dimension</span></span></code></pre></div>
+</div>
+</div>
+<div id="expand_as" class="section level2">
+<h2>expand_as</h2>
+<p>expand_as(other) -&gt; Tensor</p>
+<p>Expand this tensor to the same size as <code>other</code>. <code>self$expand_as(other)</code> is equivalent to <code>self$expand(other.size())</code>.</p>
+<p>Please see <code>$expand</code> for more information about <code>expand</code>.</p>
+<div id="arguments-15" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>other (`$): The result tensor has the same size</li>
+<li>as <code>other</code>.</li>
+</ul>
+</div>
+</div>
+<div id="expm1" class="section level2">
+<h2>expm1</h2>
+<p>expm1() -&gt; Tensor</p>
+<p>See [torch_expm1()]</p>
+</div>
+<div id="expm1_" class="section level2">
+<h2>expm1_</h2>
+<p>expm1_() -&gt; Tensor</p>
+<p>In-place version of <code>$expm1</code></p>
+</div>
+<div id="exponential_" class="section level2">
+<h2>exponential_</h2>
+<p>exponential_(lambd=1, *, generator=NULL) -&gt; Tensor</p>
+<p>Fills <code>self</code> tensor with elements drawn from the exponential distribution:</p>
+<p><span class="math display">\[
+f(x) = \lambda e^{-\lambda x}
+\]</span></p>
+</div>
+<div id="fft" class="section level2">
+<h2>fft</h2>
+<p>fft(signal_ndim, normalized=FALSE) -&gt; Tensor</p>
+<p>See ?torch_fft()</p>
+</div>
+<div id="fill_" class="section level2">
+<h2>fill_</h2>
+<p>fill_(value) -&gt; Tensor</p>
+<p>Fills <code>self</code> tensor with the specified value.</p>
+</div>
+<div id="fill_diagonal_" class="section level2">
+<h2>fill_diagonal_</h2>
+<p>fill_diagonal_(fill_value, wrap=FALSE) -&gt; Tensor</p>
+<p>Fill the main diagonal of a tensor that has at least 2-dimensions. When dims&gt;2, all dimensions of input must be of equal length. This function modifies the input tensor in-place, and returns the input tensor.</p>
+<div id="arguments-16" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>fill_value (Scalar): the fill value</li>
+<li>wrap (bool): the diagonal ‘wrapped’ after N columns for tall matrices.</li>
+</ul>
+</div>
+<div id="examples-8" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>a &lt;-<span class="st"> </span><span class="kw">torch_zeros</span>(<span class="dv">3</span>, <span class="dv">3</span>)</span>
+<span id="cb9-2"><a href="#cb9-2"></a>a<span class="op">$</span><span class="kw">fill_diagonal_</span>(<span class="dv">5</span>)</span>
+<span id="cb9-3"><a href="#cb9-3"></a>b &lt;-<span class="st"> </span><span class="kw">torch_zeros</span>(<span class="dv">7</span>, <span class="dv">3</span>)</span>
+<span id="cb9-4"><a href="#cb9-4"></a>b<span class="op">$</span><span class="kw">fill_diagonal_</span>(<span class="dv">5</span>)</span>
+<span id="cb9-5"><a href="#cb9-5"></a>c &lt;-<span class="st"> </span><span class="kw">torch_zeros</span>(<span class="dv">7</span>, <span class="dv">3</span>)</span>
+<span id="cb9-6"><a href="#cb9-6"></a>c<span class="op">$</span><span class="kw">fill_diagonal_</span>(<span class="dv">5</span>, <span class="dt">wrap=</span><span class="ot">TRUE</span>)</span></code></pre></div>
+</div>
+</div>
+<div id="flatten" class="section level2">
+<h2>flatten</h2>
+<p>flatten(input, start_dim=0, end_dim=-1) -&gt; Tensor</p>
+<p>see ?torch_flatten()</p>
+</div>
+<div id="flip" class="section level2">
+<h2>flip</h2>
+<p>flip(dims) -&gt; Tensor</p>
+<p>See ?torch_flip()</p>
+</div>
+<div id="fliplr" class="section level2">
+<h2>fliplr</h2>
+<p>fliplr() -&gt; Tensor</p>
+<p>See ?torch_fliplr()</p>
+</div>
+<div id="flipud" class="section level2">
+<h2>flipud</h2>
+<p>flipud() -&gt; Tensor</p>
+<p>See ?torch_flipud()</p>
+</div>
+<div id="float" class="section level2">
+<h2>float</h2>
+<p>float(memory_format=torch_preserve_format) -&gt; Tensor</p>
+<p><code>self$float()</code> is equivalent to <code>self$to(torch_float32)</code>. See [to()].</p>
+<div id="arguments-17" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>memory_format (<code>torch_memory_format</code>, optional): the desired memory format of</li>
+<li>returned Tensor. Default: <code>torch_preserve_format</code>.</li>
+</ul>
+</div>
+</div>
+<div id="floor" class="section level2">
+<h2>floor</h2>
+<p>floor() -&gt; Tensor</p>
+<p>See ?torch_floor()</p>
+</div>
+<div id="floor_" class="section level2">
+<h2>floor_</h2>
+<p>floor_() -&gt; Tensor</p>
+<p>In-place version of <code>$floor</code></p>
+</div>
+<div id="floor_divide" class="section level2">
+<h2>floor_divide</h2>
+<p>floor_divide(value) -&gt; Tensor</p>
+<p>See [torch_floor_divide()]</p>
+</div>
+<div id="floor_divide_" class="section level2">
+<h2>floor_divide_</h2>
+<p>floor_divide_(value) -&gt; Tensor</p>
+<p>In-place version of <code>$floor_divide</code></p>
+</div>
+<div id="fmod" class="section level2">
+<h2>fmod</h2>
+<p>fmod(divisor) -&gt; Tensor</p>
+<p>See ?torch_fmod()</p>
+</div>
+<div id="fmod_" class="section level2">
+<h2>fmod_</h2>
+<p>fmod_(divisor) -&gt; Tensor</p>
+<p>In-place version of <code>$fmod</code></p>
+</div>
+<div id="frac" class="section level2">
+<h2>frac</h2>
+<p>frac() -&gt; Tensor</p>
+<p>See ?torch_frac()</p>
+</div>
+<div id="frac_" class="section level2">
+<h2>frac_</h2>
+<p>frac_() -&gt; Tensor</p>
+<p>In-place version of <code>$frac</code></p>
+</div>
+<div id="gather" class="section level2">
+<h2>gather</h2>
+<p>gather(dim, index) -&gt; Tensor</p>
+<p>See ?torch_gather()</p>
+</div>
+<div id="ge" class="section level2">
+<h2>ge</h2>
+<p>ge(other) -&gt; Tensor</p>
+<p>See ?torch_ge()</p>
+</div>
+<div id="ge_" class="section level2">
+<h2>ge_</h2>
+<p>ge_(other) -&gt; Tensor</p>
+<p>In-place version of <code>$ge</code></p>
+</div>
+<div id="geometric_" class="section level2">
+<h2>geometric_</h2>
+<p>geometric_(p, *, generator=NULL) -&gt; Tensor</p>
+<p>Fills <code>self</code> tensor with elements drawn from the geometric distribution:</p>
+<p><span class="math display">\[
+f(X=k) = p^{k - 1} (1 - p)
+\]</span></p>
+</div>
+<div id="geqrf" class="section level2">
+<h2>geqrf</h2>
+<p>geqrf() -&gt; (Tensor, Tensor)</p>
+<p>See ?torch_geqrf()</p>
+</div>
+<div id="ger" class="section level2">
+<h2>ger</h2>
+<p>ger(vec2) -&gt; Tensor</p>
+<p>See ?torch_ger()</p>
+</div>
+<div id="get_device" class="section level2">
+<h2>get_device</h2>
+<p>get_device() -&gt; Device ordinal (Integer)</p>
+<p>For CUDA tensors, this function returns the device ordinal of the GPU on which the tensor resides. For CPU tensors, an error is thrown.</p>
+<div id="examples-9" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_randn</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dt">device=</span><span class="st">&#39;cuda:0&#39;</span>)</span>
+<span id="cb10-2"><a href="#cb10-2"></a>x<span class="op">$</span><span class="kw">get_device</span>()</span>
+<span id="cb10-3"><a href="#cb10-3"></a>x<span class="op">$</span><span class="kw">cpu</span>()<span class="op">$</span><span class="kw">get_device</span>()  <span class="co"># RuntimeError: get_device is not implemented for type torch_FloatTensor</span></span></code></pre></div>
+</div>
+</div>
+<div id="grad" class="section level2">
+<h2>grad</h2>
+<p>This attribute is <code>NULL</code> by default and becomes a Tensor the first time a call to <code>backward</code> computes gradients for <code>self</code>. The attribute will then contain the gradients computed and future calls to [backward()] will accumulate (add) gradients into it.</p>
+</div>
+<div id="gt" class="section level2">
+<h2>gt</h2>
+<p>gt(other) -&gt; Tensor</p>
+<p>See ?torch_gt()</p>
+</div>
+<div id="gt_" class="section level2">
+<h2>gt_</h2>
+<p>gt_(other) -&gt; Tensor</p>
+<p>In-place version of <code>$gt</code></p>
+</div>
+<div id="half" class="section level2">
+<h2>half</h2>
+<p>half(memory_format=torch_preserve_format) -&gt; Tensor</p>
+<p><code>self$half()</code> is equivalent to <code>self$to(torch_float16)</code>. See [to()].</p>
+<div id="arguments-18" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>memory_format (<code>torch_memory_format</code>, optional): the desired memory format of</li>
+<li>returned Tensor. Default: <code>torch_preserve_format</code>.</li>
+</ul>
+</div>
+</div>
+<div id="hardshrink" class="section level2">
+<h2>hardshrink</h2>
+<p>hardshrink(lambd=0.5) -&gt; Tensor</p>
+<p>See [torch_nn.functional.hardshrink()]</p>
+</div>
+<div id="has_names" class="section level2">
+<h2>has_names</h2>
+<p>Is <code>TRUE</code> if any of this tensor’s dimensions are named. Otherwise, is <code>FALSE</code>.</p>
+</div>
+<div id="histc" class="section level2">
+<h2>histc</h2>
+<p>histc(bins=100, min=0, max=0) -&gt; Tensor</p>
+<p>See ?torch_histc()</p>
+</div>
+<div id="ifft" class="section level2">
+<h2>ifft</h2>
+<p>ifft(signal_ndim, normalized=FALSE) -&gt; Tensor</p>
+<p>See ?torch_ifft()</p>
+</div>
+<div id="imag" class="section level2">
+<h2>imag</h2>
+<p>Returns a new tensor containing imaginary values of the <code>self</code> tensor. The returned tensor and <code>self</code> share the same underlying storage.</p>
+<div id="warning-3" class="section level4">
+<h4>Warning:</h4>
+<p>[imag()] is only supported for tensors with complex dtypes.</p>
+</div>
+<div id="examples-10" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_randn</span>(<span class="dv">4</span>, <span class="dt">dtype=</span><span class="kw">torch_cfloat</span>())</span>
+<span id="cb11-2"><a href="#cb11-2"></a>x</span>
+<span id="cb11-3"><a href="#cb11-3"></a>x<span class="op">$</span>imag</span></code></pre></div>
+</div>
+</div>
+<div id="index_add" class="section level2">
+<h2>index_add</h2>
+<p>index_add(tensor1, dim, index, tensor2) -&gt; Tensor</p>
+<p>Out-of-place version of <code>$index_add_</code>. <code>tensor1</code> corresponds to <code>self</code> in <code>$index_add_</code>.</p>
+</div>
+<div id="index_add_" class="section level2">
+<h2>index_add_</h2>
+<p>index_add_(dim, index, tensor) -&gt; Tensor</p>
+<p>Accumulate the elements of <code>tensor</code> into the <code>self</code> tensor by adding to the indices in the order given in <code>index</code>. For example, if <code>dim == 0</code> and <code>index[i] == j</code>, then the <code>i</code> th row of <code>tensor</code> is added to the <code>j</code> th row of <code>self</code>.</p>
+<p>The <code>dim</code> th dimension of <code>tensor</code> must have the same size as the length of <code>index</code> (which must be a vector), and all other dimensions must match <code>self</code>, or an error will be raised.</p>
+<div id="note-3" class="section level4">
+<h4>Note:</h4>
+<p>In some circumstances when using the CUDA backend with CuDNN, this operator may select a nondeterministic algorithm to increase performance. If this is undesirable, you can try to make the operation deterministic (potentially at a performance cost) by setting <code>torch_backends.cudnn.deterministic = TRUE</code>.</p>
+</div>
+<div id="arguments-19" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>dim (int): dimension along which to index</li>
+<li>index (LongTensor): indices of <code>tensor</code> to select from</li>
+<li>tensor (Tensor): the tensor containing values to add</li>
+</ul>
+</div>
+<div id="examples-11" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_ones</span>(<span class="dv">5</span>, <span class="dv">3</span>)</span>
+<span id="cb12-2"><a href="#cb12-2"></a>t &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="kw">matrix</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">9</span>, <span class="dt">ncol =</span> <span class="dv">3</span>), <span class="dt">dtype=</span><span class="kw">torch_float</span>())</span>
+<span id="cb12-3"><a href="#cb12-3"></a>index &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="kw">c</span>(1L, 4L, 3L))</span>
+<span id="cb12-4"><a href="#cb12-4"></a>x<span class="op">$</span><span class="kw">index_add_</span>(<span class="dv">1</span>, index, t)</span></code></pre></div>
+</div>
+</div>
+<div id="index_copy" class="section level2">
+<h2>index_copy</h2>
+<p>index_copy(tensor1, dim, index, tensor2) -&gt; Tensor</p>
+<p>Out-of-place version of <code>$index_copy_</code>. <code>tensor1</code> corresponds to <code>self</code> in <code>$index_copy_</code>.</p>
+</div>
+<div id="index_copy_" class="section level2">
+<h2>index_copy_</h2>
+<p>index_copy_(dim, index, tensor) -&gt; Tensor</p>
+<p>Copies the elements of <code>tensor</code> into the <code>self</code> tensor by selecting the indices in the order given in <code>index</code>. For example, if <code>dim == 0</code> and <code>index[i] == j</code>, then the <code>i</code> th row of <code>tensor</code> is copied to the <code>j</code> th row of <code>self</code>.</p>
+<p>The <code>dim</code> th dimension of <code>tensor</code> must have the same size as the length of <code>index</code> (which must be a vector), and all other dimensions must match <code>self</code>, or an error will be raised.</p>
+<div id="arguments-20" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>dim (int): dimension along which to index</li>
+<li>index (LongTensor): indices of <code>tensor</code> to select from</li>
+<li>tensor (Tensor): the tensor containing values to copy</li>
+</ul>
+</div>
+<div id="examples-12" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_zeros</span>(<span class="dv">5</span>, <span class="dv">3</span>)</span>
+<span id="cb13-2"><a href="#cb13-2"></a>t &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="kw">matrix</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">9</span>, <span class="dt">ncol =</span> <span class="dv">3</span>), <span class="dt">dtype=</span><span class="kw">torch_float</span>())</span>
+<span id="cb13-3"><a href="#cb13-3"></a>index &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">3</span>))</span>
+<span id="cb13-4"><a href="#cb13-4"></a>x<span class="op">$</span><span class="kw">index_copy_</span>(<span class="dv">1</span>, index, t)</span></code></pre></div>
+</div>
+</div>
+<div id="index_fill" class="section level2">
+<h2>index_fill</h2>
+<p>index_fill(tensor1, dim, index, value) -&gt; Tensor</p>
+<p>Out-of-place version of <code>$index_fill_</code>. <code>tensor1</code> corresponds to <code>self</code> in <code>$index_fill_</code>.</p>
+</div>
+<div id="index_fill_" class="section level2">
+<h2>index_fill_</h2>
+<p>index_fill_(dim, index, val) -&gt; Tensor</p>
+<p>Fills the elements of the <code>self</code> tensor with value <code>val</code> by selecting the indices in the order given in <code>index</code>.</p>
+<div id="arguments-21" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>dim (int): dimension along which to index</li>
+<li>index (LongTensor): indices of <code>self</code> tensor to fill in</li>
+<li>val (float): the value to fill with</li>
+</ul>
+</div>
+<div id="examples-13" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="kw">matrix</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">9</span>, <span class="dt">ncol =</span> <span class="dv">3</span>), <span class="dt">dtype=</span><span class="kw">torch_float</span>())</span>
+<span id="cb14-2"><a href="#cb14-2"></a>index &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">3</span>), <span class="dt">dtype =</span> <span class="kw">torch_long</span>())</span>
+<span id="cb14-3"><a href="#cb14-3"></a>x<span class="op">$</span><span class="kw">index_fill_</span>(<span class="dv">1</span>, index, <span class="dv">-1</span>)</span></code></pre></div>
+</div>
+</div>
+<div id="index_put" class="section level2">
+<h2>index_put</h2>
+<p>index_put(tensor1, indices, value, accumulate=FALSE) -&gt; Tensor</p>
+<p>Out-place version of <code>$index_put_</code>. <code>tensor1</code> corresponds to <code>self</code> in <code>$index_put_</code>.</p>
+</div>
+<div id="index_put_" class="section level2">
+<h2>index_put_</h2>
+<p>index_put_(indices, value, accumulate=FALSE) -&gt; Tensor</p>
+<p>Puts values from the tensor <code>value</code> into the tensor <code>self</code> using the indices specified in <code>indices</code> (which is a tuple of Tensors). The expression <code>tensor.index_put_(indices, value)</code> is equivalent to <code>tensor[indices] = value</code>. Returns <code>self</code>.</p>
+<p>If <code>accumulate</code> is <code>TRUE</code>, the elements in <code>value</code> are added to <code>self</code>. If accumulate is <code>FALSE</code>, the behavior is undefined if indices contain duplicate elements.</p>
+<div id="arguments-22" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>indices (tuple of LongTensor): tensors used to index into <code>self</code>.</li>
+<li>value (Tensor): tensor of same dtype as <code>self</code>.</li>
+<li>accumulate (bool): whether to accumulate into self</li>
+</ul>
+</div>
+</div>
+<div id="index_select" class="section level2">
+<h2>index_select</h2>
+<p>index_select(dim, index) -&gt; Tensor</p>
+<p>See [torch_index_select()]</p>
+</div>
+<div id="indices" class="section level2">
+<h2>indices</h2>
+<p>indices() -&gt; Tensor</p>
+<p>If <code>self</code> is a sparse COO tensor (i.e., with <code>torch_sparse_coo</code> layout), this returns a view of the contained indices tensor. Otherwise, this throws an error.</p>
+<p>See also <code>Tensor.values</code>.</p>
+<div id="note-4" class="section level4">
+<h4>Note:</h4>
+<p>This method can only be called on a coalesced sparse tensor. See <code>Tensor.coalesce</code> for details.</p>
+</div>
+</div>
+<div id="int" class="section level2">
+<h2>int</h2>
+<p>int(memory_format=torch_preserve_format) -&gt; Tensor</p>
+<p><code>self$int()</code> is equivalent to <code>self$to(torch_int32)</code>. See [to()].</p>
+<div id="arguments-23" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>memory_format (<code>torch_memory_format</code>, optional): the desired memory format of</li>
+<li>returned Tensor. Default: <code>torch_preserve_format</code>.</li>
+</ul>
+</div>
+</div>
+<div id="int_repr" class="section level2">
+<h2>int_repr</h2>
+<p>int_repr() -&gt; Tensor</p>
+<p>Given a quantized Tensor, <code>self$int_repr()</code> returns a CPU Tensor with uint8_t as data type that stores the underlying uint8_t values of the given Tensor.</p>
+</div>
+<div id="inverse" class="section level2">
+<h2>inverse</h2>
+<p>inverse() -&gt; Tensor</p>
+<p>See ?torch_inverse()</p>
+</div>
+<div id="irfft" class="section level2">
+<h2>irfft</h2>
+<p>irfft(signal_ndim, normalized=FALSE, onesided=TRUE, signal_sizes=NULL) -&gt; Tensor</p>
+<p>See ?torch_irfft()</p>
+</div>
+<div id="is_complex" class="section level2">
+<h2>is_complex</h2>
+<p>is_complex() -&gt; bool</p>
+<p>Returns TRUE if the data type of <code>self</code> is a complex data type.</p>
+</div>
+<div id="is_contiguous" class="section level2">
+<h2>is_contiguous</h2>
+<p>is_contiguous(memory_format=torch_contiguous_format) -&gt; bool</p>
+<p>Returns TRUE if <code>self</code> tensor is contiguous in memory in the order specified by memory format.</p>
+<div id="arguments-24" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>memory_format (<code>torch_memory_format</code>, optional): Specifies memory allocation</li>
+<li>order. Default: <code>torch_contiguous_format</code>.</li>
+</ul>
+</div>
+</div>
+<div id="is_cuda" class="section level2">
+<h2>is_cuda</h2>
+<p>Is <code>TRUE</code> if the Tensor is stored on the GPU, <code>FALSE</code> otherwise.</p>
+</div>
+<div id="is_floating_point" class="section level2">
+<h2>is_floating_point</h2>
+<p>is_floating_point() -&gt; bool</p>
+<p>Returns TRUE if the data type of <code>self</code> is a floating point data type.</p>
+</div>
+<div id="is_leaf" class="section level2">
+<h2>is_leaf</h2>
+<p>All Tensors that have <code>requires_grad</code> which is <code>FALSE</code> will be leaf Tensors by convention.</p>
+<p>For Tensors that have <code>requires_grad</code> which is <code>TRUE</code>, they will be leaf Tensors if they were created by the user. This means that they are not the result of an operation and so <code>grad_fn</code> is NULL.</p>
+<p>Only leaf Tensors will have their <code>grad</code> populated during a call to [backward()]. To get <code>grad</code> populated for non-leaf Tensors, you can use [retain_grad()].</p>
+<div id="examples-14" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>a &lt;-<span class="st"> </span><span class="kw">torch_rand</span>(<span class="dv">10</span>, <span class="dt">requires_grad=</span><span class="ot">TRUE</span>)</span>
+<span id="cb15-2"><a href="#cb15-2"></a>a<span class="op">$</span><span class="kw">is_leaf</span>()</span>
+<span id="cb15-3"><a href="#cb15-3"></a></span>
+<span id="cb15-4"><a href="#cb15-4"></a><span class="co"># b &lt;- torch_rand(10, requires_grad=TRUE)$cuda()</span></span>
+<span id="cb15-5"><a href="#cb15-5"></a><span class="co"># b$is_leaf()</span></span>
+<span id="cb15-6"><a href="#cb15-6"></a><span class="co"># FALSE</span></span>
+<span id="cb15-7"><a href="#cb15-7"></a><span class="co"># b was created by the operation that cast a cpu Tensor into a cuda Tensor</span></span>
+<span id="cb15-8"><a href="#cb15-8"></a></span>
+<span id="cb15-9"><a href="#cb15-9"></a>c &lt;-<span class="st"> </span><span class="kw">torch_rand</span>(<span class="dv">10</span>, <span class="dt">requires_grad=</span><span class="ot">TRUE</span>) <span class="op">+</span><span class="st"> </span><span class="dv">2</span></span>
+<span id="cb15-10"><a href="#cb15-10"></a>c<span class="op">$</span><span class="kw">is_leaf</span>()</span>
+<span id="cb15-11"><a href="#cb15-11"></a><span class="co"># c was created by the addition operation</span></span>
+<span id="cb15-12"><a href="#cb15-12"></a></span>
+<span id="cb15-13"><a href="#cb15-13"></a><span class="co"># d &lt;- torch_rand(10)$cuda()</span></span>
+<span id="cb15-14"><a href="#cb15-14"></a><span class="co"># d$is_leaf()</span></span>
+<span id="cb15-15"><a href="#cb15-15"></a><span class="co"># TRUE</span></span>
+<span id="cb15-16"><a href="#cb15-16"></a><span class="co"># d does not require gradients and so has no operation creating it (that is tracked by the autograd engine)</span></span>
+<span id="cb15-17"><a href="#cb15-17"></a></span>
+<span id="cb15-18"><a href="#cb15-18"></a><span class="co"># e &lt;- torch_rand(10)$cuda()$requires_grad_()</span></span>
+<span id="cb15-19"><a href="#cb15-19"></a><span class="co"># e$is_leaf()</span></span>
+<span id="cb15-20"><a href="#cb15-20"></a><span class="co"># TRUE</span></span>
+<span id="cb15-21"><a href="#cb15-21"></a><span class="co"># e requires gradients and has no operations creating it</span></span>
+<span id="cb15-22"><a href="#cb15-22"></a></span>
+<span id="cb15-23"><a href="#cb15-23"></a><span class="co"># f &lt;- torch_rand(10, requires_grad=TRUE, device=&quot;cuda&quot;)</span></span>
+<span id="cb15-24"><a href="#cb15-24"></a><span class="co"># f$is_leaf</span></span>
+<span id="cb15-25"><a href="#cb15-25"></a><span class="co"># TRUE</span></span>
+<span id="cb15-26"><a href="#cb15-26"></a><span class="co"># f requires grad, has no operation creating it</span></span></code></pre></div>
+</div>
+</div>
+<div id="is_meta" class="section level2">
+<h2>is_meta</h2>
+<p>Is <code>TRUE</code> if the Tensor is a meta tensor, <code>FALSE</code> otherwise. Meta tensors are like normal tensors, but they carry no data.</p>
+</div>
+<div id="is_pinned" class="section level2">
+<h2>is_pinned</h2>
+<p>Returns true if this tensor resides in pinned memory.</p>
+</div>
+<div id="is_quantized" class="section level2">
+<h2>is_quantized</h2>
+<p>Is <code>TRUE</code> if the Tensor is quantized, <code>FALSE</code> otherwise.</p>
+</div>
+<div id="is_set_to" class="section level2">
+<h2>is_set_to</h2>
+<p>is_set_to(tensor) -&gt; bool</p>
+<p>Returns TRUE if this object refers to the same <code>THTensor</code> object from the Torch C API as the given tensor.</p>
+</div>
+<div id="is_shared" class="section level2">
+<h2>is_shared</h2>
+<p>Checks if tensor is in shared memory.</p>
+<p>This is always <code>TRUE</code> for CUDA tensors.</p>
+</div>
+<div id="is_signed" class="section level2">
+<h2>is_signed</h2>
+<p>is_signed() -&gt; bool</p>
+<p>Returns TRUE if the data type of <code>self</code> is a signed data type.</p>
+</div>
+<div id="isclose" class="section level2">
+<h2>isclose</h2>
+<p>isclose(other, rtol=1e-05, atol=1e-08, equal_nan=FALSE) -&gt; Tensor</p>
+<p>See ?torch_isclose()</p>
+</div>
+<div id="isfinite" class="section level2">
+<h2>isfinite</h2>
+<p>isfinite() -&gt; Tensor</p>
+<p>See ?torch_isfinite()</p>
+</div>
+<div id="isinf" class="section level2">
+<h2>isinf</h2>
+<p>isinf() -&gt; Tensor</p>
+<p>See ?torch_isinf()</p>
+</div>
+<div id="isnan" class="section level2">
+<h2>isnan</h2>
+<p>isnan() -&gt; Tensor</p>
+<p>See ?torch_isnan()</p>
+</div>
+<div id="istft" class="section level2">
+<h2>istft</h2>
+<p>See ?torch_istft() ## item</p>
+<p>item() -&gt; number</p>
+<p>Returns the value of this tensor as a standard Python number. This only works for tensors with one element. For other cases, see <code>$tolist</code>.</p>
+<p>This operation is not differentiable.</p>
+<div id="examples-15" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="fl">1.0</span>)</span>
+<span id="cb16-2"><a href="#cb16-2"></a>x<span class="op">$</span><span class="kw">item</span>()</span></code></pre></div>
+</div>
+</div>
+<div id="kthvalue" class="section level2">
+<h2>kthvalue</h2>
+<p>kthvalue(k, dim=NULL, keepdim=FALSE) -&gt; (Tensor, LongTensor)</p>
+<p>See ?torch_kthvalue()</p>
+</div>
+<div id="le" class="section level2">
+<h2>le</h2>
+<p>le(other) -&gt; Tensor</p>
+<p>See ?torch_le()</p>
+</div>
+<div id="le_" class="section level2">
+<h2>le_</h2>
+<p>le_(other) -&gt; Tensor</p>
+<p>In-place version of <code>$le</code></p>
+</div>
+<div id="lerp" class="section level2">
+<h2>lerp</h2>
+<p>lerp(end, weight) -&gt; Tensor</p>
+<p>See ?torch_lerp()</p>
+</div>
+<div id="lerp_" class="section level2">
+<h2>lerp_</h2>
+<p>lerp_(end, weight) -&gt; Tensor</p>
+<p>In-place version of <code>$lerp</code></p>
+</div>
+<div id="lgamma" class="section level2">
+<h2>lgamma</h2>
+<p>lgamma() -&gt; Tensor</p>
+<p>See ?torch_lgamma()</p>
+</div>
+<div id="lgamma_" class="section level2">
+<h2>lgamma_</h2>
+<p>lgamma_() -&gt; Tensor</p>
+<p>In-place version of <code>$lgamma</code></p>
+</div>
+<div id="log" class="section level2">
+<h2>log</h2>
+<p>log() -&gt; Tensor</p>
+<p>See ?torch_log()</p>
+</div>
+<div id="log10" class="section level2">
+<h2>log10</h2>
+<p>log10() -&gt; Tensor</p>
+<p>See [torch_log10()]</p>
+</div>
+<div id="log10_" class="section level2">
+<h2>log10_</h2>
+<p>log10_() -&gt; Tensor</p>
+<p>In-place version of <code>$log10</code></p>
+</div>
+<div id="log1p" class="section level2">
+<h2>log1p</h2>
+<p>log1p() -&gt; Tensor</p>
+<p>See [torch_log1p()]</p>
+</div>
+<div id="log1p_" class="section level2">
+<h2>log1p_</h2>
+<p>log1p_() -&gt; Tensor</p>
+<p>In-place version of <code>$log1p</code></p>
+</div>
+<div id="log2" class="section level2">
+<h2>log2</h2>
+<p>log2() -&gt; Tensor</p>
+<p>See [torch_log2()]</p>
+</div>
+<div id="log2_" class="section level2">
+<h2>log2_</h2>
+<p>log2_() -&gt; Tensor</p>
+<p>In-place version of <code>$log2</code></p>
+</div>
+<div id="log_" class="section level2">
+<h2>log_</h2>
+<p>log_() -&gt; Tensor</p>
+<p>In-place version of <code>$log</code></p>
+</div>
+<div id="log_normal_" class="section level2">
+<h2>log_normal_</h2>
+<p>log_normal_(mean=1, std=2, *, generator=NULL)</p>
+<p>Fills <code>self</code> tensor with numbers samples from the log-normal distribution parameterized by the given mean <code>\mu</code> and standard deviation <code>\sigma</code>. Note that <code>mean</code> and <code>std</code> are the mean and standard deviation of the underlying normal distribution, and not of the returned distribution:</p>
+<p><span class="math display">\[
+f(x) = \dfrac{1}{x \sigma \sqrt{2\pi}}\ e^{-\frac{(\ln x - \mu)^2}{2\sigma^2}}
+\]</span></p>
+</div>
+<div id="logaddexp" class="section level2">
+<h2>logaddexp</h2>
+<p>logaddexp(other) -&gt; Tensor</p>
+<p>See ?torch_logaddexp()</p>
+</div>
+<div id="logaddexp2" class="section level2">
+<h2>logaddexp2</h2>
+<p>logaddexp2(other) -&gt; Tensor</p>
+<p>See [torch_logaddexp2()]</p>
+</div>
+<div id="logcumsumexp" class="section level2">
+<h2>logcumsumexp</h2>
+<p>logcumsumexp(dim) -&gt; Tensor</p>
+<p>See ?torch_logcumsumexp()</p>
+</div>
+<div id="logdet" class="section level2">
+<h2>logdet</h2>
+<p>logdet() -&gt; Tensor</p>
+<p>See ?torch_logdet()</p>
+</div>
+<div id="logical_and" class="section level2">
+<h2>logical_and</h2>
+<p>logical_and() -&gt; Tensor</p>
+<p>See [torch_logical_and()]</p>
+</div>
+<div id="logical_and_" class="section level2">
+<h2>logical_and_</h2>
+<p>logical_and_() -&gt; Tensor</p>
+<p>In-place version of <code>$logical_and</code></p>
+</div>
+<div id="logical_not" class="section level2">
+<h2>logical_not</h2>
+<p>logical_not() -&gt; Tensor</p>
+<p>See [torch_logical_not()]</p>
+</div>
+<div id="logical_not_" class="section level2">
+<h2>logical_not_</h2>
+<p>logical_not_() -&gt; Tensor</p>
+<p>In-place version of <code>$logical_not</code></p>
+</div>
+<div id="logical_or" class="section level2">
+<h2>logical_or</h2>
+<p>logical_or() -&gt; Tensor</p>
+<p>See [torch_logical_or()]</p>
+</div>
+<div id="logical_or_" class="section level2">
+<h2>logical_or_</h2>
+<p>logical_or_() -&gt; Tensor</p>
+<p>In-place version of <code>$logical_or</code></p>
+</div>
+<div id="logical_xor" class="section level2">
+<h2>logical_xor</h2>
+<p>logical_xor() -&gt; Tensor</p>
+<p>See [torch_logical_xor()]</p>
+</div>
+<div id="logical_xor_" class="section level2">
+<h2>logical_xor_</h2>
+<p>logical_xor_() -&gt; Tensor</p>
+<p>In-place version of <code>$logical_xor</code></p>
+</div>
+<div id="logsumexp" class="section level2">
+<h2>logsumexp</h2>
+<p>logsumexp(dim, keepdim=FALSE) -&gt; Tensor</p>
+<p>See ?torch_logsumexp()</p>
+</div>
+<div id="long" class="section level2">
+<h2>long</h2>
+<p>long(memory_format=torch_preserve_format) -&gt; Tensor</p>
+<p><code>self$long()</code> is equivalent to <code>self$to(torch_int64)</code>. See [to()].</p>
+<div id="arguments-25" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>memory_format (<code>torch_memory_format</code>, optional): the desired memory format of</li>
+<li>returned Tensor. Default: <code>torch_preserve_format</code>.</li>
+</ul>
+</div>
+</div>
+<div id="lstsq" class="section level2">
+<h2>lstsq</h2>
+<p>lstsq(A) -&gt; (Tensor, Tensor)</p>
+<p>See ?torch_lstsq()</p>
+</div>
+<div id="lt" class="section level2">
+<h2>lt</h2>
+<p>lt(other) -&gt; Tensor</p>
+<p>See ?torch_lt()</p>
+</div>
+<div id="lt_" class="section level2">
+<h2>lt_</h2>
+<p>lt_(other) -&gt; Tensor</p>
+<p>In-place version of <code>$lt</code></p>
+</div>
+<div id="lu" class="section level2">
+<h2>lu</h2>
+<p>See ?torch_lu() ## lu_solve</p>
+<p>lu_solve(LU_data, LU_pivots) -&gt; Tensor</p>
+<p>See [torch_lu_solve()]</p>
+</div>
+<div id="map_" class="section level2">
+<h2>map_</h2>
+<p>map_(tensor, callable)</p>
+<p>Applies <code>callable</code> for each element in <code>self</code> tensor and the given <code>tensor</code> and stores the results in <code>self</code> tensor. <code>self</code> tensor and the given <code>tensor</code> must be broadcastable.</p>
+<p>The <code>callable</code> should have the signature:</p>
+<p><code>callable(a, b) -&gt; number</code></p>
+</div>
+<div id="masked_fill" class="section level2">
+<h2>masked_fill</h2>
+<p>masked_fill(mask, value) -&gt; Tensor</p>
+<p>Out-of-place version of <code>$masked_fill_</code></p>
+</div>
+<div id="masked_fill_" class="section level2">
+<h2>masked_fill_</h2>
+<p>masked_fill_(mask, value)</p>
+<p>Fills elements of <code>self</code> tensor with <code>value</code> where <code>mask</code> is TRUE. The shape of <code>mask</code> must be <code>broadcastable &lt;broadcasting-semantics&gt;</code> with the shape of the underlying tensor.</p>
+<div id="arguments-26" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>mask (BoolTensor): the boolean mask</li>
+<li>value (float): the value to fill in with</li>
+</ul>
+</div>
+</div>
+<div id="masked_scatter" class="section level2">
+<h2>masked_scatter</h2>
+<p>masked_scatter(mask, tensor) -&gt; Tensor</p>
+<p>Out-of-place version of <code>$masked_scatter_</code></p>
+</div>
+<div id="masked_scatter_" class="section level2">
+<h2>masked_scatter_</h2>
+<p>masked_scatter_(mask, source)</p>
+<p>Copies elements from <code>source</code> into <code>self</code> tensor at positions where the <code>mask</code> is TRUE. The shape of <code>mask</code> must be :ref:<code>broadcastable &lt;broadcasting-semantics&gt;</code> with the shape of the underlying tensor. The <code>source</code> should have at least as many elements as the number of ones in <code>mask</code></p>
+<div id="arguments-27" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>mask (BoolTensor): the boolean mask</li>
+<li>source (Tensor): the tensor to copy from</li>
+</ul>
+</div>
+<div id="note-5" class="section level4">
+<h4>Note:</h4>
+<p>The <code>mask</code> operates on the <code>self</code> tensor, not on the given <code>source</code> tensor.</p>
+</div>
+</div>
+<div id="masked_select" class="section level2">
+<h2>masked_select</h2>
+<p>masked_select(mask) -&gt; Tensor</p>
+<p>See [torch_masked_select()]</p>
+</div>
+<div id="matmul" class="section level2">
+<h2>matmul</h2>
+<p>matmul(tensor2) -&gt; Tensor</p>
+<p>See ?torch_matmul()</p>
+</div>
+<div id="matrix_power" class="section level2">
+<h2>matrix_power</h2>
+<p>matrix_power(n) -&gt; Tensor</p>
+<p>See [torch_matrix_power()]</p>
+</div>
+<div id="max" class="section level2">
+<h2>max</h2>
+<p>max(dim=NULL, keepdim=FALSE) -&gt; Tensor or (Tensor, Tensor)</p>
+<p>See ?torch_max()</p>
+</div>
+<div id="mean" class="section level2">
+<h2>mean</h2>
+<p>mean(dim=NULL, keepdim=FALSE) -&gt; Tensor or (Tensor, Tensor)</p>
+<p>See ?torch_mean()</p>
+</div>
+<div id="median" class="section level2">
+<h2>median</h2>
+<p>median(dim=NULL, keepdim=FALSE) -&gt; (Tensor, LongTensor)</p>
+<p>See ?torch_median()</p>
+</div>
+<div id="min" class="section level2">
+<h2>min</h2>
+<p>min(dim=NULL, keepdim=FALSE) -&gt; Tensor or (Tensor, Tensor)</p>
+<p>See ?torch_min()</p>
+</div>
+<div id="mm" class="section level2">
+<h2>mm</h2>
+<p>mm(mat2) -&gt; Tensor</p>
+<p>See ?torch_mm()</p>
+</div>
+<div id="mode" class="section level2">
+<h2>mode</h2>
+<p>mode(dim=NULL, keepdim=FALSE) -&gt; (Tensor, LongTensor)</p>
+<p>See ?torch_mode()</p>
+</div>
+<div id="mul" class="section level2">
+<h2>mul</h2>
+<p>mul(value) -&gt; Tensor</p>
+<p>See ?torch_mul()</p>
+</div>
+<div id="mul_" class="section level2">
+<h2>mul_</h2>
+<p>mul_(value)</p>
+<p>In-place version of <code>$mul</code></p>
+</div>
+<div id="multinomial" class="section level2">
+<h2>multinomial</h2>
+<p>multinomial(num_samples, replacement=FALSE, *, generator=NULL) -&gt; Tensor</p>
+<p>See ?torch_multinomial()</p>
+</div>
+<div id="mv" class="section level2">
+<h2>mv</h2>
+<p>mv(vec) -&gt; Tensor</p>
+<p>See ?torch_mv()</p>
+</div>
+<div id="mvlgamma" class="section level2">
+<h2>mvlgamma</h2>
+<p>mvlgamma(p) -&gt; Tensor</p>
+<p>See ?torch_mvlgamma()</p>
+</div>
+<div id="mvlgamma_" class="section level2">
+<h2>mvlgamma_</h2>
+<p>mvlgamma_(p) -&gt; Tensor</p>
+<p>In-place version of <code>$mvlgamma</code></p>
+</div>
+<div id="names" class="section level2">
+<h2>names</h2>
+<p>Stores names for each of this tensor’s dimensions.</p>
+<p><code>names[idx]</code> corresponds to the name of tensor dimension <code>idx</code>. Names are either a string if the dimension is named or <code>NULL</code> if the dimension is unnamed.</p>
+<p>Dimension names may contain characters or underscore. Furthermore, a dimension name must be a valid Python variable name (i.e., does not start with underscore).</p>
+<p>Tensors may not have two named dimensions with the same name.</p>
+<div id="warning-4" class="section level4">
+<h4>Warning:</h4>
+<p>The named tensor API is experimental and subject to change.</p>
+</div>
+</div>
+<div id="narrow" class="section level2">
+<h2>narrow</h2>
+<p>narrow(dimension, start, length) -&gt; Tensor</p>
+<p>See ?torch_narrow()</p>
+<div id="examples-16" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="kw">matrix</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">9</span>, <span class="dt">ncol =</span> <span class="dv">3</span>))</span>
+<span id="cb17-2"><a href="#cb17-2"></a>x<span class="op">$</span><span class="kw">narrow</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">3</span>)</span>
+<span id="cb17-3"><a href="#cb17-3"></a>x<span class="op">$</span><span class="kw">narrow</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>)</span></code></pre></div>
+</div>
+</div>
+<div id="narrow_copy" class="section level2">
+<h2>narrow_copy</h2>
+<p>narrow_copy(dimension, start, length) -&gt; Tensor</p>
+<p>Same as <code>Tensor.narrow</code> except returning a copy rather than shared storage. This is primarily for sparse tensors, which do not have a shared-storage narrow method. Calling <code>narrow_copy` with</code>dimemsion &gt; self<span class="math inline">\(sparse_dim()`` will return a copy with the relevant dense dimension narrowed, and ``self\)</span>shape`` updated accordingly.</p>
+</div>
+<div id="ndim" class="section level2">
+<h2>ndim</h2>
+<p>Alias for <code>$dim()</code></p>
+</div>
+<div id="ndimension" class="section level2">
+<h2>ndimension</h2>
+<p>ndimension() -&gt; int</p>
+<p>Alias for <code>$dim()</code></p>
+</div>
+<div id="ne" class="section level2">
+<h2>ne</h2>
+<p>ne(other) -&gt; Tensor</p>
+<p>See ?torch_ne()</p>
+</div>
+<div id="ne_" class="section level2">
+<h2>ne_</h2>
+<p>ne_(other) -&gt; Tensor</p>
+<p>In-place version of <code>$ne</code></p>
+</div>
+<div id="neg" class="section level2">
+<h2>neg</h2>
+<p>neg() -&gt; Tensor</p>
+<p>See ?torch_neg()</p>
+</div>
+<div id="neg_" class="section level2">
+<h2>neg_</h2>
+<p>neg_() -&gt; Tensor</p>
+<p>In-place version of <code>$neg</code></p>
+</div>
+<div id="nelement" class="section level2">
+<h2>nelement</h2>
+<p>nelement() -&gt; int</p>
+<p>Alias for <code>$numel</code></p>
+</div>
+<div id="new_empty" class="section level2">
+<h2>new_empty</h2>
+<p>new_empty(size, dtype=NULL, device=NULL, requires_grad=FALSE) -&gt; Tensor</p>
+<p>Returns a Tensor of size <code>size</code> filled with uninitialized data. By default, the returned Tensor has the same <code>torch_dtype</code> and <code>torch_device</code> as this tensor.</p>
+<div id="arguments-28" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>dtype (<code>torch_dtype</code>, optional): the desired type of returned tensor. Default: if NULL, same <code>torch_dtype</code> as this tensor.</li>
+<li>device (<code>torch_device</code>, optional): the desired device of returned tensor. Default: if NULL, same <code>torch_device</code> as this tensor.</li>
+<li>requires_grad (bool, optional): If autograd should record operations on the</li>
+<li>returned tensor. Default: <code>FALSE</code>.</li>
+</ul>
+</div>
+<div id="examples-17" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>tensor &lt;-<span class="st"> </span><span class="kw">torch_ones</span>(<span class="dv">5</span>)</span>
+<span id="cb18-2"><a href="#cb18-2"></a>tensor<span class="op">$</span><span class="kw">new_empty</span>(<span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>))</span></code></pre></div>
+</div>
+</div>
+<div id="new_full" class="section level2">
+<h2>new_full</h2>
+<p>new_full(size, fill_value, dtype=NULL, device=NULL, requires_grad=FALSE) -&gt; Tensor</p>
+<p>Returns a Tensor of size <code>size</code> filled with <code>fill_value</code>. By default, the returned Tensor has the same <code>torch_dtype</code> and <code>torch_device</code> as this tensor.</p>
+<div id="arguments-29" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>fill_value (scalar): the number to fill the output tensor with.</li>
+<li>dtype (<code>torch_dtype</code>, optional): the desired type of returned tensor. Default: if NULL, same <code>torch_dtype</code> as this tensor.</li>
+<li>device (<code>torch_device</code>, optional): the desired device of returned tensor. Default: if NULL, same <code>torch_device</code> as this tensor.</li>
+<li>requires_grad (bool, optional): If autograd should record operations on the</li>
+<li>returned tensor. Default: <code>FALSE</code>.</li>
+</ul>
+</div>
+<div id="examples-18" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>tensor &lt;-<span class="st"> </span><span class="kw">torch_ones</span>(<span class="kw">c</span>(<span class="dv">2</span>), <span class="dt">dtype=</span><span class="kw">torch_float64</span>())</span>
+<span id="cb19-2"><a href="#cb19-2"></a>tensor<span class="op">$</span><span class="kw">new_full</span>(<span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">4</span>), <span class="fl">3.141592</span>)</span></code></pre></div>
+</div>
+</div>
+<div id="new_ones" class="section level2">
+<h2>new_ones</h2>
+<p>new_ones(size, dtype=NULL, device=NULL, requires_grad=FALSE) -&gt; Tensor</p>
+<p>Returns a Tensor of size <code>size</code> filled with <code>1</code>. By default, the returned Tensor has the same <code>torch_dtype</code> and <code>torch_device</code> as this tensor.</p>
+<div id="arguments-30" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>size (int…): a list, tuple, or <code>torch_Size</code> of integers defining the</li>
+<li>shape of the output tensor.</li>
+<li>dtype (<code>torch_dtype</code>, optional): the desired type of returned tensor. Default: if NULL, same <code>torch_dtype</code> as this tensor.</li>
+<li>device (<code>torch_device</code>, optional): the desired device of returned tensor. Default: if NULL, same <code>torch_device</code> as this tensor.</li>
+<li>requires_grad (bool, optional): If autograd should record operations on the</li>
+<li>returned tensor. Default: <code>FALSE</code>.</li>
+</ul>
+</div>
+<div id="examples-19" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>tensor &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="kw">c</span>(<span class="dv">2</span>), <span class="dt">dtype=</span><span class="kw">torch_int32</span>())</span>
+<span id="cb20-2"><a href="#cb20-2"></a>tensor<span class="op">$</span><span class="kw">new_ones</span>(<span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>))</span></code></pre></div>
+</div>
+</div>
+<div id="new_tensor" class="section level2">
+<h2>new_tensor</h2>
+<p>new_tensor(data, dtype=NULL, device=NULL, requires_grad=FALSE) -&gt; Tensor</p>
+<p>Returns a new Tensor with <code>data</code> as the tensor data. By default, the returned Tensor has the same <code>torch_dtype</code> and <code>torch_device</code> as this tensor.</p>
+<div id="warning-5" class="section level4">
+<h4>Warning:</h4>
+<p><code>new_tensor</code> always copies <code>data(). If you have a Tensor</code>data` and want to avoid a copy, use [$requires_grad_()] or [$detach()]. If you have a numpy array and want to avoid a copy, use [torch_from_numpy()].</p>
+<p>When data is a tensor <code>x</code>, [new_tensor()()] reads out ‘the data’ from whatever it is passed, and constructs a leaf variable. Therefore <code>tensor$new_tensor(x)</code> is equivalent to <code>x$clone()$detach()</code> and <code>tensor$new_tensor(x, requires_grad=TRUE)</code> is equivalent to <code>x$clone()$detach()$requires_grad_(TRUE)</code>. The equivalents using <code>clone()</code> and <code>detach()</code> are recommended.</p>
+</div>
+<div id="arguments-31" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>data (array_like): The returned Tensor copies <code>data</code>.</li>
+<li>dtype (<code>torch_dtype</code>, optional): the desired type of returned tensor. Default: if NULL, same <code>torch_dtype</code> as this tensor.</li>
+<li>device (<code>torch_device</code>, optional): the desired device of returned tensor. Default: if NULL, same <code>torch_device</code> as this tensor.</li>
+<li>requires_grad (bool, optional): If autograd should record operations on the</li>
+<li>returned tensor. Default: <code>FALSE</code>.</li>
+</ul>
+</div>
+<div id="examples-20" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>tensor &lt;-<span class="st"> </span><span class="kw">torch_ones</span>(<span class="kw">c</span>(<span class="dv">2</span>), <span class="dt">dtype=</span>torch_int8)</span>
+<span id="cb21-2"><a href="#cb21-2"></a>data &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>, <span class="dt">ncol =</span> <span class="dv">2</span>)</span>
+<span id="cb21-3"><a href="#cb21-3"></a>tensor<span class="op">$</span><span class="kw">new_tensor</span>(data)</span></code></pre></div>
+</div>
+</div>
+<div id="new_zeros" class="section level2">
+<h2>new_zeros</h2>
+<p>new_zeros(size, dtype=NULL, device=NULL, requires_grad=FALSE) -&gt; Tensor</p>
+<p>Returns a Tensor of size <code>size</code> filled with <code>0</code>. By default, the returned Tensor has the same <code>torch_dtype</code> and <code>torch_device</code> as this tensor.</p>
+<div id="arguments-32" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>size (int…): a list, tuple, or <code>torch_Size</code> of integers defining the</li>
+<li>shape of the output tensor.</li>
+<li>dtype (<code>torch_dtype</code>, optional): the desired type of returned tensor. Default: if NULL, same <code>torch_dtype</code> as this tensor.</li>
+<li>device (<code>torch_device</code>, optional): the desired device of returned tensor. Default: if NULL, same <code>torch_device</code> as this tensor.</li>
+<li>requires_grad (bool, optional): If autograd should record operations on the</li>
+<li>returned tensor. Default: <code>FALSE</code>.</li>
+</ul>
+</div>
+<div id="examples-21" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>tensor &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="kw">c</span>(<span class="dv">1</span>), <span class="dt">dtype=</span><span class="kw">torch_float64</span>())</span>
+<span id="cb22-2"><a href="#cb22-2"></a>tensor<span class="op">$</span><span class="kw">new_zeros</span>(<span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>))</span></code></pre></div>
+</div>
+</div>
+<div id="nonzero" class="section level2">
+<h2>nonzero</h2>
+<p>nonzero() -&gt; LongTensor</p>
+<p>See ?torch_nonzero()</p>
+</div>
+<div id="norm" class="section level2">
+<h2>norm</h2>
+<p>See ?torch_norm() ## normal_</p>
+<p>normal_(mean=0, std=1, *, generator=NULL) -&gt; Tensor</p>
+<p>Fills <code>self</code> tensor with elements samples from the normal distribution parameterized by <code>mean</code> and <code>std</code>.</p>
+</div>
+<div id="numel" class="section level2">
+<h2>numel</h2>
+<p>numel() -&gt; int</p>
+<p>See ?torch_numel()</p>
+</div>
+<div id="numpy" class="section level2">
+<h2>numpy</h2>
+<p>numpy() -&gt; numpy.ndarray</p>
+<p>Returns <code>self</code> tensor as a NumPy :class:<code>ndarray</code>. This tensor and the returned <code>ndarray</code> share the same underlying storage. Changes to <code>self</code> tensor will be reflected in the :class:<code>ndarray</code> and vice versa.</p>
+</div>
+<div id="orgqr" class="section level2">
+<h2>orgqr</h2>
+<p>orgqr(input2) -&gt; Tensor</p>
+<p>See ?torch_orgqr()</p>
+</div>
+<div id="ormqr" class="section level2">
+<h2>ormqr</h2>
+<p>ormqr(input2, input3, left=TRUE, transpose=FALSE) -&gt; Tensor</p>
+<p>See ?torch_ormqr()</p>
+</div>
+<div id="permute" class="section level2">
+<h2>permute</h2>
+<p>permute(*dims) -&gt; Tensor</p>
+<p>Returns a view of the original tensor with its dimensions permuted.</p>
+<div id="arguments-33" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>dims (int…): The desired ordering of dimensions</li>
+</ul>
+</div>
+<div id="examples-22" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_randn</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">5</span>)</span>
+<span id="cb23-2"><a href="#cb23-2"></a>x<span class="op">$</span><span class="kw">size</span>()</span>
+<span id="cb23-3"><a href="#cb23-3"></a>x<span class="op">$</span><span class="kw">permute</span>(<span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">2</span>))<span class="op">$</span><span class="kw">size</span>()</span></code></pre></div>
+</div>
+</div>
+<div id="pin_memory" class="section level2">
+<h2>pin_memory</h2>
+<p>pin_memory() -&gt; Tensor</p>
+<p>Copies the tensor to pinned memory, if it’s not already pinned.</p>
+</div>
+<div id="pinverse" class="section level2">
+<h2>pinverse</h2>
+<p>pinverse() -&gt; Tensor</p>
+<p>See ?torch_pinverse()</p>
+</div>
+<div id="polygamma" class="section level2">
+<h2>polygamma</h2>
+<p>polygamma(n) -&gt; Tensor</p>
+<p>See ?torch_polygamma()</p>
+</div>
+<div id="polygamma_" class="section level2">
+<h2>polygamma_</h2>
+<p>polygamma_(n) -&gt; Tensor</p>
+<p>In-place version of <code>$polygamma</code></p>
+</div>
+<div id="pow" class="section level2">
+<h2>pow</h2>
+<p>pow(exponent) -&gt; Tensor</p>
+<p>See ?torch_pow()</p>
+</div>
+<div id="pow_" class="section level2">
+<h2>pow_</h2>
+<p>pow_(exponent) -&gt; Tensor</p>
+<p>In-place version of <code>$pow</code></p>
+</div>
+<div id="prod" class="section level2">
+<h2>prod</h2>
+<p>prod(dim=NULL, keepdim=FALSE, dtype=NULL) -&gt; Tensor</p>
+<p>See ?torch_prod()</p>
+</div>
+<div id="put_" class="section level2">
+<h2>put_</h2>
+<p>put_(indices, tensor, accumulate=FALSE) -&gt; Tensor</p>
+<p>Copies the elements from <code>tensor</code> into the positions specified by indices. For the purpose of indexing, the <code>self</code> tensor is treated as if it were a 1-D tensor.</p>
+<p>If <code>accumulate</code> is <code>TRUE</code>, the elements in <code>tensor</code> are added to <code>self</code>. If accumulate is <code>FALSE</code>, the behavior is undefined if indices contain duplicate elements.</p>
+<div id="arguments-34" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>indices (LongTensor): the indices into self</li>
+<li>tensor (Tensor): the tensor containing values to copy from</li>
+<li>accumulate (bool): whether to accumulate into self</li>
+</ul>
+</div>
+<div id="examples-23" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>src &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="kw">matrix</span>(<span class="dv">3</span><span class="op">:</span><span class="dv">8</span>, <span class="dt">ncol =</span> <span class="dv">3</span>))</span>
+<span id="cb24-2"><a href="#cb24-2"></a>src<span class="op">$</span><span class="kw">put_</span>(<span class="kw">torch_tensor</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>), <span class="kw">torch_tensor</span>(<span class="dv">9</span><span class="op">:</span><span class="dv">10</span>))</span></code></pre></div>
+</div>
+</div>
+<div id="q_per_channel_axis" class="section level2">
+<h2>q_per_channel_axis</h2>
+<p>q_per_channel_axis() -&gt; int</p>
+<p>Given a Tensor quantized by linear (affine) per-channel quantization, returns the index of dimension on which per-channel quantization is applied.</p>
+</div>
+<div id="q_per_channel_scales" class="section level2">
+<h2>q_per_channel_scales</h2>
+<p>q_per_channel_scales() -&gt; Tensor</p>
+<p>Given a Tensor quantized by linear (affine) per-channel quantization, returns a Tensor of scales of the underlying quantizer. It has the number of elements that matches the corresponding dimensions (from q_per_channel_axis) of the tensor.</p>
+</div>
+<div id="q_per_channel_zero_points" class="section level2">
+<h2>q_per_channel_zero_points</h2>
+<p>q_per_channel_zero_points() -&gt; Tensor</p>
+<p>Given a Tensor quantized by linear (affine) per-channel quantization, returns a tensor of zero_points of the underlying quantizer. It has the number of elements that matches the corresponding dimensions (from q_per_channel_axis) of the tensor.</p>
+</div>
+<div id="q_scale" class="section level2">
+<h2>q_scale</h2>
+<p>q_scale() -&gt; float</p>
+<p>Given a Tensor quantized by linear(affine) quantization, returns the scale of the underlying quantizer().</p>
+</div>
+<div id="q_zero_point" class="section level2">
+<h2>q_zero_point</h2>
+<p>q_zero_point() -&gt; int</p>
+<p>Given a Tensor quantized by linear(affine) quantization, returns the zero_point of the underlying quantizer().</p>
+</div>
+<div id="qr" class="section level2">
+<h2>qr</h2>
+<p>qr(some=TRUE) -&gt; (Tensor, Tensor)</p>
+<p>See ?torch_qr()</p>
+</div>
+<div id="qscheme" class="section level2">
+<h2>qscheme</h2>
+<p>qscheme() -&gt; torch_qscheme</p>
+<p>Returns the quantization scheme of a given QTensor.</p>
+</div>
+<div id="rad2deg" class="section level2">
+<h2>rad2deg</h2>
+<p>rad2deg() -&gt; Tensor</p>
+<p>See [torch_rad2deg()]</p>
+</div>
+<div id="rad2deg_" class="section level2">
+<h2>rad2deg_</h2>
+<p>rad2deg_() -&gt; Tensor</p>
+<p>In-place version of <code>$rad2deg</code></p>
+</div>
+<div id="random_" class="section level2">
+<h2>random_</h2>
+<p>random_(from=0, to=NULL, *, generator=NULL) -&gt; Tensor</p>
+<p>Fills <code>self</code> tensor with numbers sampled from the discrete uniform distribution over <code>[from, to - 1]</code>. If not specified, the values are usually only bounded by <code>self</code> tensor’s data type. However, for floating point types, if unspecified, range will be <code>[0, 2^mantissa]</code> to ensure that every value is representable. For example, <code>torch_tensor(1, dtype=torch_double).random_()</code> will be uniform in <code>[0, 2^53]</code>.</p>
+</div>
+<div id="real" class="section level2">
+<h2>real</h2>
+<p>Returns a new tensor containing real values of the <code>self</code> tensor. The returned tensor and <code>self</code> share the same underlying storage.</p>
+<div id="warning-6" class="section level4">
+<h4>Warning:</h4>
+<p>[real()] is only supported for tensors with complex dtypes.</p>
+</div>
+<div id="examples-24" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_randn</span>(<span class="dv">4</span>, <span class="dt">dtype=</span><span class="kw">torch_cfloat</span>())</span>
+<span id="cb25-2"><a href="#cb25-2"></a>x</span>
+<span id="cb25-3"><a href="#cb25-3"></a>x<span class="op">$</span>real</span></code></pre></div>
+</div>
+</div>
+<div id="reciprocal" class="section level2">
+<h2>reciprocal</h2>
+<p>reciprocal() -&gt; Tensor</p>
+<p>See ?torch_reciprocal()</p>
+</div>
+<div id="reciprocal_" class="section level2">
+<h2>reciprocal_</h2>
+<p>reciprocal_() -&gt; Tensor</p>
+<p>In-place version of <code>$reciprocal</code></p>
+</div>
+<div id="record_stream" class="section level2">
+<h2>record_stream</h2>
+<p>record_stream(stream)</p>
+<p>Ensures that the tensor memory is not reused for another tensor until all current work queued on <code>stream</code> are complete.</p>
+<div id="note-6" class="section level4">
+<h4>Note:</h4>
+<p>The caching allocator is aware of only the stream where a tensor was allocated. Due to the awareness, it already correctly manages the life cycle of tensors on only one stream. But if a tensor is used on a stream different from the stream of origin, the allocator might reuse the memory unexpectedly. Calling this method lets the allocator know which streams have used the tensor.</p>
+</div>
+</div>
+<div id="refine_names" class="section level2">
+<h2>refine_names</h2>
+<p>Refines the dimension names of <code>self</code> according to <code>names</code>.</p>
+<p>Refining is a special case of renaming that “lifts” unnamed dimensions. A <code>NULL</code> dim can be refined to have any name; a named dim can only be refined to have the same name.</p>
+<p>Because named tensors can coexist with unnamed tensors, refining names gives a nice way to write named-tensor-aware code that works with both named and unnamed tensors.</p>
+<p><code>names</code> may contain up to one Ellipsis (<code>...</code>). The Ellipsis is expanded greedily; it is expanded in-place to fill <code>names</code> to the same length as <code>self$dim()</code> using names from the corresponding indices of <code>self$names</code>.</p>
+<div id="arguments-35" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>names (iterable of str): The desired names of the output tensor. May contain up to one Ellipsis.</li>
+</ul>
+</div>
+<div id="examples-25" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>imgs &lt;-<span class="st"> </span><span class="kw">torch_randn</span>(<span class="dv">32</span>, <span class="dv">3</span>, <span class="dv">128</span>, <span class="dv">128</span>)</span>
+<span id="cb26-2"><a href="#cb26-2"></a>named_imgs &lt;-<span class="st"> </span>imgs<span class="op">$</span><span class="kw">refine_names</span>(<span class="kw">c</span>(<span class="st">&#39;N&#39;</span>, <span class="st">&#39;C&#39;</span>, <span class="st">&#39;H&#39;</span>, <span class="st">&#39;W&#39;</span>))</span>
+<span id="cb26-3"><a href="#cb26-3"></a>named_imgs<span class="op">$</span>names</span></code></pre></div>
+</div>
+</div>
+<div id="register_hook" class="section level2">
+<h2>register_hook</h2>
+<p>Registers a backward hook.</p>
+<p>The hook will be called every time a gradient with respect to the Tensor is computed. The hook should have the following signature::</p>
+<p>hook(grad) -&gt; Tensor or NULL</p>
+<p>The hook should not modify its argument, but it can optionally return a new gradient which will be used in place of <code>grad</code>.</p>
+<p>This function returns a handle with a method <code>handle$remove()</code> that removes the hook from the module.</p>
+<div id="example" class="section level4">
+<h4>Example</h4>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>v &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="kw">c</span>(<span class="fl">0.</span>, <span class="fl">0.</span>, <span class="fl">0.</span>), <span class="dt">requires_grad=</span><span class="ot">TRUE</span>)</span>
+<span id="cb27-2"><a href="#cb27-2"></a>h &lt;-<span class="st"> </span>v<span class="op">$</span><span class="kw">register_hook</span>(<span class="cf">function</span>(grad) grad <span class="op">*</span><span class="st"> </span><span class="dv">2</span>)  <span class="co"># double the gradient</span></span>
+<span id="cb27-3"><a href="#cb27-3"></a>v<span class="op">$</span><span class="kw">backward</span>(<span class="kw">torch_tensor</span>(<span class="kw">c</span>(<span class="fl">1.</span>, <span class="fl">2.</span>, <span class="fl">3.</span>)))</span>
+<span id="cb27-4"><a href="#cb27-4"></a>v<span class="op">$</span>grad</span>
+<span id="cb27-5"><a href="#cb27-5"></a>h<span class="op">$</span><span class="kw">remove</span>()</span></code></pre></div>
+</div>
+</div>
+<div id="remainder" class="section level2">
+<h2>remainder</h2>
+<p>remainder(divisor) -&gt; Tensor</p>
+<p>See ?torch_remainder()</p>
+</div>
+<div id="remainder_" class="section level2">
+<h2>remainder_</h2>
+<p>remainder_(divisor) -&gt; Tensor</p>
+<p>In-place version of <code>$remainder</code></p>
+</div>
+<div id="rename" class="section level2">
+<h2>rename</h2>
+<p>Renames dimension names of <code>self</code>.</p>
+<p>There are two main usages:</p>
+<p><code>self$rename(**rename_map)</code> returns a view on tensor that has dims renamed as specified in the mapping <code>rename_map</code>.</p>
+<p><code>self$rename(*names)</code> returns a view on tensor, renaming all dimensions positionally using <code>names</code>. Use <code>self$rename(NULL)</code> to drop names on a tensor.</p>
+<p>One cannot specify both positional args <code>names</code> and keyword args <code>rename_map</code>.</p>
+<div id="examples-26" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>imgs &lt;-<span class="st"> </span><span class="kw">torch_rand</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>, <span class="dt">names=</span><span class="kw">c</span>(<span class="st">&#39;N&#39;</span>, <span class="st">&#39;C&#39;</span>, <span class="st">&#39;H&#39;</span>, <span class="st">&#39;W&#39;</span>))</span>
+<span id="cb28-2"><a href="#cb28-2"></a>renamed_imgs &lt;-<span class="st"> </span>imgs<span class="op">$</span><span class="kw">rename</span>(<span class="kw">c</span>(<span class="st">&quot;Batch&quot;</span>, <span class="st">&quot;Channels&quot;</span>, <span class="st">&quot;Height&quot;</span>, <span class="st">&quot;Width&quot;</span>))</span></code></pre></div>
+</div>
+</div>
+<div id="rename_" class="section level2">
+<h2>rename_</h2>
+<p>In-place version of <code>$rename</code>.</p>
+</div>
+<div id="renorm" class="section level2">
+<h2>renorm</h2>
+<p>renorm(p, dim, maxnorm) -&gt; Tensor</p>
+<p>See ?torch_renorm()</p>
+</div>
+<div id="renorm_" class="section level2">
+<h2>renorm_</h2>
+<p>renorm_(p, dim, maxnorm) -&gt; Tensor</p>
+<p>In-place version of <code>$renorm</code></p>
+</div>
+<div id="repeat" class="section level2">
+<h2>repeat</h2>
+<p>repeat(*sizes) -&gt; Tensor</p>
+<p>Repeats this tensor along the specified dimensions.</p>
+<p>Unlike <code>$expand</code>, this function copies the tensor’s data.</p>
+<div id="arguments-36" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>sizes (torch_Size or int…): The number of times to repeat this tensor along each</li>
+<li>dimension</li>
+</ul>
+</div>
+<div id="examples-27" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>))</span>
+<span id="cb29-2"><a href="#cb29-2"></a>x<span class="op">$</span><span class="st">`</span><span class="dt">repeat</span><span class="st">`</span>(<span class="kw">c</span>(<span class="dv">4</span>, <span class="dv">2</span>))</span>
+<span id="cb29-3"><a href="#cb29-3"></a>x<span class="op">$</span><span class="st">`</span><span class="dt">repeat</span><span class="st">`</span>(<span class="kw">c</span>(<span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>))<span class="op">$</span><span class="kw">size</span>()</span></code></pre></div>
+</div>
+</div>
+<div id="repeat_interleave" class="section level2">
+<h2>repeat_interleave</h2>
+<p>repeat_interleave(repeats, dim=NULL) -&gt; Tensor</p>
+<p>See [torch_repeat_interleave()].</p>
+</div>
+<div id="requires_grad" class="section level2">
+<h2>requires_grad</h2>
+<p>Is <code>TRUE</code> if gradients need to be computed for this Tensor, <code>FALSE</code> otherwise.</p>
+<div id="note-7" class="section level4">
+<h4>Note:</h4>
+<p>The fact that gradients need to be computed for a Tensor do not mean that the <code>grad</code> attribute will be populated, see <code>is_leaf</code> for more details.</p>
+</div>
+</div>
+<div id="requires_grad_" class="section level2">
+<h2>requires_grad_</h2>
+<p>requires_grad_(requires_grad=TRUE) -&gt; Tensor</p>
+<p>Change if autograd should record operations on this tensor: sets this tensor’s <code>requires_grad</code> attribute in-place. Returns this tensor.</p>
+<p>[requires_grad_()]’s main use case is to tell autograd to begin recording operations on a Tensor <code>tensor</code>. If <code>tensor</code> has <code>requires_grad=FALSE</code> (because it was obtained through a DataLoader, or required preprocessing or initialization), <code>tensor.requires_grad_()</code> makes it so that autograd will begin to record operations on <code>tensor</code>.</p>
+<div id="arguments-37" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>requires_grad (bool): If autograd should record operations on this tensor. Default: <code>TRUE</code>.</li>
+</ul>
+</div>
+<div id="examples-28" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="co"># Let&#39;s say we want to preprocess some saved weights and use</span></span>
+<span id="cb30-2"><a href="#cb30-2"></a><span class="co"># the result as new weights.</span></span>
+<span id="cb30-3"><a href="#cb30-3"></a>saved_weights &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span>, <span class="fl">0.25</span>)</span>
+<span id="cb30-4"><a href="#cb30-4"></a>loaded_weights &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(saved_weights)</span>
+<span id="cb30-5"><a href="#cb30-5"></a>weights &lt;-<span class="st"> </span><span class="kw">preprocess</span>(loaded_weights)  <span class="co"># some function</span></span>
+<span id="cb30-6"><a href="#cb30-6"></a>weights</span>
+<span id="cb30-7"><a href="#cb30-7"></a></span>
+<span id="cb30-8"><a href="#cb30-8"></a><span class="co"># Now, start to record operations done to weights</span></span>
+<span id="cb30-9"><a href="#cb30-9"></a>weights<span class="op">$</span><span class="kw">requires_grad_</span>()</span>
+<span id="cb30-10"><a href="#cb30-10"></a>out &lt;-<span class="st"> </span>weights<span class="op">$</span><span class="kw">pow</span>(<span class="dv">2</span>)<span class="op">$</span><span class="kw">sum</span>()</span>
+<span id="cb30-11"><a href="#cb30-11"></a>out<span class="op">$</span><span class="kw">backward</span>()</span>
+<span id="cb30-12"><a href="#cb30-12"></a>weights<span class="op">$</span>grad</span></code></pre></div>
+</div>
+</div>
+<div id="reshape" class="section level2">
+<h2>reshape</h2>
+<p>reshape(*shape) -&gt; Tensor</p>
+<p>Returns a tensor with the same data and number of elements as <code>self</code> but with the specified shape. This method returns a view if <code>shape</code> is compatible with the current shape. See <code>$view</code> on when it is possible to return a view.</p>
+<p>See ?torch_reshape()</p>
+<div id="arguments-38" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>shape (tuple of ints or int…): the desired shape</li>
+</ul>
+</div>
+</div>
+<div id="reshape_as" class="section level2">
+<h2>reshape_as</h2>
+<p>reshape_as(other) -&gt; Tensor</p>
+<p>Returns this tensor as the same shape as <code>other</code>. <code>self$reshape_as(other)</code> is equivalent to <code>self$reshape(other.sizes())</code>. This method returns a view if <code>other.sizes()</code> is compatible with the current shape. See <code>$view</code> on when it is possible to return a view.</p>
+<p>Please see <code>reshape</code> for more information about <code>reshape</code>.</p>
+<div id="arguments-39" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>other (`$): The result tensor has the same shape</li>
+<li>as <code>other</code>.</li>
+</ul>
+</div>
+</div>
+<div id="resize_" class="section level2">
+<h2>resize_</h2>
+<p>resize_(*sizes, memory_format=torch_contiguous_format) -&gt; Tensor</p>
+<p>Resizes <code>self</code> tensor to the specified size. If the number of elements is larger than the current storage size, then the underlying storage is resized to fit the new number of elements. If the number of elements is smaller, the underlying storage is not changed. Existing elements are preserved but any new memory is uninitialized.</p>
+<div id="warning-7" class="section level4">
+<h4>Warning:</h4>
+<p>This is a low-level method. The storage is reinterpreted as C-contiguous, ignoring the current strides (unless the target size equals the current size, in which case the tensor is left unchanged). For most purposes, you will instead want to use <code>$view()</code>, which checks for contiguity, or <code>$reshape()</code>, which copies data if needed. To change the size in-place with custom strides, see <code>$set_()</code>.</p>
+</div>
+<div id="arguments-40" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>sizes (torch_Size or int…): the desired size</li>
+<li>memory_format (<code>torch_memory_format</code>, optional): the desired memory format of Tensor. Default: <code>torch_contiguous_format</code>. Note that memory format of <code>self</code> is going to be unaffected if <code>self$size()</code> matches <code>sizes</code>.</li>
+</ul>
+</div>
+<div id="examples-29" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="kw">matrix</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>, <span class="dt">ncol =</span> <span class="dv">2</span>))</span>
+<span id="cb31-2"><a href="#cb31-2"></a>x<span class="op">$</span><span class="kw">resize_</span>(<span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span></code></pre></div>
+</div>
+</div>
+<div id="resize_as_" class="section level2">
+<h2>resize_as_</h2>
+<p>resize_as_(tensor, memory_format=torch_contiguous_format) -&gt; Tensor</p>
+<p>Resizes the <code>self</code> tensor to be the same size as the specified <code>tensor</code>. This is equivalent to <code>self$resize_(tensor.size())</code>.</p>
+<div id="arguments-41" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>memory_format (<code>torch_memory_format</code>, optional): the desired memory format of Tensor. Default: <code>torch_contiguous_format</code>. Note that memory format of <code>self</code> is going to be unaffected if <code>self$size()</code> matches <code>tensor.size()</code>.</li>
+</ul>
+</div>
+</div>
+<div id="retain_grad" class="section level2">
+<h2>retain_grad</h2>
+<p>Enables <code>$grad</code> attribute for non-leaf Tensors.</p>
+</div>
+<div id="rfft" class="section level2">
+<h2>rfft</h2>
+<p>rfft(signal_ndim, normalized=FALSE, onesided=TRUE) -&gt; Tensor</p>
+<p>See ?torch_rfft()</p>
+</div>
+<div id="roll" class="section level2">
+<h2>roll</h2>
+<p>roll(shifts, dims) -&gt; Tensor</p>
+<p>See ?torch_roll()</p>
+</div>
+<div id="rot90" class="section level2">
+<h2>rot90</h2>
+<p>rot90(k, dims) -&gt; Tensor</p>
+<p>See [torch_rot90()]</p>
+</div>
+<div id="round" class="section level2">
+<h2>round</h2>
+<p>round() -&gt; Tensor</p>
+<p>See ?torch_round()</p>
+</div>
+<div id="round_" class="section level2">
+<h2>round_</h2>
+<p>round_() -&gt; Tensor</p>
+<p>In-place version of <code>$round</code></p>
+</div>
+<div id="rsqrt" class="section level2">
+<h2>rsqrt</h2>
+<p>rsqrt() -&gt; Tensor</p>
+<p>See ?torch_rsqrt()</p>
+</div>
+<div id="rsqrt_" class="section level2">
+<h2>rsqrt_</h2>
+<p>rsqrt_() -&gt; Tensor</p>
+<p>In-place version of <code>$rsqrt</code></p>
+</div>
+<div id="scatter" class="section level2">
+<h2>scatter</h2>
+<p>scatter(dim, index, src) -&gt; Tensor</p>
+<p>Out-of-place version of <code>$scatter_</code></p>
+</div>
+<div id="scatter_" class="section level2">
+<h2>scatter_</h2>
+<p>scatter_(dim, index, src) -&gt; Tensor</p>
+<p>Writes all values from the tensor <code>src</code> into <code>self</code> at the indices specified in the <code>index</code> tensor. For each value in <code>src</code>, its output index is specified by its index in <code>src</code> for <code>dimension != dim</code> and by the corresponding value in <code>index</code> for <code>dimension = dim</code>.</p>
+<p>For a 3-D tensor, <code>self</code> is updated as:</p>
+<pre><code>self[index[i][j][k]][j][k] = src[i][j][k]  # if dim == 0
+self[i][index[i][j][k]][k] = src[i][j][k]  # if dim == 1
+self[i][j][index[i][j][k]] = src[i][j][k]  # if dim == 2</code></pre>
+<p>This is the reverse operation of the manner described in <code>$gather</code>.</p>
+<p><code>self</code>, <code>index</code> and <code>src</code> (if it is a Tensor) should have same number of dimensions. It is also required that <code>index.size(d) &lt;= src.size(d)</code> for all dimensions <code>d</code>, and that <code>index.size(d) &lt;= self$size(d)</code> for all dimensions <code>d != dim</code>.</p>
+<p>Moreover, as for <code>$gather</code>, the values of <code>index</code> must be between <code>0</code> and <code>self$size(dim) - 1</code> inclusive, and all values in a row along the specified dimension <code>dim</code> must be unique.</p>
+<div id="arguments-42" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>dim (int): the axis along which to index</li>
+<li>index (LongTensor): the indices of elements to scatter,</li>
+<li>can be either empty or the same size of src. When empty, the operation returns identity</li>
+<li>src (Tensor): the source element(s) to scatter,</li>
+<li>incase <code>value</code> is not specified</li>
+<li>value (float): the source element(s) to scatter,</li>
+<li>incase <code>src</code> is not specified</li>
+</ul>
+</div>
+<div id="examples-30" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_rand</span>(<span class="dv">2</span>, <span class="dv">5</span>)</span>
+<span id="cb33-2"><a href="#cb33-2"></a>x</span>
+<span id="cb33-3"><a href="#cb33-3"></a><span class="kw">torch_zeros</span>(<span class="dv">3</span>, <span class="dv">5</span>)<span class="op">$</span><span class="kw">scatter_</span>(</span>
+<span id="cb33-4"><a href="#cb33-4"></a>        <span class="dv">1</span>, </span>
+<span id="cb33-5"><a href="#cb33-5"></a>        <span class="kw">torch_tensor</span>(<span class="kw">rbind</span>(<span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">1</span>), <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)), x)</span>
+<span id="cb33-6"><a href="#cb33-6"></a>)</span>
+<span id="cb33-7"><a href="#cb33-7"></a></span>
+<span id="cb33-8"><a href="#cb33-8"></a>z &lt;-<span class="st"> </span><span class="kw">torch_zeros</span>(<span class="dv">2</span>, <span class="dv">4</span>)<span class="op">$</span><span class="kw">scatter_</span>(</span>
+<span id="cb33-9"><a href="#cb33-9"></a>        <span class="dv">2</span>, </span>
+<span id="cb33-10"><a href="#cb33-10"></a>        <span class="kw">torch_tensor</span>(<span class="kw">matrix</span>(<span class="dv">3</span><span class="op">:</span><span class="dv">4</span>, <span class="dt">ncol =</span> <span class="dv">1</span>)), <span class="fl">1.23</span></span>
+<span id="cb33-11"><a href="#cb33-11"></a>)</span></code></pre></div>
+</div>
+</div>
+<div id="scatter_add" class="section level2">
+<h2>scatter_add</h2>
+<p>scatter_add(dim, index, src) -&gt; Tensor</p>
+<p>Out-of-place version of <code>$scatter_add_</code></p>
+</div>
+<div id="scatter_add_" class="section level2">
+<h2>scatter_add_</h2>
+<p>scatter_add_(dim, index, src) -&gt; Tensor</p>
+<p>Adds all values from the tensor <code>other</code> into <code>self</code> at the indices specified in the <code>index</code> tensor in a similar fashion as <code>~$scatter_</code>. For each value in <code>src</code>, it is added to an index in <code>self</code> which is specified by its index in <code>src</code> for <code>dimension != dim</code> and by the corresponding value in <code>index</code> for <code>dimension = dim</code>.</p>
+<p>For a 3-D tensor, <code>self</code> is updated as::</p>
+<pre><code>self[index[i][j][k]][j][k] += src[i][j][k]  # if dim == 0
+self[i][index[i][j][k]][k] += src[i][j][k]  # if dim == 1
+self[i][j][index[i][j][k]] += src[i][j][k]  # if dim == 2</code></pre>
+<p><code>self</code>, <code>index</code> and <code>src</code> should have same number of dimensions. It is also required that <code>index.size(d) &lt;= src.size(d)</code> for all dimensions <code>d</code>, and that <code>index.size(d) &lt;= self$size(d)</code> for all dimensions <code>d != dim</code>.</p>
+<div id="note-8" class="section level4">
+<h4>Note:</h4>
+<p>In some circumstances when using the CUDA backend with CuDNN, this operator may select a nondeterministic algorithm to increase performance. If this is undesirable, you can try to make the operation deterministic (potentially at a performance cost) by setting <code>torch_backends.cudnn.deterministic = TRUE</code>.</p>
+</div>
+<div id="arguments-43" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>dim (int): the axis along which to index</li>
+<li>index (LongTensor): the indices of elements to scatter and add,</li>
+<li>can be either empty or the same size of src. When empty, the operation returns identity.</li>
+<li>src (Tensor): the source elements to scatter and add</li>
+</ul>
+</div>
+<div id="examples-31" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_rand</span>(<span class="dv">2</span>, <span class="dv">5</span>)</span>
+<span id="cb35-2"><a href="#cb35-2"></a>x</span>
+<span id="cb35-3"><a href="#cb35-3"></a><span class="kw">torch_ones</span>(<span class="dv">3</span>, <span class="dv">5</span>)<span class="op">$</span><span class="kw">scatter_add_</span>(<span class="dv">1</span>, <span class="kw">torch_tensor</span>(<span class="kw">rbind</span>(<span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">0</span>, <span class="dv">0</span>), <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>))), x)</span></code></pre></div>
+</div>
+</div>
+<div id="select" class="section level2">
+<h2>select</h2>
+<p>select(dim, index) -&gt; Tensor</p>
+<p>Slices the <code>self</code> tensor along the selected dimension at the given index. This function returns a view of the original tensor with the given dimension removed.</p>
+<div id="arguments-44" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>dim (int): the dimension to slice</li>
+<li>index (int): the index to select with</li>
+</ul>
+</div>
+<div id="note-9" class="section level4">
+<h4>Note:</h4>
+<p><code>select</code> is equivalent to slicing. For example, <code>tensor$select(0, index)</code> is equivalent to <code>tensor[index]</code> and <code>tensor$select(2, index)</code> is equivalent to <code>tensor[:,:,index]</code>.</p>
+</div>
+</div>
+<div id="set_" class="section level2">
+<h2>set_</h2>
+<p>set_(source=NULL, storage_offset=0, size=NULL, stride=NULL) -&gt; Tensor</p>
+<p>Sets the underlying storage, size, and strides. If <code>source</code> is a tensor, <code>self</code> tensor will share the same storage and have the same size and strides as <code>source</code>. Changes to elements in one tensor will be reflected in the other.</p>
+<div id="arguments-45" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>source (Tensor or Storage): the tensor or storage to use</li>
+<li>storage_offset (int, optional): the offset in the storage</li>
+<li>size (torch_Size, optional): the desired size. Defaults to the size of the source.</li>
+<li>stride (tuple, optional): the desired stride. Defaults to C-contiguous strides.</li>
+</ul>
+</div>
+</div>
+<div id="share_memory_" class="section level2">
+<h2>share_memory_</h2>
+<p>Moves the underlying storage to shared memory.</p>
+<p>This is a no-op if the underlying storage is already in shared memory and for CUDA tensors. Tensors in shared memory cannot be resized.</p>
+</div>
+<div id="short" class="section level2">
+<h2>short</h2>
+<p>short(memory_format=torch_preserve_format) -&gt; Tensor</p>
+<p><code>self$short()</code> is equivalent to <code>self$to(torch_int16)</code>. See [to()].</p>
+<div id="arguments-46" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>memory_format (<code>torch_memory_format</code>, optional): the desired memory format of</li>
+<li>returned Tensor. Default: <code>torch_preserve_format</code>.</li>
+</ul>
+</div>
+</div>
+<div id="sigmoid" class="section level2">
+<h2>sigmoid</h2>
+<p>sigmoid() -&gt; Tensor</p>
+<p>See ?torch_sigmoid()</p>
+</div>
+<div id="sigmoid_" class="section level2">
+<h2>sigmoid_</h2>
+<p>sigmoid_() -&gt; Tensor</p>
+<p>In-place version of <code>$sigmoid</code></p>
+</div>
+<div id="sign" class="section level2">
+<h2>sign</h2>
+<p>sign() -&gt; Tensor</p>
+<p>See ?torch_sign()</p>
+</div>
+<div id="sign_" class="section level2">
+<h2>sign_</h2>
+<p>sign_() -&gt; Tensor</p>
+<p>In-place version of <code>$sign</code></p>
+</div>
+<div id="sin" class="section level2">
+<h2>sin</h2>
+<p>sin() -&gt; Tensor</p>
+<p>See ?torch_sin()</p>
+</div>
+<div id="sin_" class="section level2">
+<h2>sin_</h2>
+<p>sin_() -&gt; Tensor</p>
+<p>In-place version of <code>$sin</code></p>
+</div>
+<div id="sinh" class="section level2">
+<h2>sinh</h2>
+<p>sinh() -&gt; Tensor</p>
+<p>See ?torch_sinh()</p>
+</div>
+<div id="sinh_" class="section level2">
+<h2>sinh_</h2>
+<p>sinh_() -&gt; Tensor</p>
+<p>In-place version of <code>$sinh</code></p>
+</div>
+<div id="size" class="section level2">
+<h2>size</h2>
+<p>size() -&gt; torch_Size</p>
+<p>Returns the size of the <code>self</code> tensor. The returned value is a subclass of <code>tuple</code>.</p>
+<div id="examples-32" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="kw">torch_empty</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>)<span class="op">$</span><span class="kw">size</span>()</span></code></pre></div>
+</div>
+</div>
+<div id="slogdet" class="section level2">
+<h2>slogdet</h2>
+<p>slogdet() -&gt; (Tensor, Tensor)</p>
+<p>See ?torch_slogdet()</p>
+</div>
+<div id="solve" class="section level2">
+<h2>solve</h2>
+<p>solve(A) -&gt; Tensor, Tensor</p>
+<p>See ?torch_solve()</p>
+</div>
+<div id="sort" class="section level2">
+<h2>sort</h2>
+<p>sort(dim=-1, descending=FALSE) -&gt; (Tensor, LongTensor)</p>
+<p>See ?torch_sort()</p>
+</div>
+<div id="sparse_dim" class="section level2">
+<h2>sparse_dim</h2>
+<p>sparse_dim() -&gt; int</p>
+<p>If <code>self</code> is a sparse COO tensor (i.e., with <code>torch_sparse_coo</code> layout), this returns the number of sparse dimensions. Otherwise, this throws an error.</p>
+<p>See also <code>Tensor.dense_dim</code>.</p>
+</div>
+<div id="sparse_mask" class="section level2">
+<h2>sparse_mask</h2>
+<p>sparse_mask(input, mask) -&gt; Tensor</p>
+<p>Returns a new SparseTensor with values from Tensor <code>input</code> filtered by indices of <code>mask</code> and values are ignored. <code>input</code> and <code>mask</code> must have the same shape.</p>
+<div id="arguments-47" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>input (Tensor): an input Tensor</li>
+<li>mask (SparseTensor): a SparseTensor which we filter <code>input</code> based on its indices</li>
+</ul>
+</div>
+</div>
+<div id="split" class="section level2">
+<h2>split</h2>
+<p>See ?torch_split()</p>
+</div>
+<div id="sqrt" class="section level2">
+<h2>sqrt</h2>
+<p>sqrt() -&gt; Tensor</p>
+<p>See ?torch_sqrt()</p>
+</div>
+<div id="sqrt_" class="section level2">
+<h2>sqrt_</h2>
+<p>sqrt_() -&gt; Tensor</p>
+<p>In-place version of <code>$sqrt</code></p>
+</div>
+<div id="square" class="section level2">
+<h2>square</h2>
+<p>square() -&gt; Tensor</p>
+<p>See ?torch_square()</p>
+</div>
+<div id="square_" class="section level2">
+<h2>square_</h2>
+<p>square_() -&gt; Tensor</p>
+<p>In-place version of <code>$square</code></p>
+</div>
+<div id="squeeze" class="section level2">
+<h2>squeeze</h2>
+<p>squeeze(dim=NULL) -&gt; Tensor</p>
+<p>See ?torch_squeeze()</p>
+</div>
+<div id="squeeze_" class="section level2">
+<h2>squeeze_</h2>
+<p>squeeze_(dim=NULL) -&gt; Tensor</p>
+<p>In-place version of <code>$squeeze</code></p>
+</div>
+<div id="std" class="section level2">
+<h2>std</h2>
+<p>std(dim=NULL, unbiased=TRUE, keepdim=FALSE) -&gt; Tensor</p>
+<p>See ?torch_std()</p>
+</div>
+<div id="stft" class="section level2">
+<h2>stft</h2>
+<p>See ?torch_stft()</p>
+</div>
+<div id="storage" class="section level2">
+<h2>storage</h2>
+<p>storage() -&gt; torch_Storage</p>
+<p>Returns the underlying storage.</p>
+</div>
+<div id="storage_offset" class="section level2">
+<h2>storage_offset</h2>
+<p>storage_offset() -&gt; int</p>
+<p>Returns <code>self</code> tensor’s offset in the underlying storage in terms of number of storage elements (not bytes).</p>
+<div id="examples-33" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>))</span>
+<span id="cb37-2"><a href="#cb37-2"></a>x<span class="op">$</span><span class="kw">storage_offset</span>()</span>
+<span id="cb37-3"><a href="#cb37-3"></a>x[<span class="dv">3</span><span class="op">:</span>N]<span class="op">$</span><span class="kw">storage_offset</span>()</span></code></pre></div>
+</div>
+</div>
+<div id="storage_type" class="section level2">
+<h2>storage_type</h2>
+<p>storage_type() -&gt; type</p>
+<p>Returns the type of the underlying storage.</p>
+</div>
+<div id="stride" class="section level2">
+<h2>stride</h2>
+<p>stride(dim) -&gt; tuple or int</p>
+<p>Returns the stride of <code>self</code> tensor.</p>
+<p>Stride is the jump necessary to go from one element to the next one in the specified dimension <code>dim</code>. A tuple of all strides is returned when no argument is passed in. Otherwise, an integer value is returned as the stride in the particular dimension <code>dim</code>.</p>
+<div id="arguments-48" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>dim (int, optional): the desired dimension in which stride is required</li>
+</ul>
+</div>
+<div id="examples-34" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>x &lt;-<span class="st"> </span><span class="kw">torch_tensor</span>(<span class="kw">matrix</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dt">nrow =</span> <span class="dv">2</span>))</span>
+<span id="cb38-2"><a href="#cb38-2"></a>x<span class="op">$</span><span class="kw">stride</span>()</span>
+<span id="cb38-3"><a href="#cb38-3"></a>x<span class="op">$</span><span class="kw">stride</span>(<span class="dv">1</span>)</span>
+<span id="cb38-4"><a href="#cb38-4"></a>x<span class="op">$</span><span class="kw">stride</span>(<span class="op">-</span><span class="dv">1</span>)</span></code></pre></div>
+</div>
+</div>
+<div id="sub" class="section level2">
+<h2>sub</h2>
+<p>sub(other, *, alpha=1) -&gt; Tensor</p>
+<p>Subtracts a scalar or tensor from <code>self</code> tensor. If both <code>alpha</code> and <code>other</code> are specified, each element of <code>other</code> is scaled by <code>alpha</code> before being used.</p>
+<p>When <code>other</code> is a tensor, the shape of <code>other</code> must be <code>broadcastable &lt;broadcasting-semantics&gt;</code> with the shape of the underlying tensor.</p>
+</div>
+<div id="sub_" class="section level2">
+<h2>sub_</h2>
+<p>sub_(other, *, alpha=1) -&gt; Tensor</p>
+<p>In-place version of <code>$sub</code></p>
+</div>
+<div id="sum" class="section level2">
+<h2>sum</h2>
+<p>sum(dim=NULL, keepdim=FALSE, dtype=NULL) -&gt; Tensor</p>
+<p>See ?torch_sum()</p>
+</div>
+<div id="sum_to_size" class="section level2">
+<h2>sum_to_size</h2>
+<p>sum_to_size(*size) -&gt; Tensor</p>
+<p>Sum <code>this</code> tensor to <code>size</code>. <code>size</code> must be broadcastable to <code>this</code> tensor size.</p>
+<div id="arguments-49" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>size (int…): a sequence of integers defining the shape of the output tensor.</li>
+</ul>
+</div>
+</div>
+<div id="svd" class="section level2">
+<h2>svd</h2>
+<p>svd(some=TRUE, compute_uv=TRUE) -&gt; (Tensor, Tensor, Tensor)</p>
+<p>See ?torch_svd()</p>
+</div>
+<div id="symeig" class="section level2">
+<h2>symeig</h2>
+<p>symeig(eigenvectors=FALSE, upper=TRUE) -&gt; (Tensor, Tensor)</p>
+<p>See ?torch_symeig()</p>
+</div>
+<div id="t-1" class="section level2">
+<h2>t</h2>
+<p>t() -&gt; Tensor</p>
+<p>See ?torch_t()</p>
+</div>
+<div id="t_" class="section level2">
+<h2>t_</h2>
+<p>t_() -&gt; Tensor</p>
+<p>In-place version of <code>$t</code></p>
+</div>
+<div id="take" class="section level2">
+<h2>take</h2>
+<p>take(indices) -&gt; Tensor</p>
+<p>See ?torch_take()</p>
+</div>
+<div id="tan" class="section level2">
+<h2>tan</h2>
+<p>tan() -&gt; Tensor</p>
+<p>See ?torch_tan()</p>
+</div>
+<div id="tan_" class="section level2">
+<h2>tan_</h2>
+<p>tan_() -&gt; Tensor</p>
+<p>In-place version of <code>$tan</code></p>
+</div>
+<div id="tanh" class="section level2">
+<h2>tanh</h2>
+<p>tanh() -&gt; Tensor</p>
+<p>See ?torch_tanh()</p>
+</div>
+<div id="tanh_" class="section level2">
+<h2>tanh_</h2>
+<p>tanh_() -&gt; Tensor</p>
+<p>In-place version of <code>$tanh</code></p>
+</div>
+<div id="to" class="section level2">
+<h2>to</h2>
+<p>to(*args, **kwargs) -&gt; Tensor</p>
+<p>Performs Tensor dtype and/or device conversion. A <code>torch_dtype</code> and :class:<code>torch_device</code> are inferred from the arguments of <code>self$to(*args, **kwargs)</code>.</p>
+<div id="note-10" class="section level4">
+<h4>Note:</h4>
+<p>If the <code>self</code> Tensor already has the correct <code>torch_dtype</code> and :class:<code>torch_device</code>, then <code>self</code> is returned. Otherwise, the returned tensor is a copy of <code>self</code> with the desired <code>torch_dtype</code> and :class:<code>torch_device</code>.</p>
+<p>Here are the ways to call <code>to</code>:</p>
+<p>to(dtype, non_blocking=FALSE, copy=FALSE, memory_format=torch_preserve_format) -&gt; Tensor</p>
+<p>Returns a Tensor with the specified <code>dtype</code></p>
+</div>
+<div id="arguments-50" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>memory_format (<code>torch_memory_format</code>, optional): the desired memory format of returned Tensor. Default: <code>torch_preserve_format</code>.</li>
+</ul>
+<p>to(device=NULL, dtype=NULL, non_blocking=FALSE, copy=FALSE, memory_format=torch_preserve_format) -&gt; Tensor</p>
+<p>Returns a Tensor with the specified <code>device</code> and (optional) <code>dtype</code>. If <code>dtype</code> is <code>NULL</code> it is inferred to be <code>self$dtype</code>. When <code>non_blocking</code>, tries to convert asynchronously with respect to the host if possible, e.g., converting a CPU Tensor with pinned memory to a CUDA Tensor.</p>
+<p>When <code>copy</code> is set, a new Tensor is created even when the Tensor already matches the desired conversion.</p>
+</div>
+<div id="arguments-51" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>memory_format (<code>torch_memory_format</code>, optional): the desired memory format of returned Tensor. Default: <code>torch_preserve_format</code>.</li>
+</ul>
+<p>function:: to(other, non_blocking=FALSE, copy=FALSE) -&gt; Tensor</p>
+<p>Returns a Tensor with same <code>torch_dtype</code> and :class:<code>torch_device</code> as the Tensor <code>other</code>. When <code>non_blocking</code>, tries to convert asynchronously with respect to the host if possible, e.g., converting a CPU Tensor with pinned memory to a CUDA Tensor.</p>
+<p>When <code>copy</code> is set, a new Tensor is created even when the Tensor already matches the desired conversion.</p>
+</div>
+<div id="examples-35" class="section level4">
+<h4>Examples:</h4>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>tensor &lt;-<span class="st"> </span><span class="kw">torch_randn</span>(<span class="dv">2</span>, <span class="dv">2</span>)  <span class="co"># Initially dtype=float32, device=cpu</span></span>
+<span id="cb39-2"><a href="#cb39-2"></a>tensor<span class="op">$</span><span class="kw">to</span>(<span class="dt">dtype =</span> <span class="kw">torch_float64</span>())</span>
+<span id="cb39-3"><a href="#cb39-3"></a></span>
+<span id="cb39-4"><a href="#cb39-4"></a>other &lt;-<span class="st"> </span><span class="kw">torch_randn</span>(<span class="dv">1</span>, <span class="dt">dtype=</span><span class="kw">torch_float64</span>())</span>
+<span id="cb39-5"><a href="#cb39-5"></a>tensor<span class="op">$</span><span class="kw">to</span>(<span class="dt">other =</span> other, <span class="dt">non_blocking=</span><span class="ot">TRUE</span>)</span></code></pre></div>
+</div>
+</div>
+<div id="to_mkldnn" class="section level2">
+<h2>to_mkldnn</h2>
+<p>to_mkldnn() -&gt; Tensor Returns a copy of the tensor in <code>torch_mkldnn</code> layout.</p>
+</div>
+<div id="to_sparse" class="section level2">
+<h2>to_sparse</h2>
+<p>to_sparse(sparseDims) -&gt; Tensor Returns a sparse copy of the tensor. PyTorch supports sparse tensors in <code>coordinate format &lt;sparse-docs&gt;</code>.</p>
+<div id="arguments-52" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>sparseDims (int, optional): the number of sparse dimensions to include in the new sparse tensor</li>
+</ul>
+</div>
+</div>
+<div id="tolist" class="section level2">
+<h2>tolist</h2>
+<p>tolist() -&gt; list or number</p>
+<p>Returns the tensor as a (nested) list. For scalars, a standard Python number is returned, just like with <code>$item</code>. Tensors are automatically moved to the CPU first if necessary.</p>
+<p>This operation is not differentiable.</p>
+</div>
+<div id="topk" class="section level2">
+<h2>topk</h2>
+<p>topk(k, dim=NULL, largest=TRUE, sorted=TRUE) -&gt; (Tensor, LongTensor)</p>
+<p>See ?torch_topk()</p>
+</div>
+<div id="trace" class="section level2">
+<h2>trace</h2>
+<p>trace() -&gt; Tensor</p>
+<p>See ?torch_trace()</p>
+</div>
+<div id="transpose" class="section level2">
+<h2>transpose</h2>
+<p>transpose(dim0, dim1) -&gt; Tensor</p>
+<p>See ?torch_transpose()</p>
+</div>
+<div id="transpose_" class="section level2">
+<h2>transpose_</h2>
+<p>transpose_(dim0, dim1) -&gt; Tensor</p>
+<p>In-place version of <code>$transpose</code></p>
+</div>
+<div id="triangular_solve" class="section level2">
+<h2>triangular_solve</h2>
+<p>triangular_solve(A, upper=TRUE, transpose=FALSE, unitriangular=FALSE) -&gt; (Tensor, Tensor)</p>
+<p>See [torch_triangular_solve()]</p>
+</div>
+<div id="tril" class="section level2">
+<h2>tril</h2>
+<p>tril(k=0) -&gt; Tensor</p>
+<p>See ?torch_tril()</p>
+</div>
+<div id="tril_" class="section level2">
+<h2>tril_</h2>
+<p>tril_(k=0) -&gt; Tensor</p>
+<p>In-place version of <code>$tril</code></p>
+</div>
+<div id="triu" class="section level2">
+<h2>triu</h2>
+<p>triu(k=0) -&gt; Tensor</p>
+<p>See ?torch_triu()</p>
+</div>
+<div id="triu_" class="section level2">
+<h2>triu_</h2>
+<p>triu_(k=0) -&gt; Tensor</p>
+<p>In-place version of <code>$triu</code></p>
+</div>
+<div id="true_divide" class="section level2">
+<h2>true_divide</h2>
+<p>true_divide(value) -&gt; Tensor</p>
+<p>See [torch_true_divide()]</p>
+</div>
+<div id="true_divide_" class="section level2">
+<h2>true_divide_</h2>
+<p>true_divide_(value) -&gt; Tensor</p>
+<p>In-place version of <code>$true_divide_</code></p>
+</div>
+<div id="trunc" class="section level2">
+<h2>trunc</h2>
+<p>trunc() -&gt; Tensor</p>
+<p>See ?torch_trunc()</p>
+</div>
+<div id="trunc_" class="section level2">
+<h2>trunc_</h2>
+<p>trunc_() -&gt; Tensor</p>
+<p>In-place version of <code>$trunc</code></p>
+</div>
+<div id="type" class="section level2">
+<h2>type</h2>
+<p>type(dtype=NULL, non_blocking=FALSE, **kwargs) -&gt; str or Tensor Returns the type if <code>dtype</code> is not provided, else casts this object to the specified type.</p>
+<p>If this is already of the correct type, no copy is performed and the original object is returned.</p>
+<div id="arguments-53" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>dtype (type or string): The desired type</li>
+<li>non_blocking (bool): If <code>TRUE</code>, and the source is in pinned memory</li>
+<li>and destination is on the GPU or vice versa, the copy is performed</li>
+<li>asynchronously with respect to the host. Otherwise, the argument</li>
+<li>has no effect. **kwargs: For compatibility, may contain the key <code>async</code> in place of</li>
+<li>the <code>non_blocking</code> argument. The <code>async</code> arg is deprecated.</li>
+</ul>
+</div>
+</div>
+<div id="type_as" class="section level2">
+<h2>type_as</h2>
+<p>type_as(tensor) -&gt; Tensor</p>
+<p>Returns this tensor cast to the type of the given tensor.</p>
+<p>This is a no-op if the tensor is already of the correct type. This is equivalent to <code>self$type(tensor.type())</code></p>
+<div id="arguments-54" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>tensor (Tensor): the tensor which has the desired type</li>
+</ul>
+</div>
+</div>
+<div id="unbind" class="section level2">
+<h2>unbind</h2>
+<p>unbind(dim=0) -&gt; seq</p>
+<p>See ?torch_unbind()</p>
+</div>
+<div id="unflatten" class="section level2">
+<h2>unflatten</h2>
+<p>Unflattens the named dimension <code>dim</code>, viewing it in the shape specified by <code>namedshape</code>.</p>
+<div id="arguments-55" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>namedshape: (iterable of <code>(name, size)</code> tuples).</li>
+</ul>
+</div>
+</div>
+<div id="unfold" class="section level2">
+<h2>unfold</h2>
+<p>unfold(dimension, size, step) -&gt; Tensor</p>
+<p>Returns a view of the original tensor which contains all slices of size <code>size</code> from <code>self</code> tensor in the dimension <code>dimension</code>.</p>
+<p>Step between two slices is given by <code>step</code>.</p>
+<p>If <code>sizedim</code> is the size of dimension <code>dimension</code> for <code>self</code>, the size of dimension <code>dimension</code> in the returned tensor will be <code>(sizedim - size) / step + 1</code>.</p>
+<p>An additional dimension of size <code>size</code> is appended in the returned tensor.</p>
+<div id="arguments-56" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>dimension (int): dimension in which unfolding happens</li>
+<li>size (int): the size of each slice that is unfolded</li>
+<li>step (int): the step between each slice</li>
+</ul>
+</div>
+</div>
+<div id="uniform_" class="section level2">
+<h2>uniform_</h2>
+<p>uniform_(from=0, to=1) -&gt; Tensor</p>
+<p>Fills <code>self</code> tensor with numbers sampled from the continuous uniform distribution:</p>
+<p><span class="math display">\[
+P(x) = \dfrac{1}{\text{to} - \text{from}}
+\]</span></p>
+</div>
+<div id="unique" class="section level2">
+<h2>unique</h2>
+<p>Returns the unique elements of the input tensor.</p>
+<p>See ?torch_unique()</p>
+</div>
+<div id="unique_consecutive" class="section level2">
+<h2>unique_consecutive</h2>
+<p>Eliminates all but the first element from every consecutive group of equivalent elements.</p>
+<p>See [torch_unique_consecutive()]</p>
+</div>
+<div id="unsqueeze" class="section level2">
+<h2>unsqueeze</h2>
+<p>unsqueeze(dim) -&gt; Tensor</p>
+<p>See ?torch_unsqueeze()</p>
+</div>
+<div id="unsqueeze_" class="section level2">
+<h2>unsqueeze_</h2>
+<p>unsqueeze_(dim) -&gt; Tensor</p>
+<p>In-place version of <code>$unsqueeze</code></p>
+</div>
+<div id="values" class="section level2">
+<h2>values</h2>
+<p>values() -&gt; Tensor</p>
+<p>If <code>self</code> is a sparse COO tensor (i.e., with <code>torch_sparse_coo</code> layout), this returns a view of the contained values tensor. Otherwise, this throws an error.</p>
+<div id="note-11" class="section level4">
+<h4>Note:</h4>
+<p>This method can only be called on a coalesced sparse tensor. See <code>Tensor$coalesce</code> for details.</p>
+</div>
+</div>
+<div id="var" class="section level2">
+<h2>var</h2>
+<p>var(dim=NULL, unbiased=TRUE, keepdim=FALSE) -&gt; Tensor</p>
+<p>See ?torch_var()</p>
+</div>
+<div id="view" class="section level2">
+<h2>view</h2>
+<p>view(*shape) -&gt; Tensor</p>
+<p>Returns a new tensor with the same data as the <code>self</code> tensor but of a different <code>shape</code>.</p>
+<p>The returned tensor shares the same data and must have the same number of elements, but may have a different size. For a tensor to be viewed, the new view size must be compatible with its original size and stride, i.e., each new view dimension must either be a subspace of an original dimension, or only span across original dimensions <code>d, d+1, \dots, d+k</code> that satisfy the following contiguity-like condition that <code>\forall i = d, \dots, d+k-1</code>,</p>
+<p><span class="math display">\[
+\text{stride}[i] = \text{stride}[i+1] \times \text{size}[i+1]
+\]</span></p>
+<p>Otherwise, it will not be possible to view <code>self</code> tensor as <code>shape</code> without copying it (e.g., via <code>contiguous</code>). When it is unclear whether a <code>view</code> can be performed, it is advisable to use :meth:<code>reshape</code>, which returns a view if the shapes are compatible, and copies (equivalent to calling <code>contiguous</code>) otherwise.</p>
+<div id="arguments-57" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>shape (torch_Size or int…): the desired size</li>
+</ul>
+</div>
+</div>
+<div id="view_as" class="section level2">
+<h2>view_as</h2>
+<p>view_as(other) -&gt; Tensor</p>
+<p>View this tensor as the same size as <code>other</code>. <code>self$view_as(other)</code> is equivalent to <code>self$view(other.size())</code>.</p>
+<p>Please see <code>$view</code> for more information about <code>view</code>.</p>
+<div id="arguments-58" class="section level4">
+<h4>Arguments:</h4>
+<ul>
+<li>other (`$): The result tensor has the same size</li>
+<li>as <code>other</code>.</li>
+</ul>
+</div>
+</div>
+<div id="where" class="section level2">
+<h2>where</h2>
+<p>where(condition, y) -&gt; Tensor</p>
+<p><code>self$where(condition, y)</code> is equivalent to <code>torch_where(condition, self, y)</code>. See ?torch_where()</p>
+</div>
+<div id="zero_" class="section level2">
+<h2>zero_</h2>
+<p>zero_() -&gt; Tensor</p>
+<p>Fills <code>self</code> tensor with zeros.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
