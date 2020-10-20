@@ -37,6 +37,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <string>
 
 extern int lanternLogEnabled;
 #define LLOG(...) if ((lanternLogEnabled & 1) == 1) {              \
@@ -514,6 +515,74 @@ extern "C"
     return ret;
   }
 
+  LANTERN_API bool  (LANTERN_PTR _lantern_Tensor_has_names) (void* self);
+  HOST_API bool lantern_Tensor_has_names (void* self)
+  {
+    bool ret = _lantern_Tensor_has_names(self);
+    LANTERN_HOST_HANDLER;
+    return ret;
+  }
+
+  LANTERN_API void* (LANTERN_PTR _lantern_Tensor_names) (void * self);
+  HOST_API void* lantern_Tensor_names (void* self)
+  {
+    void* ret = _lantern_Tensor_names(self);
+    LANTERN_HOST_HANDLER;
+    return ret;
+  }
+
+  LANTERN_API void* (LANTERN_PTR _lantern_string_new) (const char * value);
+  HOST_API void* lantern_string_new (const char* value)
+  {
+    void* ret = _lantern_string_new(value);
+    LANTERN_HOST_HANDLER;
+    return ret;
+  }
+
+  LANTERN_API void (LANTERN_PTR _lantern_string_delete) (void * x);
+  HOST_API void lantern_string_delete (void* x)
+  {
+    _lantern_string_delete(x);
+    LANTERN_HOST_HANDLER;
+  }
+
+  LANTERN_API void * (LANTERN_PTR _lantern_contrib_torch_sparsemax) (void * input, int dim);
+  HOST_API void * lantern_contrib_torch_sparsemax (void* input, int dim)
+  {
+    void * ret = _lantern_contrib_torch_sparsemax(input, dim);
+    LANTERN_HOST_HANDLER;
+    return ret;
+  }
+
+LANTERN_API void (LANTERN_PTR _lantern_set_num_threads) (int n);
+HOST_API void lantern_set_num_threads (int n)
+{
+  _lantern_set_num_threads(n);
+  LANTERN_HOST_HANDLER;
+}
+
+LANTERN_API void (LANTERN_PTR _lantern_set_num_interop_threads) (int n);
+HOST_API void lantern_set_num_interop_threads (int n)
+{
+  _lantern_set_num_interop_threads(n);
+  LANTERN_HOST_HANDLER;
+}
+
+LANTERN_API int (LANTERN_PTR _lantern_get_num_threads) ();
+HOST_API int lantern_get_num_threads ()
+{
+  int ret = _lantern_get_num_threads();
+  LANTERN_HOST_HANDLER;
+  return ret;
+}
+
+LANTERN_API int (LANTERN_PTR _lantern_get_num_interop_threads) ();
+HOST_API int lantern_get_num_interop_threads ()
+{
+  int ret = _lantern_get_num_interop_threads();
+  LANTERN_HOST_HANDLER;
+  return ret;
+}
 
   /* Autogen Headers -- Start */
   LANTERN_API void* (LANTERN_PTR _lantern__cast_byte_tensor_bool)(void* self, void* non_blocking);
@@ -4229,6 +4298,15 @@ bool lanternInit(const std::string &libPath, std::string *pError)
   LOAD_SYMBOL(_lantern_IValue_delete);
   LOAD_SYMBOL(_lantern_vector_string_delete);
   LOAD_SYMBOL(_lantern_Tensor_data_ptr_int64_t);
+  LOAD_SYMBOL(_lantern_Tensor_has_names);
+  LOAD_SYMBOL(_lantern_Tensor_names);
+  LOAD_SYMBOL(_lantern_string_new);
+  LOAD_SYMBOL(_lantern_string_delete);
+  LOAD_SYMBOL(_lantern_contrib_torch_sparsemax);
+  LOAD_SYMBOL(_lantern_set_num_threads);
+  LOAD_SYMBOL(_lantern_set_num_interop_threads);
+  LOAD_SYMBOL(_lantern_get_num_threads);
+  LOAD_SYMBOL(_lantern_get_num_interop_threads);
   /* Autogen Symbols -- Start */
   LOAD_SYMBOL(_lantern__cast_byte_tensor_bool)
   LOAD_SYMBOL(_lantern__cast_char_tensor_bool)

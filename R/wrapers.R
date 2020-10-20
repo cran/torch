@@ -203,4 +203,23 @@ torch_multi_margin_loss <- function(self, target, p = 1L, margin = 1L, weight = 
                            reduction)
 }
 
+#' @rdname torch_topk
+torch_topk <- function(self, k, dim = -1L, largest = TRUE, sorted = TRUE) {
+  o <- .torch_topk(self, k, dim, largest, sorted)
+  o[[2]]$add_(1L)
+  o
+}
+
+#' @rdname torch_narrow
+torch_narrow <- function(self, dim, start, length) {
+  
+  start <- torch_scalar_tensor(start, dtype = torch_int64())
+
+  if (start$item() == 0)
+    value_error("start indexing starts at 1")
+  
+  start <- start - 1L
+  
+  .torch_narrow(self, dim, start, length)
+}
 

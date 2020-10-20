@@ -641,8 +641,6 @@ NULL
 #' @name torch_einsum
 #'
 #' @examples
-#' 
-#' if (FALSE) {
 #'
 #' x = torch_randn(c(5))
 #' y = torch_randn(c(4))
@@ -661,7 +659,6 @@ NULL
 #' A = torch_randn(c(2, 3, 4, 5))
 #' torch_einsum('...ij->...ji', list(A))$shape # batch permute
 #' 
-#' }
 NULL
 # -> einsum <-
 
@@ -1248,8 +1245,8 @@ NULL
 #' @examples
 #'
 #' x = torch_tensor(matrix(c(1:9), ncol = 3, byrow= TRUE))
-#' torch_narrow(x, 1, torch_tensor(0L)$sum(dim = 1), 2)
-#' torch_narrow(x, 2, torch_tensor(1L)$sum(dim = 1), 2)
+#' torch_narrow(x, 1, 1, 2)
+#' torch_narrow(x, 2, 2, 2)
 NULL
 # -> narrow <-
 

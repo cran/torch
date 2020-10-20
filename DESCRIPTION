@@ -1,7 +1,7 @@
 Package: torch
 Type: Package
 Title: Tensors and Neural Networks with 'GPU' Acceleration
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
     person("Daniel", "Falbel", email = "daniel@rstudio.com", role = c("aut", "cre", "cph")),
     person("Javier", "Luraschi", email = "javier@rstudio.com", role = c("aut", "cph")),
@@ -34,21 +34,24 @@ Collate: 'R7.R' 'RcppExports.R' 'tensor.R' 'autograd.R' 'backends.R'
         'memory_format.R' 'utils-data.R' 'nn.R' 'nn-activation.R'
         'nn-batchnorm.R' 'nn-conv.R' 'nn-distance.R' 'nn-dropout.R'
         'nn-init.R' 'nn-linear.R' 'nn-loss.R' 'nn-pooling.R' 'nn-rnn.R'
-        'nn-sparse.R' 'nn-utils-rnn.R' 'nn-utils.R' 'nn_adaptive.R'
-        'nnf-activation.R' 'nnf-batchnorm.R' 'nnf-conv.R'
-        'nnf-distance.R' 'nnf-dropout.R' 'nnf-embedding.R' 'nnf-fold.R'
-        'nnf-instancenorm.R' 'nnf-linear.R' 'nnf-loss.R'
-        'nnf-normalization.R' 'nnf-padding.R' 'nnf-pixelshuffle.R'
-        'nnf-pooling.R' 'nnf-upsampling.R' 'nnf-vision.R' 'operators.R'
-        'optim.R' 'optim-adam.R' 'optim-lr_scheduler.R' 'optim-sgd.R'
-        'package.R' 'qscheme.R' 'quantization.R' 'reduction.R' 'save.R'
-        'scalar.R' 'storage.R' 'tensor_list.R' 'tensor_options.R'
-        'type-info.R' 'utils-data-collate.R' 'utils-data-dataloader.R'
+        'nn-sparse.R' 'nn-utils-clip-grad.R' 'nn-utils-rnn.R'
+        'nn-utils.R' 'nn_adaptive.R' 'nnf-activation.R'
+        'nnf-batchnorm.R' 'nnf-conv.R' 'nnf-distance.R' 'nnf-dropout.R'
+        'nnf-embedding.R' 'nnf-fold.R' 'nnf-instancenorm.R'
+        'nnf-linear.R' 'nnf-loss.R' 'nnf-normalization.R'
+        'nnf-padding.R' 'nnf-pixelshuffle.R' 'nnf-pooling.R'
+        'nnf-upsampling.R' 'nnf-vision.R' 'operators.R' 'optim.R'
+        'optim-adadelta.R' 'optim-adagrad.R' 'optim-adam.R'
+        'optim-asgd.R' 'optim-lr_scheduler.R' 'optim-rmsprop.R'
+        'optim-rprop.R' 'optim-sgd.R' 'package.R' 'qscheme.R'
+        'quantization.R' 'reduction.R' 'save.R' 'scalar.R' 'storage.R'
+        'tensor_list.R' 'tensor_options.R' 'threads.R' 'type-info.R'
+        'utils-data-collate.R' 'utils-data-dataloader.R'
         'utils-data-enum.R' 'utils-data-fetcher.R'
         'utils-data-sampler.R' 'utils-pipe.R' 'utils.R'
         'variable_list.R' 'with-indices.R' 'wrapers.R'
 NeedsCompilation: yes
-Packaged: 2020-09-28 13:25:26 UTC; dfalbel
+Packaged: 2020-10-20 20:02:32 UTC; dfalbel
 Author: Daniel Falbel [aut, cre, cph],
   Javier Luraschi [aut, cph],
   Dmitriy Selivanov [ctb],
@@ -56,4 +59,4 @@ Author: Daniel Falbel [aut, cre, cph],
   RStudio [cph]
 Maintainer: Daniel Falbel <daniel@rstudio.com>
 Repository: CRAN
-Date/Publication: 2020-09-28 14:00:03 UTC
+Date/Publication: 2020-10-20 21:10:02 UTC

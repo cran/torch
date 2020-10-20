@@ -157,3 +157,110 @@ test_that("ndim", {
   expect_equal(x$ndim, 2)
   
 })
+
+test_that("as.matrix", {
+  
+  x <- torch_randn(2,2)
+  r <- as.matrix(x)
+  expect_equal(class(r), c("matrix", "array"))
+  expect_equal(dim(r), c(2,2))
+  
+  x <- torch_randn(2,2,2)
+  r <- as.matrix(x)
+  expect_equal(class(r), c("matrix", "array"))
+  expect_equal(dim(r), c(8,1))
+  
+})
+
+test_that("print tensor is truncated", {
+  
+  expect_known_value(torch_arange(0, 100), file = "assets/print1")
+  expect_known_value(torch_arange(0, 25), file = "assets/print2")
+  expect_known_value(print(torch_arange(0, 100), n = 50), file = "assets/print3")
+  expect_known_value(print(torch_arange(0, 100), n = -1), file = "assets/print4")
+  
+})
+
+test_that("scatter works", {
+  
+  index <- torch_tensor(matrix(c(1, 2), ncol = 1), dtype = torch_long())
+  
+  z <- torch_zeros(3, 5)
+  expected_out <- torch_zeros(3, 5)
+  expected_out[1:2, 1] <- 1L
+  
+  expect_equal_to_tensor(z$scatter(1, index, 1), expected_out)
+  expect_equal_to_tensor(z$scatter_(1, index, 1), expected_out)
+  
+})
+
+test_that("names and has_names", {
+  
+  x <- torch_randn(2,2)
+  expect_equal(x$has_names(), FALSE)
+  expect_null(x$names)
+  
+  x <- torch_randn(2,2, names = c("W", "H"))
+  expect_equal(x$has_names(), TRUE)
+  expect_equal(x$names, c("W", "H"))
+  
+})
+
+test_that("rename works", {
+  
+  x <- torch_randn(2,2, names = c("W", "H"))
+  
+  expect_equal(x$rename(W = "a")$names, c("a", "H"))
+  expect_equal(x$rename(W = "a", H = "b")$names, c("a", "b"))
+  expect_equal(x$rename("a", "b")$names, c("a", "b"))
+  x$rename_(W = "a")
+  expect_equal(x$names, c("a", "H"))
+  
+  x <- torch_randn(2,2)
+  expect_error(x$rename(W = "a"), class = "runtime_error")
+  expect_equal(x$rename("a", "b")$names, c("a", "b"))
+  
+})
+
+test_that("is_leaf", {
+  
+  a <- torch_rand(10, requires_grad=TRUE)
+  expect_true(a$is_leaf)
+  
+  skip_if_cuda_not_available()
+  a <- torch_rand(10)$to(device = "cuda")
+  expect_true(!a$is_leaf)
+  
+})
+
+test_that("max and min", {
+  
+  x <- torch_tensor(1:10)
+  
+  expect_equal_to_r(x$min(), 1L)
+  expect_equal_to_r(x$max(), 10L)
+  
+  expect_equal_to_r(x$min(other = 9L)[10], 9L)
+  expect_equal_to_r(x$max(other = 2L)[1], 2L)
+  
+  x <- torch_tensor(
+    rbind(
+      c(1, 5, 0),
+      c(2, 7, 9),
+      c(5, 1, 4)
+    )
+  )
+  expect_equal_to_r(x$min(dim = 2)[[1]], c(0, 2, 1))
+  expect_equal_to_r(x$min(dim = 2)[[2]], c(3L, 1L, 2L))
+  expect_tensor_shape(x$min(dim = 2, keepdim = TRUE)[[2]], c(3L, 1L))
+
+  expect_equal_to_r(x$max(dim = 2)[[1]], c(5, 9, 5))
+  expect_equal_to_r(x$max(dim = 2)[[2]], c(2L, 3L, 1L))
+  expect_tensor_shape(x$min(dim = 2, keepdim = TRUE)[[2]], c(3L, 1L))  
+  
+  expect_error(
+    x$min(dim = 1, other = 2),
+    class = "value_error"
+  )
+  
+}) 

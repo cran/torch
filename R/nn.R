@@ -218,7 +218,17 @@ nn_Module <- R6::R6Class(
     parameters = function() {
       pars <- lapply(private$modules_, function(x) x$parameters)
       pars <- append(pars, private$parameters_)
-      unlist(pars, recursive = TRUE, use.names = TRUE)
+      pars <- unlist(pars, recursive = TRUE, use.names = TRUE)
+      
+      # deduplicate the parameters based on the storage location
+      # see (#305)
+      # in python a `set` is used to do this. but there's no straightforward
+      # way to do this in R because the R objects could be possibly different
+      # and still point to the same parameter in memory.
+      addresses <- sapply(pars, function(x) x$storage()$data_ptr())
+      pars <- pars[!duplicated(addresses)]
+      
+      pars
     }
   )
 )
@@ -379,22 +389,25 @@ create_nn_module_callable <- function(instance) {
   if (is.numeric(y))
     return(x[[".__enclos_env__"]][["private"]][["modules_"]][[y]])
   
-  if (!is.null(x[[".__enclos_env__"]][["private"]][["parameters_"]])) {
-    pars <- x[[".__enclos_env__"]][["private"]][["parameters_"]]
-    if (y %in% names(pars))
-      return(pars[[y]])
+  pars <- x[[".__enclos_env__"]][["private"]][["parameters_"]]
+  if (!is.null(pars)) {
+    o <- pars[[y]]
+    if (!is.null(o))
+      return(o)
   }
   
-  if (!is.null(x[[".__enclos_env__"]][["private"]][["buffers_"]])) {
-    bufs <- x[[".__enclos_env__"]][["private"]][["buffers_"]]
-    if (y %in% names(bufs))
-      return(bufs[[y]])
+  bufs <- x[[".__enclos_env__"]][["private"]][["buffers_"]]
+  if (!is.null(bufs)) {
+    o <- bufs[[y]]
+    if (!is.null(o))
+      return(o)
   }
   
-  if (!is.null(x[[".__enclos_env__"]][["private"]][["modules_"]])) {
-    mods <- x[[".__enclos_env__"]][["private"]][["modules_"]]
-    if (y %in% names(mods))
-      return(mods[[y]])
+  mods <- x[[".__enclos_env__"]][["private"]][["modules_"]]
+  if (!is.null(mods)) {
+    o <- mods[[y]]
+    if (!is.null(o))
+      return(o)
   }
   
   NextMethod("[[", x)
@@ -509,16 +522,23 @@ nn_module_list <- nn_module(
   "nn_module_list",
   initialize = function(modules = list()) {
     for (i in seq_along(modules))
-      self$add_module(i, modules[[i]])
+      self$add_module(i - 1, modules[[i]])
   },
   insert = function(index, module) {
-    private$modules_ <- append(private$modules_, list(module), after = index - 1)
+    modules <- append(private$modules_, list(module), after = index - 1)
+    private$modules_ <- NULL
+    for (i in seq_along(modules)) {
+      self$add_module(i - 1, modules[[i]])
+    }
   },
   append = function(module) {
-    private$modules_ <- append(private$modules_, list(module))
+    i <- length(private$modules_)
+    self$add_module(i, module)
   },
   extend  = function(modules) {
-    private$modules_ <- append(private$modules_, modules)
+    for (j in seq_along(modules)) {
+      self$append(modules[[j]])
+    }
   }
 )
 

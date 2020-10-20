@@ -69,7 +69,7 @@ RandomSampler <- R6::R6Class(
     .iter = function() {
       n <- length(self$data_source)
       if (self$replacement) {
-        rand_tensor <- torch_randint(low = 1, high = n, size = self$num_samples,
+        rand_tensor <- torch_randint(low = 1, high = n + 1, size = self$num_samples,
                                      dtype = torch_long(), generator = self$generator)
       } else {
         rand_tensor <- torch_randperm(n)$add(1L, 1L)#, generator = self$generator)
@@ -83,7 +83,7 @@ RandomSampler <- R6::R6Class(
   ),
   active = list(
     num_samples = function() {
-      if (is.null(self$num_samples_))
+      if (is.null(self$.num_samples))
         length(self$data_source)
       else
         self$.num_samples

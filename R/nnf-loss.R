@@ -108,6 +108,7 @@ nnf_mse_loss <- function(input, target, reduction = "mean") {
 #' @export
 nnf_binary_cross_entropy <- function(input, target, weight = NULL, 
                                      reduction = c("mean", "sum", "none")) {
+  reduction <- match.arg(reduction)
   torch_binary_cross_entropy(input, target, weight, 
                              reduction=reduction_enum(reduction))
 }
@@ -215,7 +216,7 @@ nnf_soft_margin_loss <- function(input, target, reduction = "mean") {
 #' @param weight weight tensor to apply on the loss.
 #'
 #' @export
-nnf_multilabel_soft_margin_loss <- function(input, target, weight, reduction = "mean") {
+nnf_multilabel_soft_margin_loss <- function(input, target, weight = NULL, reduction = "mean") {
   loss <- -(target * nnf_logsigmoid(input) + (1 - target) * nnf_logsigmoid(-input))
   
   if (!is.null(weight))
@@ -440,7 +441,7 @@ nnf_nll_loss <- function(input, target, weight = NULL, ignore_index = -100,
 nnf_cross_entropy <- function(input, target, weight=NULL, ignore_index=-100, 
                               reduction=c("mean", "sum", "none")) {
   reduction <- match.arg(reduction)
-  torch_nll_loss(self = torch_log_softmax(input, 1), target = target, weight = weight, 
+  torch_nll_loss(self = torch_log_softmax(input, 2), target = target, weight = weight, 
                  reduction = reduction_enum(reduction), ignore_index = ignore_index)
 }
 

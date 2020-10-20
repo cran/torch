@@ -97,6 +97,10 @@ cpp_autograd_grad <- function(outputs, inputs, grad_outputs, retain_graph, creat
     .Call('_torch_cpp_autograd_grad', PACKAGE = 'torchpkg', outputs, inputs, grad_outputs, retain_graph, create_graph, allow_unused)
 }
 
+cpp_contrib_torch_sparsemax <- function(input, dim) {
+    .Call('_torch_cpp_contrib_torch_sparsemax', PACKAGE = 'torchpkg', input, dim)
+}
+
 cpp_cuda_is_available <- function() {
     .Call('_torch_cpp_cuda_is_available', PACKAGE = 'torchpkg')
 }
@@ -7081,8 +7085,8 @@ cpp_Storage_data_ptr <- function(self) {
     .Call('_torch_cpp_Storage_data_ptr', PACKAGE = 'torchpkg', self)
 }
 
-cpp_torch_tensor_print <- function(x) {
-    invisible(.Call('_torch_cpp_torch_tensor_print', PACKAGE = 'torchpkg', x))
+cpp_torch_tensor_print <- function(x, n) {
+    invisible(.Call('_torch_cpp_torch_tensor_print', PACKAGE = 'torchpkg', x, n))
 }
 
 cpp_torch_tensor_dtype <- function(x) {
@@ -7115,6 +7119,30 @@ cpp_tensor_is_undefined <- function(self) {
 
 cpp_tensor_is_contiguous <- function(self) {
     .Call('_torch_cpp_tensor_is_contiguous', PACKAGE = 'torchpkg', self)
+}
+
+cpp_tensor_has_names <- function(self) {
+    .Call('_torch_cpp_tensor_has_names', PACKAGE = 'torchpkg', self)
+}
+
+cpp_tensor_names <- function(self) {
+    .Call('_torch_cpp_tensor_names', PACKAGE = 'torchpkg', self)
+}
+
+cpp_set_num_threads <- function(n) {
+    invisible(.Call('_torch_cpp_set_num_threads', PACKAGE = 'torchpkg', n))
+}
+
+cpp_set_num_interop_threads <- function(n) {
+    invisible(.Call('_torch_cpp_set_num_interop_threads', PACKAGE = 'torchpkg', n))
+}
+
+cpp_get_num_threads <- function() {
+    .Call('_torch_cpp_get_num_threads', PACKAGE = 'torchpkg')
+}
+
+cpp_get_num_interop_threads <- function() {
+    .Call('_torch_cpp_get_num_interop_threads', PACKAGE = 'torchpkg')
 }
 
 cpp_torch_tensor_list <- function(x) {

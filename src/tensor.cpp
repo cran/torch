@@ -3,9 +3,36 @@
 #include "utils.h"
 
 // [[Rcpp::export]]
-void cpp_torch_tensor_print (Rcpp::XPtr<XPtrTorchTensor> x) {
+void cpp_torch_tensor_print (Rcpp::XPtr<XPtrTorchTensor> x, int n) {
   const char* s = lantern_Tensor_StreamInsertion(x->get());
-  Rcpp::Rcout << std::string(s) << std::endl;
+  
+  auto ss = std::stringstream(std::string(s));
+  std::string token;
+  std::vector<std::string> cont;
+  while (std::getline(ss, token)) {
+    cont.push_back(token);
+  }
+  
+  bool truncated = false;
+  if (cont.size() > n && n > 1)
+  {
+    cont.erase(cont.begin() + n, cont.end() - 1);
+    truncated = true;
+  }
+  
+  std::string result;
+  for (int i = 0; i < cont.size(); i ++)
+  {
+    result += cont.at(i);
+    
+    if (i != (cont.size() - 1))
+      result += "\n";
+    
+    if (i == (cont.size() - 2) && truncated)
+      result += "... [the output was truncated (use n=-1 to disable)]\n";
+  }
+  
+  Rcpp::Rcout << result << std::endl;
 };
 
 // [[Rcpp::export]]
@@ -216,3 +243,38 @@ bool cpp_tensor_is_contiguous (Rcpp::XPtr<XPtrTorchTensor> self)
   return lantern_Tensor_is_contiguous(self->get());
 }
 
+// [[Rcpp::export]]
+bool cpp_tensor_has_names (Rcpp::XPtr<XPtrTorchTensor> self)
+{
+  return lantern_Tensor_has_names(self->get());
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<XPtrTorchDimnameList> cpp_tensor_names (Rcpp::XPtr<XPtrTorchTensor> self)
+{
+  return make_xptr<XPtrTorchDimnameList>(lantern_Tensor_names(self->get()));
+}
+
+// [[Rcpp::export]]
+void cpp_set_num_threads (int n)
+{
+  lantern_set_num_threads(n);
+}
+
+// [[Rcpp::export]]
+void cpp_set_num_interop_threads (int n)
+{
+  lantern_set_num_interop_threads(n);
+}
+
+// [[Rcpp::export]]
+int cpp_get_num_threads ()
+{
+  return lantern_get_num_threads();
+}
+
+// [[Rcpp::export]]
+int cpp_get_num_interop_threads ()
+{
+  return lantern_get_num_interop_threads();
+}

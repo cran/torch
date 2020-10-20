@@ -40,9 +40,9 @@ Tensor <- R7Class(
       self$ptr <- cpp_torch_tensor(data, rev(dimension), options$ptr, 
                                    requires_grad, inherits(data, "integer64"))
     },
-    print = function() {
-      cat(sprintf("torch_tensor \n"))
-      cpp_torch_tensor_print(self$ptr)
+    print = function(n = 30) {
+      cat("torch_tensor\n")
+      cpp_torch_tensor_print(self$ptr, n)
       invisible(self)
     },
     dim = function() {
@@ -109,6 +109,78 @@ Tensor <- R7Class(
         self$ptr <- torch_empty_like(src)$ptr
       
       private$`_copy_`(src, non_blocking)
+    },
+    topk = function(k, dim = -1L, largest = TRUE, sorted = TRUE) {
+      o <- private$`_topk`(k, dim, largest, sorted)
+      o[[2]]$add_(1L)
+      o
+    },
+    scatter = function(dim, index, src) {
+      if (is_torch_tensor(src))
+        private$`_scatter`(dim, index, src = src)
+      else
+        private$`_scatter`(dim, index, value = src)
+    },
+    scatter_ = function(dim, index, src) {
+      if (is_torch_tensor(src))
+        private$`_scatter_`(dim, index, src = src)
+      else
+        private$`_scatter_`(dim, index, value = src)
+    },
+    has_names = function() {
+      cpp_tensor_has_names(self$ptr)
+    },
+    rename = function(...) {
+      nms <- prep_names(..., self = self)
+      private$`_rename`(nms) 
+    },
+    rename_ = function(...) {
+      nms <- prep_names(..., self = self)
+      private$`_rename_`(nms) 
+    },
+    narrow = function(dim, start, length) {
+      start <- torch_scalar_tensor(start, dtype = torch_int64())
+      if (start$item() == 0)
+        value_error("start indexing starts at 1")
+      start <- start - 1L
+      private$`_narrow`(dim, start, length)
+    },
+    narrow_copy = function(dim, start, length) {
+      if (start == 0)
+        value_error("start indexing starts at 1")
+      start <- start - 1L
+      private$`_narrow_copy`(dim, start, length)
+    },
+    max = function(dim, other, keepdim = FALSE) {
+      
+      if (missing(dim) && missing(other))
+        return(private$`_max`())
+      
+      if (!missing(dim) && !missing(other))
+        value_error("Can't set other and dim argumments.")
+      
+      if (missing(dim))
+        return(private$`_max`(other = other))
+        
+      # dim is not missing
+      o <- private$`_max`(dim = dim, keepdim = keepdim)
+      o[[2]] <- o[[2]] + 1L # make 1 based
+      o
+    },
+    min = function(dim, other, keepdim = FALSE) {
+      if (missing(dim) && missing(other))
+        return(private$`_min`())
+      
+      if (!missing(dim) && !missing(other))
+        value_error("Can't set other and dim argumments.")
+      
+      if (missing(dim))
+        return(private$`_min`(other = other))
+      
+      # dim is not missing
+      o <- private$`_min`(dim = dim, keepdim = keepdim)
+      o[[2]] <- o[[2]] + 1L # make 1 based
+      o
     }
   ),
   active = list(
@@ -126,9 +198,36 @@ Tensor <- R7Class(
     },
     ndim = function() {
       self$dim()
+    },
+    names = function() {
+      
+      if (!self$has_names())
+        return(NULL)
+      
+      p <- cpp_tensor_names(self$ptr)
+      DimnameList$new(ptr = p)$to_r()
+    },
+    is_leaf = function() {
+      private$`_is_leaf`()
     }
   )
 )
+
+prep_names <- function(..., self) {
+  new_nms <- unlist(rlang::list2(...))
+  
+  if (rlang::is_named(new_nms)) {
+    
+    if (!self$has_names())
+      runtime_error("The tensor doesn't have names so you can't rename a dimension.")
+    
+    nms <- self$names
+    nms[which(nms == names(new_nms))] <- new_nms
+  } else {
+    nms <- new_nms
+  }
+  nms
+}
 
 #' Converts R objects to a torch tensor
 #' 
@@ -160,6 +259,11 @@ as_array <- function(x) {
 #' @export
 as.array.torch_tensor <- function(x, ...) {
   as_array(x)
+}
+
+#' @export
+as.matrix.torch_tensor <- function(x, ...) {
+  as.matrix(as_array(x))
 }
 
 as_array_impl <- function(x) {

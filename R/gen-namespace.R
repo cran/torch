@@ -11554,8 +11554,8 @@ fun_type = 'namespace'
 }
 
 
-#' @rdname torch_narrow
-torch_narrow <- function(self, dim, start, length) {
+#' @rdname .torch_narrow
+.torch_narrow <- function(self, dim, start, length) {
   args <- mget(x = c("self", "dim", "start", "length"))
 expected_types <- list(self = "Tensor", dim = "int64_t", start = c("int64_t", "Tensor"
 ), length = "int64_t")
@@ -14073,8 +14073,8 @@ fun_type = 'namespace'
 }
 
 
-#' @rdname torch_scalar_tensor
-torch_scalar_tensor <- function(s, options = list()) {
+#' @rdname .torch_scalar_tensor
+.torch_scalar_tensor <- function(s, options = list()) {
   args <- mget(x = c("s", "options"))
 expected_types <- list(s = "Scalar", options = "TensorOptions")
 nd_args <- "s"
@@ -16190,8 +16190,8 @@ fun_type = 'namespace'
 }
 
 
-#' @rdname torch_topk
-torch_topk <- function(self, k, dim = -1L, largest = TRUE, sorted = TRUE) {
+#' @rdname .torch_topk
+.torch_topk <- function(self, k, dim = -1L, largest = TRUE, sorted = TRUE) {
   args <- mget(x = c("self", "k", "dim", "largest", "sorted"))
 expected_types <- list(self = "Tensor", k = "int64_t", dim = "int64_t", largest = "bool", 
     sorted = "bool")

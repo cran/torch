@@ -282,6 +282,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cpp_contrib_torch_sparsemax
+Rcpp::XPtr<XPtrTorchTensor> cpp_contrib_torch_sparsemax(Rcpp::XPtr<XPtrTorchTensor> input, int dim);
+RcppExport SEXP _torch_cpp_contrib_torch_sparsemax(SEXP inputSEXP, SEXP dimSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<XPtrTorchTensor> >::type input(inputSEXP);
+    Rcpp::traits::input_parameter< int >::type dim(dimSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_contrib_torch_sparsemax(input, dim));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cpp_cuda_is_available
 bool cpp_cuda_is_available();
 RcppExport SEXP _torch_cpp_cuda_is_available() {
@@ -23537,12 +23549,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // cpp_torch_tensor_print
-void cpp_torch_tensor_print(Rcpp::XPtr<XPtrTorchTensor> x);
-RcppExport SEXP _torch_cpp_torch_tensor_print(SEXP xSEXP) {
+void cpp_torch_tensor_print(Rcpp::XPtr<XPtrTorchTensor> x, int n);
+RcppExport SEXP _torch_cpp_torch_tensor_print(SEXP xSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::XPtr<XPtrTorchTensor> >::type x(xSEXP);
-    cpp_torch_tensor_print(x);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    cpp_torch_tensor_print(x, n);
     return R_NilValue;
 END_RCPP
 }
@@ -23635,6 +23648,68 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::XPtr<XPtrTorchTensor> >::type self(selfSEXP);
     rcpp_result_gen = Rcpp::wrap(cpp_tensor_is_contiguous(self));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_tensor_has_names
+bool cpp_tensor_has_names(Rcpp::XPtr<XPtrTorchTensor> self);
+RcppExport SEXP _torch_cpp_tensor_has_names(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<XPtrTorchTensor> >::type self(selfSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_tensor_has_names(self));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_tensor_names
+Rcpp::XPtr<XPtrTorchDimnameList> cpp_tensor_names(Rcpp::XPtr<XPtrTorchTensor> self);
+RcppExport SEXP _torch_cpp_tensor_names(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<XPtrTorchTensor> >::type self(selfSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_tensor_names(self));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_set_num_threads
+void cpp_set_num_threads(int n);
+RcppExport SEXP _torch_cpp_set_num_threads(SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    cpp_set_num_threads(n);
+    return R_NilValue;
+END_RCPP
+}
+// cpp_set_num_interop_threads
+void cpp_set_num_interop_threads(int n);
+RcppExport SEXP _torch_cpp_set_num_interop_threads(SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    cpp_set_num_interop_threads(n);
+    return R_NilValue;
+END_RCPP
+}
+// cpp_get_num_threads
+int cpp_get_num_threads();
+RcppExport SEXP _torch_cpp_get_num_threads() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(cpp_get_num_threads());
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_get_num_interop_threads
+int cpp_get_num_interop_threads();
+RcppExport SEXP _torch_cpp_get_num_interop_threads() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(cpp_get_num_interop_threads());
     return rcpp_result_gen;
 END_RCPP
 }
@@ -23813,6 +23888,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_torch_cpp_autograd_node_next_edges", (DL_FUNC) &_torch_cpp_autograd_node_next_edges, 1},
     {"_torch_cpp_autograd_edge_function", (DL_FUNC) &_torch_cpp_autograd_edge_function, 1},
     {"_torch_cpp_autograd_grad", (DL_FUNC) &_torch_cpp_autograd_grad, 6},
+    {"_torch_cpp_contrib_torch_sparsemax", (DL_FUNC) &_torch_cpp_contrib_torch_sparsemax, 2},
     {"_torch_cpp_cuda_is_available", (DL_FUNC) &_torch_cpp_cuda_is_available, 0},
     {"_torch_cpp_cuda_device_count", (DL_FUNC) &_torch_cpp_cuda_device_count, 0},
     {"_torch_cpp_cuda_current_device", (DL_FUNC) &_torch_cpp_cuda_current_device, 0},
@@ -25559,7 +25635,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_torch_cpp_Tensor_storage", (DL_FUNC) &_torch_cpp_Tensor_storage, 1},
     {"_torch_cpp_Tensor_has_storage", (DL_FUNC) &_torch_cpp_Tensor_has_storage, 1},
     {"_torch_cpp_Storage_data_ptr", (DL_FUNC) &_torch_cpp_Storage_data_ptr, 1},
-    {"_torch_cpp_torch_tensor_print", (DL_FUNC) &_torch_cpp_torch_tensor_print, 1},
+    {"_torch_cpp_torch_tensor_print", (DL_FUNC) &_torch_cpp_torch_tensor_print, 2},
     {"_torch_cpp_torch_tensor_dtype", (DL_FUNC) &_torch_cpp_torch_tensor_dtype, 1},
     {"_torch_cpp_torch_tensor", (DL_FUNC) &_torch_cpp_torch_tensor, 5},
     {"_torch_cpp_as_array", (DL_FUNC) &_torch_cpp_as_array, 1},
@@ -25568,6 +25644,12 @@ static const R_CallMethodDef CallEntries[] = {
     {"_torch_cpp_tensor_device", (DL_FUNC) &_torch_cpp_tensor_device, 1},
     {"_torch_cpp_tensor_is_undefined", (DL_FUNC) &_torch_cpp_tensor_is_undefined, 1},
     {"_torch_cpp_tensor_is_contiguous", (DL_FUNC) &_torch_cpp_tensor_is_contiguous, 1},
+    {"_torch_cpp_tensor_has_names", (DL_FUNC) &_torch_cpp_tensor_has_names, 1},
+    {"_torch_cpp_tensor_names", (DL_FUNC) &_torch_cpp_tensor_names, 1},
+    {"_torch_cpp_set_num_threads", (DL_FUNC) &_torch_cpp_set_num_threads, 1},
+    {"_torch_cpp_set_num_interop_threads", (DL_FUNC) &_torch_cpp_set_num_interop_threads, 1},
+    {"_torch_cpp_get_num_threads", (DL_FUNC) &_torch_cpp_get_num_threads, 0},
+    {"_torch_cpp_get_num_interop_threads", (DL_FUNC) &_torch_cpp_get_num_interop_threads, 0},
     {"_torch_cpp_torch_tensor_list", (DL_FUNC) &_torch_cpp_torch_tensor_list, 1},
     {"_torch_cpp_tensor_list_to_r_list", (DL_FUNC) &_torch_cpp_tensor_list_to_r_list, 1},
     {"_torch_cpp_torch_tensor_options", (DL_FUNC) &_torch_cpp_torch_tensor_options, 5},
