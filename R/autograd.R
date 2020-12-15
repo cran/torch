@@ -431,7 +431,12 @@ Node <- R6::R6Class(
 )
 
 Tensor$set("active", "grad_fn", function() {
-  Node$new(cpp_tensor_grad_fn(self$ptr))
+  o <- cpp_tensor_grad_fn(self$ptr)
+  
+  if (cpp_pointer_is_null(o))
+    return(NULL)
+  
+  Node$new(o)
 })
 
 #' Computes the sum of gradients of given tensors w.r.t. graph leaves.
@@ -487,9 +492,9 @@ autograd_backward <- function(tensors, grad_tensors = NULL, retain_graph = creat
     grad_tensors <- list(grad_tensors)
   
   null <- sapply(grad_tensors, is.null)
-  if (length(null) > 0) {
+  if (sum(null) > 0) {
     grad_tensors[null] <- lapply(
-      seq_along(null), 
+      seq_len(sum(null)), 
       function(x) Tensor$new(ptr = cpp_tensor_undefined())
     )  
   }

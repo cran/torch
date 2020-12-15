@@ -52,6 +52,18 @@ torch_min <- function(self, dim, other, keepdim = FALSE) {
   o
 }
 
+torch_argmax <- function(self, dim = NULL, keepdim = FALSE) {
+  o <- .torch_argmax(self, dim = dim, keepdim = keepdim)
+  o$add_(1L, 1L)
+  o
+}
+
+torch_argmin <- function(self, dim = NULL, keepdim = FALSE) {
+  o <- .torch_argmin(self, dim = dim, keepdim = keepdim)
+  o$add_(1L, 1L)
+  o
+}
+
 torch_nll_loss <- function(self, target, weight = list(), reduction = torch_reduction_mean(), ignore_index = -100) {
   target <- target$sub(1L, 1L)
   .torch_nll_loss(self, target, weight, reduction, ignore_index)
@@ -60,4 +72,9 @@ torch_nll_loss <- function(self, target, weight = list(), reduction = torch_redu
 torch_nll_loss2d <- function(self, target, weight = list(), reduction = torch_reduction_mean(), ignore_index = -100) {
   target <- target$sub(1L, 1L)
   .torch_nll_loss2d(self, target, weight, reduction, ignore_index)
+}
+
+#' @rdname torch_argsort
+torch_argsort <- function(self, dim = -1L, descending = FALSE) {
+  .torch_argsort(self = self, dim = dim, descending = descending)$add_(1L, 1L)
 }

@@ -111,6 +111,10 @@ nn_Module <- R6::R6Class(
       })
     },
     
+    print = function() {
+      print_nn_module(self, private)
+    },
+    
     .save_to_state_dict = function(prefix, keepvars) {
       
       out <- list()
@@ -215,7 +219,15 @@ nn_Module <- R6::R6Class(
     non_persistent_buffers_ = character()
   ),
   active = list(
-    parameters = function() {
+    parameters = function(value) {
+      
+      if (!missing(value))
+        runtime_error(
+          "It's not possible to modify the parameters list.\n",
+          " You can modify the parameter in-place or use",
+          " `module$parameter_name <- new_value`"
+          )
+      
       pars <- lapply(private$modules_, function(x) x$parameters)
       pars <- append(pars, private$parameters_)
       pars <- unlist(pars, recursive = TRUE, use.names = TRUE)
@@ -301,6 +313,8 @@ is_nn_module <- function(x) {
 #' @param classname an optional name for the module
 #' @param inherit an optional module to inherit from
 #' @param ... methods implementation 
+#' @param private passed to [R6::R6Class()].
+#' @param active passed to [R6::R6Class()].
 #' @param parent_env passed to [R6::R6Class()].
 #' 
 #' @examples 
@@ -320,6 +334,7 @@ is_nn_module <- function(x) {
 #' 
 #' @export
 nn_module <- function(classname = NULL, inherit = nn_Module, ..., 
+                      private = NULL, active = NULL,
                       parent_env = parent.frame()) {
   
   if (inherits(inherit, "nn_module"))
@@ -338,6 +353,8 @@ nn_module <- function(classname = NULL, inherit = nn_Module, ...,
       .classes = classes,
       ...
     ),
+    private = private,
+    active = active,
     parent_env = e
   )
   
@@ -526,7 +543,7 @@ nn_module_list <- nn_module(
   },
   insert = function(index, module) {
     modules <- append(private$modules_, list(module), after = index - 1)
-    private$modules_ <- NULL
+    private$modules_ <- list()
     for (i in seq_along(modules)) {
       self$add_module(i - 1, modules[[i]])
     }
@@ -554,3 +571,67 @@ nn_module_list <- nn_module(
 length.nn_module_list <- function(x, ...) {
   length(x$.__enclos_env__$private$modules_)
 }
+
+comma <- function(x) {
+  format(x, nsmall=0, big.mark=",", scientific = FALSE)
+}
+
+print_nn_module <- function(self, private) {
+  
+  cli::cat_line(
+    "An `nn_module` containing ", 
+    comma(get_parameter_count(self)),
+    " parameters."
+  )
+  
+  if (length(private$modules_) > 0) {
+    cli::cat_line()
+    cli::cat_rule("Modules")
+    sapply(names(private$modules_), function(x) {
+      cli_module_item(x, private$modules_[[x]])
+    })
+  }
+  
+  if (length(private$parameters_) > 0) {
+    cli::cat_line()
+    cli::cat_rule("Parameters")
+    sapply(names(private$parameters_), function(x) {
+      cli_tensor_item(x, private$parameters_[[x]])
+    })
+  }
+  
+  if (length(private$buffers_) > 0) {
+    cli::cat_line()
+    cli::cat_rule("Buffers")
+    sapply(names(private$buffers_), function(x) {
+      cli_tensor_item(x, private$buffers_[[x]])
+    })
+  }
+}
+
+cli_module_item <- function(name, module) {
+  cli::cat_bullet(paste0(
+    name, 
+    ": <", class(module)[1], "> #", 
+    comma(get_parameter_count(module)), 
+    " parameters"
+  ))
+}
+
+cli_tensor_item <- function(name, tensor) {
+  cli::cat_bullet(paste0(
+   name, 
+   ": ",
+   make_str_torch_tensor(tensor)
+  ))
+}
+
+get_parameter_count <- function(self) {
+  
+  if (length(self$parameters) == 0)
+    return(0)
+  
+  pars <- sapply(self$parameters, function(x) prod(x$shape))
+  sum(pars)
+}
+

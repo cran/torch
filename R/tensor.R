@@ -56,6 +56,9 @@ Tensor <- R7Class(
       
       x[dim]
     },
+    element_size = function() {
+      cpp_tensor_element_size(self$ptr)
+    },
     numel = function() {
       cpp_tensor_numel(self$ptr)
     },
@@ -78,6 +81,9 @@ Tensor <- R7Class(
         args$dtype <- self$dtype
       
       do.call(private$`_to`, args)
+    },
+    bool = function(memory_format = torch_preserve_format()) {
+      self$to(torch_bool(), memory_format = memory_format)
     },
     cuda = function(device=NULL, non_blocking=FALSE, memory_format=torch_preserve_format()) {
       
@@ -180,6 +186,19 @@ Tensor <- R7Class(
       # dim is not missing
       o <- private$`_min`(dim = dim, keepdim = keepdim)
       o[[2]] <- o[[2]] + 1L # make 1 based
+      o
+    },
+    argsort = function(dim = -1L, descending = FALSE) {
+      private$`_argsort`(dim = dim, descending = descending)$add_(1L, 1L)
+    },
+    argmax = function(dim = NULL, keepdim = FALSE) {
+      o <- private$`_argmax`(dim = dim, keepdim = keepdim)
+      o <- o$add_(1L, 1L)
+      o
+    },
+    argmin = function(dim = NULL, keepdim = FALSE) {
+      o <- private$`_argmin`(dim = dim, keepdim = keepdim)
+      o <- o$add_(1L, 1L)
       o
     }
   ),
@@ -294,8 +313,14 @@ as_array.torch_tensor <- function(x) {
     x <- x$dequantize()
   
   # auto convert to int32 if long.
-  if (x$dtype == torch_long())
+  if (x$dtype == torch_long()) {
+    
+    if ((x > .Machine$integer.max)$any()$item())
+      warn("Converting integers > .Machine$integer.max is undefined and returns wrong results. Use as.integer64(x)")
+    
     x <- x$to(dtype = torch_int32())
+  }
+    
   
   out <- as_array_impl(x)
   
@@ -322,14 +347,19 @@ as.integer64.torch_tensor <- function(x, keep.names = FALSE, ...) {
   as_array_impl(x)
 }
 
-#' @export
-str.torch_tensor <- function(object, ...) {
+make_str_torch_tensor <- function(object) {
   dtype <- object$dtype$.type()
   
   dims <- dim(object)
   dims <- paste(paste0("1:", dims), collapse = ", ")
   
   out <- paste0(dtype, " [", dims, "]")
+  out
+}
+
+#' @export
+str.torch_tensor <- function(object, ...) {
+  out <- make_str_torch_tensor(object)
   cat(out)
   cat("\n")
 }
