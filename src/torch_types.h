@@ -3,9 +3,6 @@
 #include <string>
 #include <memory>
 
-void lantern_host_handler();
-#define LANTERN_HOST_HANDLER lantern_host_handler();
-
 #include "lantern/lantern.h"
 
 #include <Rcpp.h>
@@ -240,6 +237,13 @@ class XPtrTorchTraceableFunction : public XPtrTorch {
 public:
   XPtrTorchTraceableFunction (void * x) : XPtrTorch {NULL} {
     this->set(std::shared_ptr<void>(x, lantern_TraceableFunction_delete));
+  }
+};
+
+class XPtrTorchvector_bool : public XPtrTorch {
+public:
+  XPtrTorchvector_bool (void * x) : XPtrTorch {NULL} {
+    this->set(std::shared_ptr<void>(x, lantern_vector_bool_delete));
   }
 };
 

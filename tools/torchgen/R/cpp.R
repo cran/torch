@@ -242,7 +242,7 @@ cpp_argument_transform <- function(argument) {
   }
 
   if (argument$dynamic_type == "IntArrayRef" && argument$type != "c10::optional<IntArrayRef>") {
-    result <- glue::glue("lantern_vector_int64_t({argument$name}.data(), {argument$name}.size())")
+    result <- glue::glue("XPtrTorchvector_int64_t(lantern_vector_int64_t({argument$name}.data(), {argument$name}.size())).get()")
   }
 
   if (argument$dynamic_type == "IntArrayRef" && argument$type == "c10::optional<IntArrayRef>") {
@@ -331,8 +331,18 @@ xptr_return_call <- function(type, dyn_type) {
 }
 
 reinterpret_cast_call <- function(dyn_type) {
+
+  if (dyn_type == "bool")
+    deleter <- "lantern_bool_delete"
+  else if (dyn_type == "double")
+    deleter <- "lantern_double_delete"
+  else if (dyn_type == "int64_t")
+    deleter <- "lantern_int64_t_delete"
+  else
+    stop("no deleter")
+
   function(call) {
-    glue::glue("*reinterpret_cast<{dyn_type} *>({call})")
+    glue::glue("reinterpret_and_clean<{dyn_type}, {deleter}>({call})")
   }
 }
 

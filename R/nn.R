@@ -42,7 +42,7 @@ nn_Module <- R6::R6Class(
     train = function(mode = TRUE) {
       self$training <- mode
       lapply(private$modules_, function(m) m$train(mode))
-      invisible(self)
+      invisible(create_nn_module_callable(self))
     },
     
     eval = function() {
@@ -241,6 +241,26 @@ nn_Module <- R6::R6Class(
       pars <- pars[!duplicated(addresses)]
       
       pars
+    },
+    modules = function(value) {
+      
+      if (!missing(value))
+        runtime_error(
+          "It's not possible to modify the modules list.\n",
+          " You can modify the modules in-place"
+        )
+      
+      modules <- lapply(private$modules_, function(x) x$modules)
+      # the self instance is an nn_Module, not nn_module
+      modules <- append(create_nn_module_callable(self), modules)
+      modules <- unlist(modules)
+      
+      # to check if modules are iddentical we need to compare the
+      # R6 instances.
+      module_instances <- lapply(modules, function(x) attr(x, "module"))
+      modules <- modules[!duplicated(module_instances)]
+      
+      modules
     }
   )
 )
@@ -309,6 +329,52 @@ is_nn_module <- function(x) {
 #' 
 #' Modules can also contain other Modules, allowing to nest them in a tree 
 #' structure. You can assign the submodules as regular attributes.
+#' 
+#' You are expected to implement the `initialize` and the `forward` to create a
+#' new `nn_module`.
+#' 
+#' @section Initialize:
+#' 
+#' The initialize function will be called whenever a new instance of the `nn_module`
+#' is created. We use the initialize functions to define submodules and parameters
+#' of the module. For example:
+#' 
+#' ```
+#' initialize = function(input_size, output_size) {
+#'    self$conv1 <- nn_conv2d(input_size, output_size, 5)
+#'    self$conv2 <- nn_conv2d(output_size, output_size, 5)
+#' }
+#' ```
+#' 
+#' The initialize function can have any number of parameters. All objects
+#' assigned to `self$` will be available for other methods that you implement.
+#' Tensors wrapped with [nn_parameter()] or [nn_buffer()] and submodules are 
+#' automatically tracked when assigned to `self$`.
+#' 
+#' The initialize function is optional if the module you are defining doesn't 
+#' have weights, submodules or buffers.
+#' 
+#' @section Forward:
+#' 
+#' The forward method is called whenever an instance of `nn_module` is called.
+#' This is usually used to implement the computation that the module does with
+#' the weights ad submodules defined in the `initialize` function.
+#' 
+#' For example:
+#' 
+#' ```
+#' forward = function(input) {
+#'    input <- self$conv1(input)
+#'    input <- nnf_relu(input)
+#'    input <- self$conv2(input)
+#'    input <- nnf_relu(input)
+#'    input
+#'  }
+#' ```
+#' 
+#' The `forward` function can use the `self$training` attribute to make different
+#' computations depending wether the model is training or not, for example if you
+#' were implementing the dropout module.
 #' 
 #' @param classname an optional name for the module
 #' @param inherit an optional module to inherit from
@@ -511,6 +577,11 @@ nn_sequential <- function(... , name = NULL) {
     }
   )
   module(...)
+}
+
+#' @export
+length.nn_sequential <- function(x) {
+  length(x$.__enclos_env__$private$modules_)
 }
 
 #' Holds submodules in a list.
