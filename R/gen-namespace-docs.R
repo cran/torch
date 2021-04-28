@@ -1356,6 +1356,15 @@ NULL
 #'
 #' @param self (Tensor) the input tensor.
 #' @param other (Number) the number to be divided to each element of `input`
+#' @param rounding_mode (str, optional) – Type of rounding applied to the result:
+#'   * `NULL` - default behavior. Performs no rounding and, if both input and 
+#'     other are integer types, promotes the inputs to the default scalar type. 
+#'     Equivalent to true division in Python (the / operator) and NumPy’s 
+#'     `np.true_divide`.
+#'   * "trunc" - rounds the results of the division towards zero. Equivalent to 
+#'     C-style integer division.
+#'   * "floor" - rounds the results of the division down. Equivalent to floor 
+#'     division in Python (the // operator) and NumPy’s `np.floor_divide`.
 #'
 #' @name torch_div
 #'
@@ -1812,50 +1821,35 @@ NULL
 
 #' Fft
 #'
-#' @section fft(input, signal_ndim, normalized=False) -> Tensor :
+#' Computes the one dimensional discrete Fourier transform of input.
 #'
-#' Complex-to-complex Discrete Fourier Transform
-#' 
-#' This method computes the complex-to-complex discrete Fourier transform.
-#' Ignoring the batch dimensions, it computes the following expression:
-#' 
-#' \deqn{
-#'     X[\omega_1, \dots, \omega_d] =
-#'         \sum_{n_1=0}^{N_1-1} \dots \sum_{n_d=0}^{N_d-1} x[n_1, \dots, n_d]
-#'          e^{-j\ 2 \pi \sum_{i=0}^d \frac{\omega_i n_i}{N_i}},
-#' }
-#' where \eqn{d} = `signal_ndim` is number of dimensions for the
-#' signal, and \eqn{N_i} is the size of signal dimension \eqn{i}.
-#' 
-#' This method supports 1D, 2D and 3D complex-to-complex transforms, indicated
-#' by `signal_ndim`. `input` must be a tensor with last dimension
-#' of size 2, representing the real and imaginary components of complex
-#' numbers, and should have at least `signal_ndim + 1` dimensions with optionally
-#' arbitrary number of leading batch dimensions. If `normalized` is set to
-#' `TRUE`, this normalizes the result by dividing it with
-#' \eqn{\sqrt{\prod_{i=1}^K N_i}} so that the operator is unitary.
-#' 
-#' Returns the real and the imaginary parts together as one tensor of the same
-#' shape of `input`.
-#' 
-#' The inverse of this function is [`torch_ifft`].
-#' 
-#' @note
-#'     For CUDA tensors, an LRU cache is used for cuFFT plans to speed up
-#'     repeatedly running FFT methods on tensors of same geometry with same
-#'     configuration. See cufft-plan-cache for more details on how to
-#'     monitor and control the cache.
-#' 
-#' @section Warning:
-#'     For CPU tensors, this method is currently only available with MKL. Use
-#'     `torch_backends.mkl.is_available` to check if MKL is installed.
+#' @note 
+#' The Fourier domain representation of any real signal satisfies the Hermitian 
+#' property: `X[i] = conj(X[-i]).` This function always returns both the positive 
+#' and negative frequency terms even though, for real inputs, the negative 
+#' frequencies are redundant. rfft() returns the more compact one-sided representation
+#' where only the positive frequencies are returned.
 #'
-#'
-#' @param self (Tensor) the input tensor of at least `signal_ndim` `+ 1`        dimensions
-#' @param signal_ndim (int) the number of dimensions in each signal.        `signal_ndim` can only be 1, 2 or 3
-#' @param normalized (bool, optional) controls whether to return normalized results.        Default: `FALSE`
-#'
-#' @name torch_fft
+#' @param self (Tensor) the input tensor
+#' @param n (int) Signal length. If given, the input will either be zero-padded 
+#'   or trimmed to this length before computing the FFT.
+#' @param dim (int, optional) The dimension along which to take the one dimensional FFT.
+#' @param norm (str, optional) Normalization mode. For the forward transform, these 
+#' correspond to:
+#' * "forward" - normalize by 1/n
+#' * "backward" - no normalization
+#' * "ortho" - normalize by 1/sqrt(n) (making the FFT orthonormal)
+#' Calling the backward transform (ifft()) with the same normalization mode will 
+#' apply an overall normalization of 1/n between the two transforms. This is 
+#' required to make IFFT the exact inverse.
+#' Default is "backward" (no normalization).
+#' 
+#' @examples 
+#' t <- torch_arange(start = 0, end = 3)
+#' t
+#' torch_fft_fft(t, norm = "backward")
+#' 
+#' @name torch_fft_fft
 #'
 #' @export
 NULL
@@ -1863,170 +1857,112 @@ NULL
 
 #' Ifft
 #'
-#' @section ifft(input, signal_ndim, normalized=False) -> Tensor :
+#' Computes the one dimensional inverse discrete Fourier transform of input.
+#' 
+#' @param self (Tensor) the input tensor
+#' @param n (int, optional) – Signal length. If given, the input will either be 
+#'  zero-padded or trimmed to this length before computing the IFFT.
+#' @param dim (int, optional) – The dimension along which to take the one 
+#'  dimensional IFFT.
+#' @param norm (str, optional) – Normalization mode. For the backward transform, 
+#'  these correspond to:
+#'    * "forward" - no normalization
+#'    * "backward" - normalize by 1/n
+#'    * "ortho" - normalize by 1/sqrt(n) (making the IFFT orthonormal)
+#'  Calling the forward transform with the same normalization mode will apply an 
+#'  overall normalization of 1/n between the two transforms. This is required to 
+#'  make ifft() the exact inverse.
+#'  Default is "backward" (normalize by 1/n).
+#'  
+#' @examples
+#' t <- torch_arange(start = 0, end = 3)
+#' t
+#' x <- torch_fft_fft(t, norm = "backward")
+#' torch_fft_ifft(x)
+#' 
 #'
-#' Complex-to-complex Inverse Discrete Fourier Transform
-#' 
-#' This method computes the complex-to-complex inverse discrete Fourier
-#' transform. Ignoring the batch dimensions, it computes the following
-#' expression:
-#' 
-#' \deqn{
-#'     X[\omega_1, \dots, \omega_d] =
-#'         \frac{1}{\prod_{i=1}^d N_i} \sum_{n_1=0}^{N_1-1} \dots \sum_{n_d=0}^{N_d-1} x[n_1, \dots, n_d]
-#'          e^{\ j\ 2 \pi \sum_{i=0}^d \frac{\omega_i n_i}{N_i}},
-#' }
-#' where \eqn{d} = `signal_ndim` is number of dimensions for the
-#' signal, and \eqn{N_i} is the size of signal dimension \eqn{i}.
-#' 
-#' The argument specifications are almost identical with [`torch_fft`].
-#' However, if `normalized` is set to `TRUE`, this instead returns the
-#' results multiplied by \eqn{\sqrt{\prod_{i=1}^d N_i}}, to become a unitary
-#' operator. Therefore, to invert a [`torch_fft`], the `normalized`
-#' argument should be set identically for [`torch_fft`].
-#' 
-#' Returns the real and the imaginary parts together as one tensor of the same
-#' shape of `input`.
-#' 
-#' The inverse of this function is [`torch_fft`].
-#' 
-#' @note
-#'     For CUDA tensors, an LRU cache is used for cuFFT plans to speed up
-#'     repeatedly running FFT methods on tensors of same geometry with same
-#'     configuration. See cufft-plan-cache for more details on how to
-#'     monitor and control the cache.
-#' 
-#' @section Warning:
-#'     For CPU tensors, this method is currently only available with MKL. Use
-#'     `torch_backends.mkl.is_available` to check if MKL is installed.
-#'
-#'
-#' @param self (Tensor) the input tensor of at least `signal_ndim` `+ 1`        dimensions
-#' @param signal_ndim (int) the number of dimensions in each signal.        `signal_ndim` can only be 1, 2 or 3
-#' @param normalized (bool, optional) controls whether to return normalized results.        Default: `FALSE`
-#'
-#' @name torch_ifft
+#' @name torch_fft_ifft
 #'
 #' @export
 NULL
 
 
 #' Rfft
+#' 
+#' Computes the one dimensional Fourier transform of real-valued input.
+#' 
+#' The FFT of a real signal is Hermitian-symmetric, `X[i] = conj(X[-i])` so the 
+#' output contains only the positive frequencies below the Nyquist frequency. 
+#' To compute the full output, use [torch_fft_fft()].
 #'
-#' @section rfft(input, signal_ndim, normalized=False, onesided=TRUE) -> Tensor :
+#' @param self (Tensor)  the real input tensor
+#' @param n (int) Signal length. If given, the input will either be zero-padded 
+#'  or trimmed to this length before computing the real FFT.
+#' @param dim (int, optional) – The dimension along which to take the one 
+#'  dimensional real FFT.
+#' @param norm norm (str, optional) – Normalization mode. For the forward 
+#'  transform, these correspond to:
+#'   * "forward" - normalize by 1/n
+#'   * "backward" - no normalization
+#'   * "ortho" - normalize by 1/sqrt(n) (making the FFT orthonormal)
+#'  Calling the backward transform ([torch_fft_irfft()]) with the same 
+#'  normalization mode will apply an overall normalization of 1/n between the 
+#'  two transforms. This is required to make irfft() the exact inverse.
+#'  Default is "backward" (no normalization).
+#'  
+#' @examples 
+#' t <- torch_arange(start = 0, end = 3)
+#' torch_fft_rfft(t)
 #'
-#' Real-to-complex Discrete Fourier Transform
-#' 
-#' This method computes the real-to-complex discrete Fourier transform. It is
-#' mathematically equivalent with [`torch_fft`] with differences only in
-#' formats of the input and output.
-#' 
-#' This method supports 1D, 2D and 3D real-to-complex transforms, indicated
-#' by `signal_ndim`. `input` must be a tensor with at least
-#' `signal_ndim` dimensions with optionally arbitrary number of leading batch
-#' dimensions. If `normalized` is set to `TRUE`, this normalizes the result
-#' by dividing it with \eqn{\sqrt{\prod_{i=1}^K N_i}} so that the operator is
-#' unitary, where \eqn{N_i} is the size of signal dimension \eqn{i}.
-#' 
-#' The real-to-complex Fourier transform results follow conjugate symmetry:
-#' 
-#' \deqn{
-#'     X[\omega_1, \dots, \omega_d] = X^*[N_1 - \omega_1, \dots, N_d - \omega_d],
-#' }
-#' where the index arithmetic is computed modulus the size of the corresponding
-#' dimension, \eqn{\ ^*} is the conjugate operator, and
-#' \eqn{d} = `signal_ndim`. `onesided` flag controls whether to avoid
-#' redundancy in the output results. If set to `TRUE` (default), the output will
-#' not be full complex result of shape \eqn{(*, 2)}, where \eqn{*} is the shape
-#' of `input`, but instead the last dimension will be halfed as of size
-#' \eqn{\lfloor \frac{N_d}{2} \rfloor + 1}.
-#' 
-#' The inverse of this function is [`torch_irfft`].
-#' 
-#' @note
-#'     For CUDA tensors, an LRU cache is used for cuFFT plans to speed up
-#'     repeatedly running FFT methods on tensors of same geometry with same
-#'     configuration. See cufft-plan-cache for more details on how to
-#'     monitor and control the cache.
-#' 
-#' @section Warning:
-#'     For CPU tensors, this method is currently only available with MKL. Use
-#'     `torch_backends.mkl.is_available` to check if MKL is installed.
-#'
-#'
-#' @param self (Tensor) the input tensor of at least `signal_ndim` dimensions
-#' @param signal_ndim (int) the number of dimensions in each signal.        `signal_ndim` can only be 1, 2 or 3
-#' @param normalized (bool, optional) controls whether to return normalized results.        Default: `FALSE`
-#' @param onesided (bool, optional) controls whether to return half of results to        avoid redundancy. Default: `TRUE`
-#'
-#' @name torch_rfft
+#' @name torch_fft_rfft
 #'
 #' @export
 NULL
 
 
 #' Irfft
-#'
-#' @section irfft(input, signal_ndim, normalized=False, onesided=TRUE, signal_sizes=NULL) -> Tensor :
-#'
-#' Complex-to-real Inverse Discrete Fourier Transform
 #' 
-#' This method computes the complex-to-real inverse discrete Fourier transform.
-#' It is mathematically equivalent with [`torch_ifft`] with differences only in
-#' formats of the input and output.
-#' 
-#' The argument specifications are almost identical with [`torch_ifft`].
-#' Similar to [`torch_ifft`], if `normalized` is set to `TRUE`,
-#' this normalizes the result by multiplying it with
-#' \eqn{\sqrt{\prod_{i=1}^K N_i}} so that the operator is unitary, where
-#' \eqn{N_i} is the size of signal dimension \eqn{i}.
+#' Computes the inverse of [torch_fft_rfft()].
+#' Input is interpreted as a one-sided Hermitian signal in the Fourier domain, 
+#' as produced by [torch_fft_rfft()]. By the Hermitian property, the output will 
+#' be real-valued.
 #' 
 #' @note
-#'     Due to the conjugate symmetry, `input` do not need to contain the full
-#'     complex frequency values. Roughly half of the values will be sufficient, as
-#'     is the case when `input` is given by [`~torch.rfft`] with
-#'     `rfft(signal, onesided=TRUE)`. In such case, set the `onesided`
-#'     argument of this method to `TRUE`. Moreover, the original signal shape
-#'     information can sometimes be lost, optionally set `signal_sizes` to be
-#'     the size of the original signal (without the batch dimensions if in batched
-#'     mode) to recover it with correct shape.
+#' Some input frequencies must be real-valued to satisfy the Hermitian property. 
+#' In these cases the imaginary component will be ignored. For example, any 
+#' imaginary component in the zero-frequency term cannot be represented in a real 
+#' output and so will always be ignored.
 #' 
-#'     Therefore, to invert an [torch_rfft()], the `normalized` and
-#'     `onesided` arguments should be set identically for [torch_irfft()],
-#'     and preferably a `signal_sizes` is given to avoid size mismatch. See the
-#'     example below for a case of size mismatch.
+#' @note 
+#' The correct interpretation of the Hermitian input depends on the length of the 
+#' original data, as given by n. This is because each input shape could correspond 
+#' to either an odd or even length signal. By default, the signal is assumed to be 
+#' even length and odd signals will not round-trip properly. So, it is recommended 
+#' to always pass the signal length n.
 #' 
-#'     See [torch_rfft()] for details on conjugate symmetry.
+#' @param self (Tensor) the input tensor representing a half-Hermitian signal
+#' @param n (int) Output signal length. This determines the length of the output 
+#'  signal. If given, the input will either be zero-padded or trimmed to this 
+#'  length before computing the real IFFT. Defaults to even output: `n=2*(input.size(dim) - 1)`.
+#' @param dim (int, optional) – The dimension along which to take the one 
+#'  dimensional real IFFT.
+#' @param norm (str, optional) – Normalization mode. For the backward transform,
+#'  these correspond to:
+#'   * "forward" - no normalization
+#'   * "backward" - normalize by 1/n
+#'   * "ortho" - normalize by 1/sqrt(n) (making the real IFFT orthonormal)
+#'  Calling the forward transform ([torch_fft_rfft()]) with the same normalization
+#'  mode will apply an overall normalization of 1/n between the two transforms. 
+#'  This is required to make irfft() the exact inverse.
+#'  Default is "backward" (normalize by 1/n).
 #' 
-#' The inverse of this function is [torch_rfft()].
+#' @examples 
+#' t <- torch_arange(start = 0, end = 4)
+#' x <- torch_fft_rfft(t)
+#' torch_fft_irfft(x)
+#' torch_fft_irfft(x, n = t$numel())
 #' 
-#' @section Warning:
-#'     Generally speaking, input to this function should contain values
-#'     following conjugate symmetry. Note that even if `onesided` is
-#'     `TRUE`, often symmetry on some part is still needed. When this
-#'     requirement is not satisfied, the behavior of [`torch_irfft`] is
-#'     undefined. Since `torch_autograd.gradcheck` estimates numerical
-#'     Jacobian with point perturbations, [`torch_irfft`] will almost
-#'     certainly fail the check.
-#' 
-#' @note
-#'     For CUDA tensors, an LRU cache is used for cuFFT plans to speed up
-#'     repeatedly running FFT methods on tensors of same geometry with same
-#'     configuration. See cufft-plan-cache for more details on how to
-#'     monitor and control the cache.
-#' 
-#' @section Warning:
-#'     For CPU tensors, this method is currently only available with MKL. Use
-#'     `torch_backends.mkl.is_available` to check if MKL is installed.
-#'
-#'
-#' @param self (Tensor) the input tensor of at least `signal_ndim` `+ 1`        dimensions
-#' @param signal_ndim (int) the number of dimensions in each signal.        `signal_ndim` can only be 1, 2 or 3
-#' @param normalized (bool, optional) controls whether to return normalized results.        Default: `FALSE`
-#' @param onesided (bool, optional) controls whether `input` was halfed to avoid        redundancy, e.g., by [torch_rfft()]. Default: `TRUE`
-#' @param signal_sizes (list or `torch.Size`, optional) the size of the original        signal (without batch dimension). Default: `NULL`
-#'
-#' @name torch_irfft
+#' @name torch_fft_irfft
 #'
 #' @export
 NULL
@@ -3422,22 +3358,20 @@ NULL
 
 #' Split
 #'
-#' @section TEST :
-#'
 #' Splits the tensor into chunks. Each chunk is a view of the original tensor.
 #' 
-#'     If `split_size_or_sections` is an integer type, then `tensor` will
-#'     be split into equally sized chunks (if possible). Last chunk will be smaller if
-#'     the tensor size along the given dimension `dim` is not divisible by
-#'     `split_size`.
+#' If `split_size` is an integer type, then `tensor` will
+#' be split into equally sized chunks (if possible). Last chunk will be smaller if
+#' the tensor size along the given dimension `dim` is not divisible by
+#' `split_size`.
 #' 
-#'     If `split_size_or_sections` is a list, then `tensor` will be split
-#'     into `len(split_size_or_sections)` chunks with sizes in `dim` according
-#'     to `split_size_or_sections`.
-#'
+#' If `split_size` is a list, then `tensor` will be split
+#' into `length(split_size)` chunks with sizes in `dim` according
+#' to `split_size_or_sections`.
 #'
 #' @param self (Tensor) tensor to split.
-#' @param split_size (int) size of a single chunk or        list of sizes for each chunk
+#' @param split_size (int) size of a single chunk or 
+#'   list of sizes for each chunk
 #' @param dim (int) dimension along which to split the tensor.
 #'
 #' @name torch_split
@@ -4965,21 +4899,15 @@ NULL
 
 
 #' Nonzero
+#' 
+#' Nonzero elements of tensors.
+#' 
+#' @param self (Tensor) the input tensor.
+#' @param as_list If `FALSE`, the output tensor containing indices. If `TRUE`, one 
+#'   1-D tensor for each dimension, containing the indices of each nonzero element 
+#'   along that dimension.
 #'
-#' @note
-#'     [`torch_nonzero(..., as_tuple=False) <torch.nonzero>`] (default) returns a
-#'     2-D tensor where each row is the index for a nonzero value.
-#' 
-#'     [`torch_nonzero(..., as_tuple=TRUE) <torch.nonzero>`] returns a tuple of 1-D
-#'     index tensors, allowing for advanced indexing, so `x[x.nonzero(as_tuple=TRUE)]`
-#'     gives all nonzero values of tensor `x`. Of the returned tuple, each index tensor
-#'     contains nonzero indices for a certain dimension.
-#' 
-#'     See below for more details on the two behaviors.
-#'     
-#' @section nonzero(input, *, out=NULL, as_tuple=False) -> LongTensor or tuple of LongTensors :
-#' 
-#' **When** `as_tuple` **is `FALSE` (default)**:
+#' **When** `as_list` **is `FALSE` (default)**:
 #' 
 #' Returns a tensor containing the indices of all non-zero elements of
 #' `input`.  Each row in the result contains the indices of a non-zero
@@ -4990,7 +4918,7 @@ NULL
 #' `out` is of size \eqn{(z \times n)}, where \eqn{z} is the total number of
 #' non-zero elements in the `input` tensor.
 #' 
-#' **When** `as_tuple` **is `TRUE`**:
+#' **When** `as_list` **is `TRUE`**:
 #' 
 #' Returns a tuple of 1-D tensors, one for each dimension in `input`,
 #' each containing the indices (in that dimension) of all non-zero elements of
@@ -5003,8 +4931,6 @@ NULL
 #' As a special case, when `input` has zero dimensions and a nonzero scalar
 #' value, it is treated as a one-dimensional tensor with one element.
 #'
-#'
-#' @param self (Tensor) the input tensor.
 #'
 #' @name torch_nonzero
 #'
@@ -5642,7 +5568,7 @@ NULL
 #'
 #'
 #' @param n (int) the order of the polygamma function
-#' @param self (Tensor) the input tensor.
+#' @param input (Tensor) the input tensor.
 #' 
 #'
 #' @name torch_polygamma
@@ -5952,7 +5878,7 @@ NULL
 
 #' Normal
 #'
-#' @section normal(mean, std, *, generator=NULL, out=NULL) -> Tensor :
+#' @section normal(mean, std, *) -> Tensor :
 #'
 #' Returns a tensor of random numbers drawn from separate normal distributions
 #' whose mean and standard deviation are given.
@@ -5967,30 +5893,23 @@ NULL
 #' total number of elements in each tensor need to be the same.
 #' 
 #' @note When the shapes do not match, the shape of `mean`
-#'           is used as the shape for the returned output tensor
+#'       is used as the shape for the returned output tensor
 #'
-#' @section normal(mean=0.0, std, out=NULL) -> Tensor :
+#' @section normal(mean=0.0, std) -> Tensor :
 #'
 #' Similar to the function above, but the means are shared among all drawn
 #' elements.
 #'
-#' @section normal(mean, std=1.0, out=NULL) -> Tensor :
+#' @section normal(mean, std=1.0) -> Tensor :
 #'
 #' Similar to the function above, but the standard-deviations are shared among
 #' all drawn elements.
 #'
-#' @section normal(mean, std, size, *, out=NULL) -> Tensor :
+#' @section normal(mean, std, size, *) -> Tensor :
 #'
 #' Similar to the function above, but the means and standard deviations are shared
 #' among all drawn elements. The resulting tensor has size given by `size`.
-#'
-#'
-#' @param mean (Tensor) the tensor of per-element means
-#' @param std (Tensor) the tensor of per-element standard deviations
-#' @param generator (`torch.Generator`, optional) a pseudorandom number generator for sampling
 #' 
-#' @param size (int...) a sequence of integers defining the shape of the output tensor.
-#'
 #' @name torch_normal
 #'
 #' @export

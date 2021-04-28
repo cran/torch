@@ -9,14 +9,19 @@ Constraint <- R6::R6Class(
   
   public = list(
     
+    #' @description 
     #' Returns a byte tensor of `sample_shape + batch_shape` indicating
     #' whether each event in value satisfies this constraint.
+    #' 
+    #' @param value each event in value will be checked.
     check = function(value){
       not_implemented_error()
     },
     
+    #' @description 
+    #' Define the print method for constraints,
     print = function(){
-      glue("{class(self)}()")
+      cat(glue("{class(self)}"))
     }
   )
 )
@@ -79,10 +84,10 @@ is_dependent <- function(object){
     },
     
     print = function(){
-      glue::glue(
+      cat(glue::glue(
         '{class(self)}: ',
-        '(lower_bound={lower_bound}, upper_bound={upper_bound})'
-      )
+        '(lower_bound={self$lower_bound}, upper_bound={self$upper_bound})'
+      ))
     }
     
   )
@@ -108,9 +113,9 @@ is_dependent <- function(object){
     },
     
     print = function(){
-      glue::glue(
-        '{class(self)}: (upper_bound={upper_bound})'
-      )
+      cat(glue::glue(
+        '{class(self)}: (upper_bound={self$upper_bound})'
+      ))
     }
   )
 )
@@ -136,9 +141,9 @@ is_dependent <- function(object){
     },
     
     print = function(){
-      glue::glue(
-        '{class(self)}: (lower_bound={lower_bound})'
-      )
+      cat(glue::glue(
+        '{class(self)}: (lower_bound={self$lower_bound})'
+      ))
     }
   )
 )
@@ -177,9 +182,9 @@ is_dependent <- function(object){
     },
     
     print = function(){
-      glue::glue(
-        '{class(self)}: (lower_bound={lower_bound})'
-      )
+      cat(glue::glue(
+        '{class(self)}: (lower_bound={self$lower_bound})'
+      ))
     }
   )
 )
@@ -204,9 +209,9 @@ is_dependent <- function(object){
     },
     
     print = function(){
-      glue::glue(
-        '{class(self)}: (lower_bound={lower_bound})'
-      )
+      cat(glue::glue(
+        '{class(self)}: (lower_bound={self$lower_bound})'
+      ))
     }
   )
 )
@@ -231,9 +236,9 @@ is_dependent <- function(object){
     },
     
     print = function(){
-      glue::glue(
-        '{class(self)}: (upper_bound={upper_bound})'
-      )
+      cat(glue::glue(
+        '{class(self)}: (upper_bound={self$upper_bound})'
+      ))
     }
   )
 )
@@ -261,9 +266,9 @@ is_dependent <- function(object){
     },
     
     print = function(){
-      glue::glue(
-        '(lower_bound={lower_bound}, upper_bound={upper_bound})'
-      )
+      cat(glue::glue(
+        '(lower_bound={self$lower_bound}, upper_bound={self$upper_bound})'
+      ))
     }
   )
 )
@@ -290,9 +295,9 @@ is_dependent <- function(object){
     },
     
     print = function(){
-      glue::glue(
-        '(lower_bound={lower_bound}, upper_bound={upper_bound})'
-      )
+      cat(glue::glue(
+        '(lower_bound={self$lower_bound}, upper_bound={self$upper_bound})'
+      ))
     }
   )
 )
@@ -301,26 +306,26 @@ is_dependent <- function(object){
 # TODO: check .GreaterThan and other classes,
 # which are not instanced
 
-dependent <- .Dependent$new()
+constraint_dependent <- .Dependent$new()
 
-boolean <- .Boolean$new()
+constraint_boolean <- .Boolean$new()
 
-nonnegative_integer <- .IntegerGreaterThan$new(0)
+constraint_nonnegative_integer <- .IntegerGreaterThan$new(0)
 
-positive_integer <- .IntegerGreaterThan$new(1)
+constraint_positive_integer <- .IntegerGreaterThan$new(1)
 
-real <- .Real$new()
+constraint_real <- .Real$new()
 
-positive <- .GreaterThan$new(0.)
+constraint_positive <- .GreaterThan$new(0.)
 
-greater_than <- .GreaterThan
+constraint_greater_than <- .GreaterThan
 
-greater_than_eq <- .GreaterThanEq
+constraint_greater_than_eq <- .GreaterThanEq
 
-less_than <- .LessThan
+constraint_less_than <- .LessThan
 
-unit_interval <- .Interval$new(0., 1.)
+constraint_unit_interval <- .Interval$new(0., 1.)
 
-interval <- .Interval
+constraint_interval <- .Interval
 
-half_open_interval <- .HalfOpenInterval
+constraint_half_open_interval <- .HalfOpenInterval

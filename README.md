@@ -4,7 +4,7 @@
 # torch <a href='https://torch.mlverse.org'><img src='man/figures/torch.png' align="right" height="139" /></a>
 
 [![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 ![R build
 status](https://github.com/mlverse/torch/workflows/Test/badge.svg)
 [![CRAN
@@ -32,7 +32,7 @@ At the first package load additional software will be installed.
 If you would like to install with Docker, please read following
 document.
 
-  - [The way of installation with
+-   [The way of installation with
     Docker](https://github.com/mlverse/torch/blob/master/docker/build_env_guide.md)
 
 ## Examples
@@ -47,12 +47,12 @@ y <- torch_tensor(x, dtype = torch_float64())
 y
 #> torch_tensor
 #> (1,.,.) = 
-#>   0.9192  0.4962
-#>   0.3191  0.3114
+#>   0.2196  0.9240
+#>   0.2313  0.9342
 #> 
 #> (2,.,.) = 
-#>   0.7482  0.7318
-#>   0.6661  0.8189
+#>   0.5492  0.6236
+#>   0.6080  0.8861
 #> [ CPUDoubleType{2,2,2} ]
 identical(x, as_array(y))
 #> [1] TRUE
@@ -87,5 +87,5 @@ b$grad
 
 No matter your current skills it’s possible to contribute to `torch`
 development. See the [contributing
-guide](https://github.com/mlverse/torch/blob/master/.github/CONTRIBUTING.md)
-for more information.
+guide](https://torch.mlverse.org/docs/contributing) for more
+information.

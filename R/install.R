@@ -1,32 +1,31 @@
-branch <- "cran/v0.2.1"  
-
+branch <- "cran/v0.3.0"  
 
 install_config <- list(
-  "1.7.1" = list(
+  "1.8.0" = list(
     "cpu" = list(
       "darwin" = list(
         "libtorch" = list(
-          url = "https://download.pytorch.org/libtorch/cpu/libtorch-macos-1.7.1.zip",
+          url = "https://download.pytorch.org/libtorch/cpu/libtorch-macos-1.8.0.zip",
           path = "libtorch/lib",
           filter = ".dylib",
-          md5hash = "d1d0561fa91326afcb7f0abe0241e704"
+          md5hash = "23f07569e0c942260c8b13fa8c3289b8"
         ),
         "liblantern" = sprintf("https://storage.googleapis.com/torch-lantern-builds/refs/heads/%s/latest/macOS-cpu.zip", branch)
       ),
       "windows" = list(
         "libtorch" = list(
-          url = "https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-1.7.1%2Bcpu.zip",
+          url = "https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-1.8.0%2Bcpu.zip",
           path = "libtorch/lib",
           filter = ".dll",
-          md5hash = "6618d6cf35fa07224ddcef5de6d9c43c"
+          md5hash = "f1ef43cbda67461f357a1463ac176a97"
         ),
         "liblantern" = sprintf("https://storage.googleapis.com/torch-lantern-builds/refs/heads/%s/latest/Windows-cpu.zip", branch)
       ),
       "linux" = list(
         "libtorch" = list(
-          url = "https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.7.1%2Bcpu.zip",
+          url = "https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.8.0%2Bcpu.zip",
           path = "libtorch/lib",
-          md5hash = "185c956c1b09afba574b83d6a7fba634"
+          md5hash = "82969e58ae8cabee16746711850d6fd9"
         ),
         "liblantern" = sprintf("https://storage.googleapis.com/torch-lantern-builds/refs/heads/%s/latest/Linux-cpu.zip", branch)
       )
@@ -34,18 +33,18 @@ install_config <- list(
     "10.1" = list(
       "linux" = list(
         "libtorch" = list(
-          url = "https://download.pytorch.org/libtorch/cu101/libtorch-cxx11-abi-shared-with-deps-1.7.1%2Bcu101.zip",
+          url = "https://download.pytorch.org/libtorch/cu101/libtorch-cxx11-abi-shared-with-deps-1.8.0%2Bcu101.zip",
           path = "libtorch/lib",
-          md5hash = "fc8dd4ba0cef95ae272de6a7b3600d59"
+          md5hash = "ca8957f8cda1c82164192037b9411714"
         ),
         "liblantern" = sprintf("https://storage.googleapis.com/torch-lantern-builds/refs/heads/%s/latest/Linux-gpu-101.zip", branch)
       ),
       "windows" = list(
         "libtorch" = list(
-          url = "https://download.pytorch.org/libtorch/cu101/libtorch-win-shared-with-deps-1.7.1%2Bcu101.zip",
+          url = "https://download.pytorch.org/libtorch/cu101/libtorch-win-shared-with-deps-1.8.0%2Bcu101.zip",
           path = "libtorch/lib",
           filter = ".dll",
-          md5hash = "602a980d4bbfdf2e03742df75050405b"
+          md5hash = "8351770ef9b2909d63353157c5d723c9"
         ),
         "liblantern" = sprintf("https://storage.googleapis.com/torch-lantern-builds/refs/heads/%s/latest/Windows-gpu-101.zip", branch)
       )
@@ -53,74 +52,64 @@ install_config <- list(
     "10.2" = list(
       "linux" = list(
         "libtorch" = list(
-          url = "https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.7.1.zip",
+          url = "https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.8.0.zip",
           path = "libtorch/lib",
-          md5hash = "6ef47fd76f1b5959bf807b06f0803aa9"
+          md5hash = "041594059e03381d8ef4d9f63c8e2c47"
         ),
         "liblantern" = sprintf("https://storage.googleapis.com/torch-lantern-builds/refs/heads/%s/latest/Linux-gpu-102.zip", branch)
       ),
       "windows" = list(
         "libtorch" = list(
-          url = "https://download.pytorch.org/libtorch/cu102/libtorch-win-shared-with-deps-1.7.1.zip",
+          url = "https://download.pytorch.org/libtorch/cu102/libtorch-win-shared-with-deps-1.8.0.zip",
           path = "libtorch/lib",
           filter = ".dll",
-          md5hash = "2ffa6d627007574ce231d93964c965fa"
+          md5hash = "ca7a226590488cff5d6910191f8bfe91"
         ),
         "liblantern" = sprintf("https://storage.googleapis.com/torch-lantern-builds/refs/heads/%s/latest/Windows-gpu-102.zip", branch)
       )
     ),
-    "9.2" = list(
+    "11.1" = list(
       "linux" = list(
         "libtorch" = list(
-          url = "https://download.pytorch.org/libtorch/cu92/libtorch-cxx11-abi-shared-with-deps-1.7.1%2Bcu92.zip",
+          url = "https://download.pytorch.org/libtorch/cu111/libtorch-cxx11-abi-shared-with-deps-1.8.1%2Bcu111.zip",
           path = "libtorch/lib",
-          md5hash = "bceb125610b9905e777089c2528000a4"
+          md5hash = "fa3d3c05f9fef22e7b67bcf16cc6729e"
         ),
-        "liblantern" = sprintf("https://storage.googleapis.com/torch-lantern-builds/refs/heads/%s/latest/Linux-gpu-902.zip", branch)
-      )
-    ),
-    "11.0" = list(
-      "linux" = list(
+        "liblantern" = sprintf("https://storage.googleapis.com/torch-lantern-builds/refs/heads/%s/latest/Linux-gpu-111.zip", branch)
+      ),
+      "windows" = list(
         "libtorch" = list(
-          url = "https://download.pytorch.org/libtorch/cu110/libtorch-cxx11-abi-shared-with-deps-1.7.1%2Bcu110.zip",
+          url = "https://download.pytorch.org/libtorch/cu111/libtorch-win-shared-with-deps-1.8.1%2Bcu111.zip",
           path = "libtorch/lib",
-          md5hash = "75d171cd4c84fa33caa46651a74a2fe1"
+          filter = ".dll",
+          md5hash = "8e0568dd97d09c2fef7e98ea458d2056"
         ),
-        "liblantern" = sprintf("https://storage.googleapis.com/torch-lantern-builds/refs/heads/%s/latest/Linux-gpu-110.zip", branch)
+        "liblantern" = sprintf("https://storage.googleapis.com/torch-lantern-builds/refs/heads/%s/latest/Windows-gpu-111.zip", branch)
       )
     )
   )
 )
 
-#' @keywords internal
-install_path <- function(version = "1.7.1") {
+
+install_path <- function(version = "1.8.0") {
   path <- Sys.getenv("TORCH_HOME")
-  if (nzchar(path)) {
-    if (!dir.exists(path)) {
-      warning("The TORCH_HOME path does not exists.")
-      path <- ""
-    }
-    else {
-      install_info <- install_config[[version]][["cpu"]][[install_os()]]
-      for (library_name in names(install_info)) {
-        if (!lib_installed(library_name, path)) {
-          warning("The TORCH_HOME path is missing the '", library_name, "' library.")
-          path <- ""
-        }
-      }
-    }
-  }
-  
-  if (nzchar(path)) {
-    path
-  }
-  else {
+  if (nzchar(path))
+    normalizePath(path, mustWork = FALSE)
+  else
     normalizePath(file.path(system.file("", package = "torch"), "deps"), mustWork = FALSE)
-  }
 }
 
 install_exists <- function() {
-  dir.exists(install_path())
+  if (!dir.exists(install_path()))
+    return(FALSE)
+  
+  if (!length(list.files(install_path(), "torch")) > 0)
+    return(FALSE)
+  
+  if (!length(list.files(install_path(), "lantern")) > 0)
+    return(FALSE)
+  
+  TRUE
 }
 
 #' Verifies if torch is installed
@@ -174,7 +163,7 @@ install_os <- function() {
   tolower(Sys.info()[["sysname"]])
 }
 
-lantern_install_libs <- function(version, type, install_path) {
+lantern_install_libs <- function(version, type, install_path, install_config) {
   current_os <- install_os()
   
   if (!version %in% names(install_config))
@@ -290,7 +279,8 @@ install_type <- function(version) {
 #' @param type The installation type for Torch. Valid values are \code{"cpu"} or the 'CUDA' version.
 #' @param reinstall Re-install Torch even if its already installed?
 #' @param path Optional path to install or check for an already existing installation.
-#' @param ... other optional arguments (like `load` for manual installation.)
+#' @param timeout Optional timeout in seconds for large file download.
+#' @param ... other optional arguments (like \code{`load`} for manual installation).
 #' 
 #' @details 
 #' 
@@ -298,23 +288,92 @@ install_type <- function(version) {
 #' variable is set to this same path to reuse this installation. The \code{TORCH_INSTALL} environment
 #' variable can be set to \code{0} to prevent auto-installing torch and \code{TORCH_LOAD} set to \code{0}
 #' to avoid loading dependencies automatically. These environment variables are meant for advanced use
-#' cases and troubleshootinng only.
+#' cases and troubleshooting only.
+#' When timeout error occurs during library archive download, or length of downloaded files differ from 
+#' reported length, an increase of the \code{timeout} value should help.
 #' 
 #' @export
-install_torch <- function(version = "1.7.1", type = install_type(version = version), reinstall = FALSE,
-                          path = install_path(), ...) {
+install_torch <- function(version = "1.8.0", type = install_type(version = version), reinstall = FALSE,
+                          path = install_path(), timeout = 360, ...) {
   
   if (reinstall) {
     unlink(path, recursive = TRUE)
   }
   
   if (!dir.exists(path)) {
-    dir.create(path, showWarnings = FALSE)
+    ok <- dir.create(path, showWarnings = FALSE, recursive = TRUE)
+    if (!ok) {
+      rlang::abort(c(
+        "Failed creating directory", 
+        paste("Check that you can write to: ", path)
+      ))
+    }
   }
   
-  lantern_install_libs(version, type, path)
+  # check for write permission
+  if (file.access(path, 2) < 0) {
+    rlang::abort(c(
+      "No write permissions to install torch.", 
+      paste("Check that you can write to:", path),
+      "Or set the TORCH_HOME env var to a path with write permissions."
+    )
+    )
+  }
   
-  # reinitialize lantern, might happen if installation fails on load and manual install required
+  if (!is.null(list(...)$install_config) && is.list(list(...)$install_config))
+    install_config <- list(...)$install_config
+  
+  withr::with_options(list(timeout = timeout),
+                      lantern_install_libs(version, type, path, install_config))
+    
+  # reinitialize lantern, might happen if installation fails on load and manual install is required
   if (!identical(list(...)$load, FALSE))
     lantern_start(reload = TRUE)
+  
 }
+                     
+#' Install Torch from files
+#' 
+#' Installs Torch and its dependencies from files.
+#' 
+#' @param version The Torch version to install. 
+#' @param type The installation type for Torch. Valid values are \code{"cpu"} or the 'CUDA' version.
+#' @param libtorch The installation archive file to use for Torch. Shall be a \code{"file://"} URL scheme.
+#' @param liblantern The installation archive file to use for Lantern. Shall be a \code{"file://"} URL scheme.
+#' @param ... other parameters to be passed to \code{"install_torch()"} 
+#' 
+#' @details 
+#' 
+#' When \code{"install_torch()"} initiated download is not possible, but installation archive files are
+#' present on local filesystem, \code{"install_torch_from_file()"} can be used as a workaround to installation issue.
+#' \code{"libtorch"} is the archive containing all torch modules, and \code{"liblantern"} is the C interface to libtorch
+#' that is used for the R package. Both are highly dependent, and should be checked through \code{"get_install_libs_url()"}
+#' 
+#' 
+#' @export
+install_torch_from_file <- function(version = "1.8.0", type = install_type(version = version), libtorch, liblantern, ...) {
+  stopifnot(inherits(url(libtorch), "file"))
+  stopifnot(inherits(url(liblantern), "file"))
+
+  install_config[[version]][[type]][[install_os()]][["libtorch"]][["url"]] <- libtorch
+  install_config[[version]][[type]][[install_os()]][["liblantern"]] <- liblantern
+
+  install_torch(version = version, type = type, install_config = install_config, ...)
+}
+                     
+#' List of files to download
+#' 
+#' List the Torch and Lantern files to download as local files in order to proceed with install_torch_from_file().
+#' 
+#' @param version The Torch version to install. 
+#' @param type The installation type for Torch. Valid values are \code{"cpu"} or the 'CUDA' version.
+#' 
+#' 
+#' @export
+get_install_libs_url <- function(version = "1.8.0", type = install_type(version = version)) {
+
+  libtorch <- install_config[[version]][[type]][[install_os()]][["libtorch"]][["url"]]
+  liblantern <- install_config[[version]][[type]][[install_os()]][["liblantern"]]
+  list(libtorch = libtorch, liblantern = liblantern)
+}
+

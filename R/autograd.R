@@ -15,12 +15,13 @@ NULL
 #'
 #' @export
 with_no_grad <- function(code) {
+  current_mode <- cpp_autograd_is_enabled()
   withr::with_(
     set = function() {
       cpp_autograd_set_grad_mode(FALSE)
     },
     reset = function(old) {
-      cpp_autograd_set_grad_mode(TRUE)
+      cpp_autograd_set_grad_mode(current_mode)
     }
   )(code)
 }
@@ -49,12 +50,13 @@ with_no_grad <- function(code) {
 #' 
 #' @export
 with_enable_grad <- function(code) {
+  current_mode <- cpp_autograd_is_enabled()
   withr::with_(
     set = function() {
       cpp_autograd_set_grad_mode(TRUE)
     },
     reset = function(old) {
-      cpp_autograd_set_grad_mode(FALSE)
+      cpp_autograd_set_grad_mode(current_mode)
     }
   )(code)
 }
@@ -71,8 +73,9 @@ Tensor$set("active", "requires_grad", function(requires_grad) {
 })
 
 Tensor$set("public", "backward", function(gradient = list(), keep_graph = FALSE, 
-                                          create_graph = FALSE) {
-  invisible(private$`_backward`(gradient, keep_graph, create_graph))
+                                          create_graph = FALSE, inputs = NULL) {
+  invisible(private$`__backward`(gradient = gradient, inputs = inputs, retain_graph = keep_graph, 
+                                 create_graph = create_graph))
 })
 
 Tensor$set("public", "retain_grad", function() {
@@ -498,7 +501,7 @@ autograd_backward <- function(tensors, grad_tensors = NULL, retain_graph = creat
   if (sum(null) > 0) {
     grad_tensors[null] <- lapply(
       seq_len(sum(null)), 
-      function(x) Tensor$new(ptr = cpp_tensor_undefined())
+      function(x) cpp_tensor_undefined()
     )  
   }
     
@@ -569,7 +572,7 @@ autograd_grad <- function(outputs, inputs, grad_outputs = NULL, retain_graph = c
   if (is.null(grad_outputs)) {
     grad_outputs <- lapply(
       seq_along(outputs), 
-      function(x) Tensor$new(ptr = cpp_tensor_undefined())
+      function(x) cpp_tensor_undefined()
     )
   } else if (!is.list(grad_outputs)) {
     grad_outputs <- list(grad_outputs)

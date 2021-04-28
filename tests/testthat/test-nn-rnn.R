@@ -225,3 +225,48 @@ test_that("gru", {
   expect_equal_to_tensor(z[[2]][3,,], torch_ones(1,5) * 7.0209e-02, tolerance = 1e-4)
   
 })
+
+test_that("rnn gpu", {
+  
+  skip_if_cuda_not_available()
+  
+  rnn <- nn_rnn(10, 1)
+  rnn$to(device = "cuda")
+  
+  input <- torch_ones(1, 1, 10, device = "cuda")
+  
+  expect_message(out <- rnn(input), regexp = NA)
+  
+  expect_length(out, 2)
+  expect_tensor_shape(out[[1]], c(1,1,1))
+  expect_tensor_shape(out[[2]], c(1,1,1))
+  
+})
+
+test_that("lstm and gru works with packed sequences", {
+  # regression test for https://github.com/mlverse/torch/issues/499
+  
+  x <- torch_tensor(rbind(
+    c(1, 2, 0, 0),
+    c(1, 2, 3, 0),
+    c(1, 2, 3, 4)
+  ), dtype = torch_float())
+  x <- x[,,newaxis]
+  lens <- torch_tensor(c(2,3,4), dtype = torch_long())
+  
+  p <- nn_utils_rnn_pack_padded_sequence(x, lens, batch_first = TRUE, 
+                                         enforce_sorted = FALSE)
+  
+  rnn <- nn_lstm(1, 4)
+  out <- rnn(p)
+  
+  unpack <- nn_utils_rnn_pad_packed_sequence(out[[1]])
+  expect_tensor_shape(unpack[[1]], c(4, 3, 4))
+  
+  rnn <- nn_gru(1, 4)
+  out <- rnn(p)
+  
+  unpack <- nn_utils_rnn_pad_packed_sequence(out[[1]])
+  expect_tensor_shape(unpack[[1]], c(4, 3, 4))
+  
+})

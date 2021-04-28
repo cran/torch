@@ -31,10 +31,10 @@ objects.}
 }
 \description{
 All datasets that represent a map from keys to data samples should subclass this
-class. All subclasses should overwrite the .getitem() method, which supports
+class. All subclasses should overwrite the \code{.getitem()} method, which supports
 fetching a data sample for a given key. Subclasses could also optionally
-overwrite .length(), which is expected to return the size of the dataset
-(e.g. number of samples) by many ~torch.utils.data.Sampler implementations
+overwrite \code{.length()}, which is expected to return the size of the dataset
+(e.g. number of samples) used by many sampler implementations
 and the default options of \code{\link[=dataloader]{dataloader()}}.
 }
 \note{
@@ -42,3 +42,14 @@ and the default options of \code{\link[=dataloader]{dataloader()}}.
 sampler that yields integral indices.  To make it work with a map-style
 dataset with non-integral indices/keys, a custom sampler must be provided.
 }
+\section{Get a batch of observations}{
+
+
+By default datasets are iterated by returning each observation/item individually.
+Sometimes it's possible to have an optimized implementation to take a batch
+of observations (eg, subsetting a tensor by multiple indexes at once is faster than
+subsetting once for each index), in this case you can implement a \code{.getbatch} method
+that will be used instead of \code{.getitem} when getting a batch of observations within
+the dataloader.
+}
+

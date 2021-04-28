@@ -24,11 +24,20 @@ get_init <- function(x) {
 #' Helper function to create an R6 class that inherits from the abstract `Dataset` class
 #' 
 #' All datasets that represent a map from keys to data samples should subclass this 
-#' class. All subclasses should overwrite the .getitem() method, which supports 
+#' class. All subclasses should overwrite the `.getitem()` method, which supports 
 #' fetching a data sample for a given key. Subclasses could also optionally 
-#' overwrite .length(), which is expected to return the size of the dataset 
-#' (e.g. number of samples) by many ~torch.utils.data.Sampler implementations 
+#' overwrite `.length()`, which is expected to return the size of the dataset 
+#' (e.g. number of samples) used by many sampler implementations 
 #' and the default options of [dataloader()].
+#' 
+#' @section Get a batch of observations:
+#' 
+#' By default datasets are iterated by returning each observation/item individually.
+#' Sometimes it's possible to have an optimized implementation to take a batch
+#' of observations (eg, subsetting a tensor by multiple indexes at once is faster than
+#' subsetting once for each index), in this case you can implement a `.getbatch` method
+#' that will be used instead of `.getitem` when getting a batch of observations within
+#' the dataloader.
 #' 
 #' @note 
 #' [dataloader()]  by default constructs a index
@@ -48,41 +57,23 @@ get_init <- function(x) {
 dataset <- function(name = NULL, inherit = Dataset, ..., 
                     private = NULL, active = NULL,
                     parent_env = parent.frame()) {
-  
-  args <- list(...)
-  
-  if (!is.null(attr(inherit, "Dataset")))
-    inherit <- attr(inherit, "Dataset")
-  
-  e <- new.env(parent = parent_env)
-  e$inherit <- inherit
-    
-  d <- R6::R6Class(
-    classname = name,
-    lock_objects = FALSE,
+  create_class(
+    name = name, 
     inherit = inherit,
-    public = args,
-    private = private,
+    ...,
+    private = private, 
     active = active,
-    parent_env = e
+    parent_env = parent_env,
+    attr_name = "Dataset"
   )
-  
-  init <- get_init(d)
-  # same signature as the init method, but calls with dataset$new.
-  f <- rlang::new_function(
-    args = rlang::fn_fmls(init),
-    body = rlang::expr({
-      d$new(!!!rlang::fn_fmls_syms(init))
-    })
-  )
-
-  attr(f, "Dataset") <- d
-  f
 }
 
 #' @export
 `[.dataset` <- function(x, y) {
-  x$.getitem(y)
+  if (length(y) > 1 && !is.null(x$.getbatch))
+    x$.getbatch(y)
+  else
+    x$.getitem(y)
 }
 
 #' @export
@@ -117,6 +108,9 @@ tensor_dataset <- dataset(
     lapply(self$tensors, function(x) {
         x[index, ..]
     })
+  },
+  .getbatch = function(index) {
+    self$.getitem(index)
   },
   .length = function() {
     self$tensors[[1]]$shape[1]

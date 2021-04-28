@@ -46,7 +46,12 @@ nnf_normalize <- function(input, p = 2, dim = 2, eps = 1e-12, out = NULL) {
 nnf_layer_norm <- function(input, normalized_shape, weight = NULL, bias = NULL,
                            eps = 1e-5) {
   torch_layer_norm(
-    input, normalized_shape, weight, bias, eps, FALSE #TODO backends_cudnn_enabled
+    input = input,
+    normalized_shape = normalized_shape, 
+    weight = weight, 
+    bias = bias, 
+    eps = eps, 
+    cudnn_enable = FALSE
   )
 }
 
@@ -98,7 +103,7 @@ nnf_local_response_norm <- function(input, size, alpha = 1e-4, beta = 0.75, k = 
 nnf_group_norm <- function(input, num_groups, weight = NULL, bias = NULL,
                            eps = 1e-5) {
   
-  torch_group_norm(input, input, num_groups = num_groups, weight = weight,
+  torch_group_norm(input, num_groups = num_groups, weight = weight,
                    bias = bias, eps = eps #TODO ,cudnn_enabled = backends_cudnn_enabled
   )
 }

@@ -66,8 +66,11 @@ test_that("can have datasets that don't return tensors", {
   # iterating with an enum
   for (batch in enumerate(dl)) {
     expect_tensor_shape(batch[[1]], c(32, 1, 10))
-    expect_tensor_shape(batch[[2]], c(32))    
+    expect_true(batch[[1]]$dtype == torch_float())
+    expect_tensor_shape(batch[[2]], c(32))
+    
     expect_tensor_shape(batch[[3]], c(32, 10))    
+    expect_true(batch[[3]]$dtype == torch_long())
   }
   
   expect_true(batch[[1]]$dtype == torch_float32())
@@ -308,4 +311,94 @@ test_that("can make reproducible runs", {
   
   expect_equal(b1$x, b2$x)
   expect_equal_to_tensor(b1$y, b2$y)
+})
+
+test_that("load packages in dataloader", {
+  
+  ds <- dataset(
+    .length = function() {20},
+    initialize = function() {},
+    .getitem = function(id) {
+      torch_tensor("coro" %in% (.packages()))
+    }
+  )
+  
+  dl <- dataloader(ds(), batch_size = 10, num_workers = 2)
+  
+  iter <- dataloader_make_iter(dl)
+  b1 <- dataloader_next(iter)
+  
+  expect_equal(torch_any(b1)$item(), FALSE)
+  
+  dl <- dataloader(ds(), batch_size = 10, num_workers = 2, worker_packages = "coro")
+  
+  iter <- dataloader_make_iter(dl)
+  b1 <- dataloader_next(iter)
+  
+  expect_equal(torch_all(b1)$item(), TRUE)
+})
+
+test_that("globals can be found", {
+  
+  ds <- dataset(
+    .length = function() {20},
+    initialize = function() {},
+    .getitem = function(id) {
+      hello_fn()
+    }
+  )
+  
+  dl <- dataloader(ds(), batch_size = 10, num_workers = 2)
+  
+  iter <- dataloader_make_iter(dl)
+  expect_error(
+    b1 <- dataloader_next(iter)  
+  )
+  
+  expect_error(
+    dl <- dataloader(ds(), batch_size = 10, num_workers = 2, 
+                     worker_globals = c("hello", "world")),
+    class = "runtime_error"
+  )
+
+  hello_fn <- function() {
+    torch_randn(5, 5)
+  }
+  
+  dl <- dataloader(ds(), batch_size = 10, num_workers = 2, worker_globals = list(
+    hello_fn = hello_fn
+  ))
+  
+  iter <- dataloader_make_iter(dl)
+  expect_tensor_shape(dataloader_next(iter), c(10, 5, 5))
+  
+  dl <- dataloader(ds(), batch_size = 10, num_workers = 2, 
+                   worker_globals = "hello_fn")
+  iter <- dataloader_make_iter(dl)
+  expect_tensor_shape(dataloader_next(iter), c(10, 5, 5))
+  
+})
+
+test_that("datasets can use an optional .getbatch method for speedups", {
+  
+  d <- dataset(
+    initialize = function() {},
+    .getbatch = function(indexes) {
+      list(
+        torch_randn(length(indexes), 10),
+        torch_randn(length(indexes), 1)
+      )
+    },
+    .length = function() {
+      100
+    }
+  )
+  
+  dl <- dataloader(d(), batch_size = 10)
+  coro::loop(for (x in dl) {
+    expect_length(x, 2)
+    expect_tensor_shape(x[[1]], c(10, 10))
+    expect_tensor_shape(x[[2]], c(10, 1))
+  })
+  
 })

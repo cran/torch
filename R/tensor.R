@@ -7,8 +7,7 @@ Tensor <- R7Class(
                           pin_memory = FALSE, ptr = NULL) {
       
       if (!is.null(ptr)) {
-        self$ptr <- ptr
-        return(NULL)
+        return(ptr)
       }
       
       # infer dtype from data
@@ -37,8 +36,8 @@ Tensor <- R7Class(
       }
       
       
-      self$ptr <- cpp_torch_tensor(data, rev(dimension), options$ptr, 
-                                   requires_grad, inherits(data, "integer64"))
+      cpp_torch_tensor(data, rev(dimension), options, 
+                       requires_grad, inherits(data, "integer64"))
     },
     print = function(n = 30) {
       cat("torch_tensor\n")
@@ -111,10 +110,17 @@ Tensor <- R7Class(
     },
     copy_ = function(src, non_blocking = FALSE) {
       
-      if (is_null_external_pointer(self$ptr))
-        self$ptr <- torch_empty_like(src)$ptr
+      if (is_null_external_pointer(self$ptr)) {
+        g <- torch_empty_like(src)
+        # this is the only way modify `self` in place.
+        # changing it's address in the C side and
+        # adding a protection to `g` so it only
+        # gets destroyed when `self` itself is destroyed.
+        set_xptr_address(self, g)
+        set_xptr_protected(self, g)
+      }
       
-      private$`_copy_`(src, non_blocking)
+      self$private$`_copy_`(src, non_blocking)
     },
     topk = function(k, dim = -1L, largest = TRUE, sorted = TRUE) {
       o <- private$`_topk`(k, dim, largest, sorted)
@@ -203,6 +209,23 @@ Tensor <- R7Class(
     },
     norm = function(p = 2, dim, keepdim = FALSE, dtype) {
       torch_norm(self, p, dim, keepdim, dtype)
+    },
+    split = function(split_size, dim = 1L) {
+      if (length(split_size) > 1)
+        self$split_with_sizes(split_size, dim)
+      else
+        private$`_split`(split_size, dim)
+    },
+    nonzero = function(as_list = FALSE) {
+      if (!as_list) {
+        return(private$`_nonzero`() + 1L)
+      } else {
+        o <- private$`_nonzero_numpy`()
+        return(lapply(o, function(x) x + 1L))
+      }
+    },
+    view = function(size) {
+      private$`_view`(size = size)
     }
   ),
   active = list(
@@ -366,3 +389,7 @@ str.torch_tensor <- function(object, ...) {
   cat(out)
   cat("\n")
 }
+
+Tensor$set("active", "ptr", function() {
+  self
+})

@@ -65,10 +65,11 @@ nn_Module <- R6::R6Class(
           with_no_grad({
             param_applied <- fn(param)
           })
-          private$parameters_[[param_name]] <- nn_parameter(param_applied)
+          private$parameters_[[param_name]] <- 
+            nn_parameter(param_applied, param$requires_grad)
         }
         
-        if (!is_undefined_tensor(param$grad)) {
+        if (!is.null(param) && !is_undefined_tensor(param$grad)) {
           with_no_grad({
             grad_applied <- fn(param$grad)
           })
@@ -166,7 +167,7 @@ nn_Module <- R6::R6Class(
       for (name in names(local_state)) {
         key <- paste0(prefix, name)
         if (key %in% names(state_dict)) {
-         input_param <- state_dict[[key]] 
+         input_param <- state_dict[[key]]
          param <- local_state[[name]]
          with_no_grad({
            param$copy_(input_param)
@@ -210,7 +211,7 @@ nn_Module <- R6::R6Class(
       fn(self)
       invisible(create_nn_module_callable(self))
     }
-    
+  
   ),
   private = list(
     parameters_ = list(),
@@ -636,6 +637,11 @@ nn_module_list <- nn_module(
     x$.__enclos_env__$private$modules_[[y]]
   else
     NextMethod("[[")
+}
+
+#' @export
+as.list.nn_module_list <- function(x, ...) {
+  x$.__enclos_env__$private$modules_
 }
 
 #' @export

@@ -1,9 +1,9 @@
-torch_dtype <- R6::R6Class(
+torch_dtype <- R7Class(
   classname = "torch_dtype", 
   public = list(
     ptr = NULL,
     initialize = function(ptr = NULL) {
-      self$ptr <- ptr
+      ptr
     },
     print = function() {
       cat("torch_", self$.type(), "\n", sep = "")
@@ -18,6 +18,9 @@ torch_dtype <- R6::R6Class(
         TRUE
       else
         FALSE
+    },
+    ptr = function() {
+      self
     }
   )
 )
@@ -129,6 +132,11 @@ torch_qint32 <- function() torch_dtype$new(cpp_torch_qint32())
 #' @export
 `==.torch_dtype` <- function(e1, e2) {
   cpp_dtype_to_string(e1$ptr) == cpp_dtype_to_string(e2$ptr)
+}
+
+#' @export
+`!=.torch_dtype` <- function(e1, e2) {
+  !(e1 == e2)
 }
 
 #' Check if object is a torch data type
