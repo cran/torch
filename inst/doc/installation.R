@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
 #  install_torch(timeout = 600)
 
 ## -----------------------------------------------------------------------------
-#  get_install_libs_url(type = "10.1")
+#  get_install_libs_url(type = "10.2")
 
 ## -----------------------------------------------------------------------------
 #  install_torch_from_file(libtorch = "file:///tmp/libtorch-cxx11-abi-shared-with-deps-1.7.1%2Bcu101.zip",

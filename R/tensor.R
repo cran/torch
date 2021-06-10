@@ -53,7 +53,12 @@ Tensor <- R7Class(
       if (missing(dim))
         return(x)
       
-      x[dim]
+      if (dim == 0) runtime_error("Indexing starts at 1 and got a 0.")
+      
+      if (dim > 0)
+        x[dim]
+      else
+        rev(x)[abs(dim)]
     },
     element_size = function() {
       cpp_tensor_element_size(self$ptr)
@@ -111,7 +116,7 @@ Tensor <- R7Class(
     copy_ = function(src, non_blocking = FALSE) {
       
       if (is_null_external_pointer(self$ptr)) {
-        g <- torch_empty_like(src)
+        g <- torch_empty_like(src, requires_grad = src$requires_grad)
         # this is the only way modify `self` in place.
         # changing it's address in the C side and
         # adding a protection to `g` so it only

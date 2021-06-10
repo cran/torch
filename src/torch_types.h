@@ -34,6 +34,9 @@ public:
   operator SEXP () const;
 };
 
+
+std::function<void(void*)> tensor_deleter (void* x);
+
 class XPtrTorchTensor : public XPtrTorch {
 public:
   // TODO: we should make this explicit at some point, but not currently
@@ -44,6 +47,15 @@ public:
   XPtrTorchTensor (const XPtrTorchTensor& x): XPtrTorch(x.get_shared()) {}
   XPtrTorchTensor (XPtrTorchIndexTensor x): XPtrTorch(x.get_shared()) {}
   explicit XPtrTorchTensor (SEXP x);
+  operator SEXP () const;
+};
+
+class XPtrTorchOptionalTensor : public XPtrTorch {
+public:
+  XPtrTorchOptionalTensor (void* x) : XPtrTorch(x, lantern_optional_tensor_delete) {}
+  explicit XPtrTorchOptionalTensor (std::shared_ptr<void> x) : XPtrTorch(x) {}
+  XPtrTorchOptionalTensor (const XPtrTorchOptionalTensor& x): XPtrTorch(x.get_shared()) {}
+  explicit XPtrTorchOptionalTensor (SEXP x);
   operator SEXP () const;
 };
 
@@ -106,6 +118,15 @@ public:
   explicit XPtrTorchDevice (std::shared_ptr<void> x) : XPtrTorch(x) {};
   XPtrTorchDevice (const XPtrTorchDevice& x) : XPtrTorch(x.get_shared()) {};
   explicit XPtrTorchDevice (SEXP x);
+  operator SEXP () const;
+};
+
+class XPtrTorchOptionalDevice : public XPtrTorch {
+public:
+  XPtrTorchOptionalDevice (void* x) : XPtrTorch(x, lantern_optional_device_delete) {}
+  explicit XPtrTorchOptionalDevice (std::shared_ptr<void> x) : XPtrTorch(x) {};
+  XPtrTorchOptionalDevice (const XPtrTorchOptionalDevice& x) : XPtrTorch(x.get_shared()) {};
+  explicit XPtrTorchOptionalDevice (SEXP x);
   operator SEXP () const;
 };
 

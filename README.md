@@ -10,6 +10,7 @@ status](https://github.com/mlverse/torch/workflows/Test/badge.svg)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/torch)](https://CRAN.R-project.org/package=torch)
 [![](https://cranlogs.r-pkg.org/badges/torch)](https://cran.r-project.org/package=torch)
+[![Discord](https://img.shields.io/discord/837019024499277855?logo=discord)](https://discord.com/invite/s3D5cKhBkx)
 
 ## Installation
 
@@ -47,12 +48,12 @@ y <- torch_tensor(x, dtype = torch_float64())
 y
 #> torch_tensor
 #> (1,.,.) = 
-#>   0.2196  0.9240
-#>   0.2313  0.9342
+#>   0.5955  0.3436
+#>   0.4946  0.4344
 #> 
 #> (2,.,.) = 
-#>   0.5492  0.6236
-#>   0.6080  0.8861
+#>   0.9322  0.7824
+#>   0.6503  0.7516
 #> [ CPUDoubleType{2,2,2} ]
 identical(x, as_array(y))
 #> [1] TRUE

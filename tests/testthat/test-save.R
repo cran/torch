@@ -167,3 +167,106 @@ test_that("Can load a torch v0.2.1 model", {
   expect_tensor_shape(o, c(32, 10))
 })
 
+test_that("requires_grad for tensors is maintained", {
+  
+  x <- torch_randn(10, 10, requires_grad = TRUE)
+  tmp <- tempfile("model", fileext = "pt")
+  torch_save(x, tmp)
+  y <- torch_load(tmp)
+  expect_true(y$requires_grad)
+  
+  x <- torch_randn(10, 10, requires_grad = FALSE)
+  tmp <- tempfile("model", fileext = "pt")
+  torch_save(x, tmp)
+  y <- torch_load(tmp)
+  expect_false(y$requires_grad)
+})
+
+test_that("requires_grad of parameters is correct", {
+  model <- nn_linear(10, 10)
+  tmp <- tempfile("model", fileext = "pt")
+  torch_save(model, tmp)
+  model2 <- torch_load(tmp)
+  expect_true(model2$bias$requires_grad)
+  
+  
+  model <- nn_linear(10, 10)
+  model$bias$requires_grad_(FALSE)
+  expect_false(model$bias$requires_grad)
+  tmp <- tempfile("model", fileext = "pt")
+  torch_save(model, tmp)
+  model2 <- torch_load(tmp)
+  expect_false(model2$bias$requires_grad)
+})
+
+test_that("can save with a NULL device", {
+  
+  skip_if_cuda_not_available()
+  
+  model <- nn_linear(10, 10)$cuda()
+  tmp <- tempfile("model", fileext = "pt")
+  torch_save(model, tmp)
+  model <- torch_load(tmp, device = NULL)
+  expect_equal(model$weight$device$type, "cuda")
+  
+})
+
+test_that("save on cuda and load on cpu", {
+  
+  skip_if_cuda_not_available()
+  model <- nn_linear(10, 10)$cuda()
+  
+  expect_equal(model$weight$device$type, "cuda")
+  
+  tmp <- tempfile("model", fileext = "pt")
+  torch_save(model, tmp)
+  
+  mod <- torch_load(tmp)
+  
+  expect_equal(mod$weight$device$type, "cpu")
+  
+})
+
+test_that("save on cuda and load on cuda", {
+  
+  skip_if_cuda_not_available()
+  model <- nn_linear(10, 10)$cuda()
+  
+  expect_equal(model$weight$device$type, "cuda")
+  
+  tmp <- tempfile("model", fileext = "pt")
+  torch_save(model, tmp)
+  
+  mod <- torch_load(tmp, device = "cuda")
+  
+  expect_equal(mod$weight$device$type, "cuda")
+  
+})
+
+test_that("can save and load from lists", {
+  
+  l <- list(
+    torch_tensor(1),
+    a = torch_tensor(2),
+    b = list(
+      x = torch_tensor(3),
+      y = 4
+    ),
+    c = 5
+  )
+  
+  tmp <- tempfile()
+  torch_save(l, tmp)  
+  
+  rm(l); gc()
+  
+  l <- torch_load(tmp)
+  expect_equal_to_tensor(l[[1]], torch_tensor(1))
+  expect_equal_to_tensor(l$a, torch_tensor(2))
+  expect_equal_to_tensor(l$b$x, torch_tensor(3))
+  expect_equal(l$b$y, 4)
+  expect_equal(l$c, 5)
+  
+})
+
+

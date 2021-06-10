@@ -72,10 +72,18 @@ is provided, it will be added to the attention weight.
 
 Outputs:
 \itemize{
-\item attn_output: \eqn{(L, N, E)} where L is the target sequence length, N is the batch size,
-E is the embedding dimension.
-\item attn_output_weights: \eqn{(N, L, S)} where N is the batch size,
-L is the target sequence length, S is the source sequence length.
+\item attn_output: \eqn{(L, N, E)} where L is the target sequence length, N is
+the batch size, E is the embedding dimension.
+\item attn_output_weights:
+\itemize{
+\item if \code{avg_weights} is \code{TRUE} (the default), the output attention
+weights are averaged over the attention heads, giving a tensor of shape
+\eqn{(N, L, S)} where N is the batch size, L is the target sequence
+length, S is the source sequence length.
+\item if \code{avg_weights} is \code{FALSE}, the attention weight tensor is output
+as-is, with shape \eqn{(N, H, L, S)}, where H is the number of attention
+heads.
+}
 }
 }
 

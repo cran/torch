@@ -322,5 +322,30 @@ test_that("polygamma works", {
   expect_equal_to_r(r, c(1.64493405818939, 4.93480205535889))
 })
 
+test_that("broadcast_shapes", {
+  
+  expect_equal(torch_broadcast_shapes(c(2,2), c(2,2)), c(2,2))
+  expect_equal(torch_broadcast_shapes(c(2,1), c(2,2)), c(2,2))
+  expect_error(torch_broadcast_shapes(c(2,3), c(2,2)))
+})
 
+test_that("tensordot works", {
+  
+  t1 <- torch_rand(10, 2, 3)
+  t2 <- torch_rand(3, 3, 5)
 
+  expect_tensor_shape(torch_tensordot(t1, t2, 1L), c(10,2,3,5))
+  expect_tensor_shape(torch_tensordot(t1, t2, list(3, 1)), c(10,2,3,5))
+  
+  
+})
+
+test_that("multinomial works", {
+  
+  x <- torch_tensor(1)
+  expect_equal_to_tensor(
+    torch_multinomial(x, 10, replacement = TRUE),
+    torch_ones(10)
+  )
+  
+})

@@ -1,16 +1,60 @@
 #include "torch_types.h"
 #include "utils.h"
 
+void tensor_finalizer (SEXP ptr)
+{
+  auto xptr = Rcpp::as<Rcpp::XPtr<XPtrTorchTensor>>(ptr);
+  lantern_tensor_set_pyobj(xptr->get(), nullptr);
+}
+
 XPtrTorchTensor::operator SEXP () const {
+  
+  // If there's an R object stored in the Tensor Implementation
+  // we want to return it directly so we have a unique R object
+  // that points to each tensor.
+  if (lantern_tensor_get_pyobj(this->get()))
+  {
+    // It could be that the R objet is still stored in the TensorImpl but
+    // it has already been scheduled for finalization by the GC.
+    // Thus we need to run the pending finalizers and retry.
+    R_RunPendingFinalizers();  
+    void* ptr = lantern_tensor_get_pyobj(this->get());
+    if (ptr)
+    {
+      SEXP out = PROTECT(Rf_duplicate((SEXP) ptr));
+      UNPROTECT(1);
+      return out;
+    }
+  }
+  
+  // If there's no R object stored in the Tensor, we will create a new one 
+  // and store the weak reference.
+  // Since this will be the only R object that points to that tensor, we also
+  // register a finalizer that will erase the reference to the R object in the 
+  // C++ object whenever this object gets out of scope.
   auto xptr = make_xptr<XPtrTorchTensor>(*this);
   xptr.attr("class") = Rcpp::CharacterVector::create("torch_tensor", "R7");
-  return xptr; 
+  SEXP xptr_ = Rcpp::wrap(xptr);
+  R_RegisterCFinalizer(xptr_, tensor_finalizer);
+  
+  lantern_tensor_set_pyobj(this->get(), (void*) xptr_);
+  return xptr_; 
+}
+
+XPtrTorchOptionalTensor::operator SEXP() const {
+  bool has_value = lantern_optional_tensor_has_value(this->get());
+  if (!has_value)
+  {
+    return R_NilValue;
+  }
+  else 
+  {
+    return XPtrTorchTensor(*this);
+  }
 }
 
 XPtrTorchIndexTensor::operator SEXP () const {
-  auto xptr = make_xptr<XPtrTorchTensor>(*this);
-  xptr.attr("class") = Rcpp::CharacterVector::create("torch_tensor", "R7");
-  return xptr; 
+  return XPtrTorchTensor(*this);
 }
 
 XPtrTorchTensorList::operator SEXP () const {
@@ -132,6 +176,22 @@ XPtrTorchTensor XPtrTorchTensor_from_SEXP (SEXP x)
 
 XPtrTorchTensor::XPtrTorchTensor (SEXP x) : 
   XPtrTorch{XPtrTorchTensor_from_SEXP(x)} {}
+
+XPtrTorchOptionalTensor XPtrTorchOptionalTensor_from_SEXP (SEXP x)
+{
+  const bool is_null = TYPEOF(x) == NILSXP || (TYPEOF(x) == VECSXP && LENGTH(x) == 0);
+  if (is_null)
+  {
+    return XPtrTorchOptionalTensor(lantern_optional_tensor(nullptr, true));
+  }
+  else
+  {
+    return XPtrTorchOptionalTensor(lantern_optional_tensor(XPtrTorchTensor(x).get(), false));
+  }
+}
+
+XPtrTorchOptionalTensor::XPtrTorchOptionalTensor (SEXP x) :
+  XPtrTorch{XPtrTorchOptionalTensor_from_SEXP(x)} {}
 
 XPtrTorchIndexTensor XPtrTorchIndexTensor_from_SEXP (SEXP x)
 {
@@ -342,6 +402,21 @@ XPtrTorchDevice XPtrTorchDevice_from_SEXP (SEXP x)
 
 XPtrTorchDevice::XPtrTorchDevice (SEXP x):
   XPtrTorch{XPtrTorchDevice_from_SEXP(x)} {}
+
+XPtrTorchOptionalDevice XPtrTorchOptionalDevice_from_SEXP (SEXP x)
+{
+  if (TYPEOF(x) == NILSXP)
+  {
+    return XPtrTorchOptionalDevice(lantern_OptionalDevice_from_device(nullptr, true));
+  } 
+  else 
+  {
+    return XPtrTorchOptionalDevice(lantern_OptionalDevice_from_device(XPtrTorchDevice_from_SEXP(x).get(), false));
+  }
+}
+
+XPtrTorchOptionalDevice::XPtrTorchOptionalDevice (SEXP x):
+  XPtrTorch{XPtrTorchOptionalDevice_from_SEXP(x)} {}
 
 XPtrTorchDtype XPtrTorchDtype_from_SEXP (SEXP x)
 {
@@ -648,8 +723,9 @@ XPtrTorchoptional_index_int64_t::XPtrTorchoptional_index_int64_t (SEXP x_)
 }
 
 // [[Rcpp::export]]
-int test_fun (XPtrTorchoptional_index_int64_t x)
+int test_fun_hello (XPtrTorchOptionalDevice x)
 {
+  // std::cout << "test fun" << std::endl;
   lantern_print_stuff(x.get());
   return 1 + 1;
 }

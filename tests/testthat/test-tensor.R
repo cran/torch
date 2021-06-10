@@ -321,3 +321,86 @@ test_that("tensor$bool works", {
   )
   expect_equal_to_tensor(result, expected)
 })
+
+test_that("copy_ respects the origin requires_grad", {
+  
+  x <- torch_randn(1, requires_grad = FALSE)
+  y <- torch_randn(1, requires_grad = TRUE)
+
+  x$copy_(y)  
+  expect_true(x$requires_grad)
+  
+  x <- torch_randn(1, requires_grad = FALSE)
+  with_no_grad({x$copy_(y)})
+  expect_false(x$requires_grad)
+  
+  x <- torch_randn(1, requires_grad = TRUE)
+  y <- torch_randn(1, requires_grad = FALSE)
+  expect_error(x$copy_(y))
+  
+  x <- torch_randn(1, requires_grad = TRUE)
+  with_no_grad({x$copy_(y)})
+  expect_true(x$requires_grad)
+  
+  x <- torch_randn(1, requires_grad = TRUE)
+  y <- torch_randn(1, requires_grad = TRUE)
+  with_no_grad({x$copy_(y)})
+  expect_true(x$requires_grad)
+  
+})
+
+test_that("size works", {
+  
+  x <- torch_randn(1,2,3,4,5)
+  
+  expect_equal(x$size(1), 1)
+  expect_equal(x$size(-1), 5)
+  expect_equal(x$size(-2), 4)
+  expect_equal(x$size(4), 4)
+  
+  expect_error(x$size(0))
+  
+})
+
+test_that("tensor identity works as expected", {
+  
+  v <- runif(1)
+  gctorture()
+  x <- torch_tensor(v)
+  y <- x$abs_()$abs_()
+  z <- x$abs_()
+  gctorture(FALSE)
+  
+  class(x) <- NULL
+  class(y) <- NULL
+  class(z) <- NULL
+  
+  expect_equal(x, y)
+  expect_equal(x, z)
+  
+  rm(x); gc()
+  
+  class(y) <- class(torch_tensor(1))
+  expect_equal_to_r(y, v, tol = 1e-7)
+  
+  x <- y$abs_()
+  
+  class(x) <- NULL
+  class(y) <- NULL
+  expect_equal(x, y)
+  
+})
+
+test_that("using with optim", {
+  
+  expect_error(regexp = NA, {
+    x <- torch_tensor(100, requires_grad = TRUE)
+    opt <- optim_adam(x, lr = 1)
+    l <- (2*x^2)$mean()
+    l$backward()
+    gctorture(TRUE)
+    opt$step()
+    gctorture(FALSE)
+  })
+  
+})

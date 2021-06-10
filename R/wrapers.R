@@ -179,7 +179,7 @@ torch_tensordot <- function(a, b, dims = 2) {
     if (dims < 1)
       runtime_error("tensordot expects dims >= 1, but got {dims}")
     
-    dims_a <- seq(from = -dims, to = 0)
+    dims_a <- seq(from = -dims, to = -1)
     dims_b <- seq(from = 1, to = dims)
   }
   
@@ -550,3 +550,19 @@ torch_fft_irfft <- function(self, n = NULL, dim = -1L, norm = NULL) {
   .torch_fft_irfft(self = self, n = n, dim = dim, norm = norm)
 }
 
+torch_broadcast_shapes <- function(...) {
+  shapes <- rlang::list2(...)
+  with_no_grad({
+    scalar <- torch_scalar_tensor(0, device="cpu")
+    tensors <- lapply(shapes, function(shape) scalar$expand(shape))
+    out <- torch_broadcast_tensors(tensors)[[1]]$shape
+  })
+  out
+}
+
+#'@rdname torch_multinomial
+torch_multinomial <- function(self, num_samples, replacement = FALSE, generator = NULL) {
+  r <- .torch_multinomial(self, num_samples, replacement = replacement, generator = generator)
+  with_no_grad({ r$add_(torch_scalar(1L)) })
+  r
+}

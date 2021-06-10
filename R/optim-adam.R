@@ -55,7 +55,7 @@ optim_adam <- optimizer(
   
   step = function(closure = NULL) {
     loop_fun <- function(group, param, g, p) {
-      
+  
       grad <- param$grad
       
       # if (grad$is_sparse) {
@@ -106,7 +106,6 @@ optim_adam <- optimizer(
       }
       
       step_size <- group$lr / bias_correction1
-      
       param$addcdiv_(exp_avg, denom, value=-step_size)
     }
     private$step_helper(closure, loop_fun)

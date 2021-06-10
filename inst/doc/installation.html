@@ -159,7 +159,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li><p>Have a CUDA compatible NVIDIA GPU. You can find if you have a CUDA compatible GPU <a href="https://developer.nvidia.com/cuda-gpus#compute">here</a>.</p></li>
 <li><p>Have properly installed the NVIDIA CUDA toolkit version 10.2 or 11.1. For CUDA v11.1, follow the installation instructions <a href="https://docs.nvidia.com/cuda/archive/11.1.1/index.html">here</a>. <strong>Note</strong>: We currently do <strong>not</strong> support the latest CUDA version 11.</p></li>
-<li><p>Have installed cuDNN version 7.6 (if using CUDA v10.1) or cuDNN 8.0 (if using CUDA 11.1). Follow the installation instructions available <a href="https://docs.nvidia.com/deeplearning/cudnn/archives/cudnn-805/install-guide/index.html">here</a>.</p></li>
+<li><p>Have installed cuDNN version 7.6 (if using CUDA v10.2) or cuDNN 8.0 (if using CUDA 11.1). Follow the installation instructions available <a href="https://docs.nvidia.com/deeplearning/cudnn/archives/cudnn-805/install-guide/index.html">here</a>.</p></li>
 </ul>
 <p>Once you have installed all pre-requisites you can install <code>torch</code> with:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;torch&quot;</span>)</span></code></pre></div>
@@ -212,7 +212,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h3>File based download</h3>
 <p>In cases where you cannot reach download servers from the machine you intend to install torch on, last resort is to install Torch and Lantern library from files. This is done in 3 steps :</p>
 <p>1- get the download URLs of the files.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">get_install_libs_url</span>(<span class="at">type =</span> <span class="st">&quot;10.1&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">get_install_libs_url</span>(<span class="at">type =</span> <span class="st">&quot;10.2&quot;</span>)</span></code></pre></div>
 <p>2- save those files into the machine filesystem. We will use <code>/tmp/</code> here as an example .</p>
 <p>3- install torch from files</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install_torch_from_file</span>(<span class="at">libtorch =</span> <span class="st">&quot;file:///tmp/libtorch-cxx11-abi-shared-with-deps-1.7.1%2Bcu101.zip&quot;</span>,</span>
