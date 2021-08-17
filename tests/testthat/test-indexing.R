@@ -33,7 +33,7 @@ test_that("[ works", {
   
   x <- torch_randn(10, 10)
   x[c(2,3,1), c(3,2,1)]
-  expect_length(x[c(2,3,1), c(3,2,1)], 3)
+  expect_equal_to_r(x[c(2,3,1), c(3,2,1)], as_array(x)[c(2,3,1), c(3,2,1)])
   
   x <- torch_randn(10)
   expect_equal_to_tensor(x[1:5,..], x[1:5])
@@ -133,9 +133,17 @@ test_that("indexing with long tensors", {
   
   x <- torch_randn(4,4)
   index <- torch_tensor(1, dtype = torch_long())
+  expect_equal(x[index, index]$item(), x[1,1]$item())
+  expect_tensor_shape(x[index, index], c(1,1))
+  
+  index <- torch_scalar_tensor(1, dtype = torch_long())
   expect_equal_to_tensor(x[index, index], x[1,1])
   
   index <- torch_tensor(-1, dtype = torch_long())
+  expect_equal(x[index, index]$item(), x[-1,-1]$item())
+  expect_tensor_shape(x[index, index], c(1,1))
+  
+  index <- torch_scalar_tensor(-1, dtype = torch_long())
   expect_equal_to_tensor(x[index, index], x[-1,-1])
   
   index <- torch_tensor(c(-1,1), dtype = torch_long())
@@ -143,4 +151,89 @@ test_that("indexing with long tensors", {
   
   index <- torch_tensor(c(-1, 0, 1), dtype = torch_long())
   expect_error(x[index, ], regexp = "Indexing starts at 1")
+})
+
+test_that("can use the slc construct", {
+  
+  x <- torch_randn(10, 10)
+  r <- as_array(x)
+  
+  expect_equal_to_r(
+    x[slc(start = 1, end = 5, step = 2),],
+    r[seq(1,5,by = 2),]
+  )
+  
+  expect_equal_to_r(
+    x[slc(start = 1, end = 5, step = 2),1],
+    r[seq(1,5,by = 2),1]
+  )
+  
+  expect_equal_to_r(
+    x[slc(start = 1, end = 5, step = 2),slc(start = 1, end = 5, step = 2)],
+    r[seq(1,5,by = 2),seq(1,5,by = 2)]
+  )
+  
+  expect_equal_to_tensor(
+    x[slc(2,Inf),],
+    x[2:N,]
+  )
+  
+})
+
+test_that("print slice", {
+  testthat::local_edition(3)
+  expect_snapshot(print(slc(1,3,5)))
+})
+
+test_that("mix vector indexing with slices and others", {
+  
+  x <- torch_randn(3,3,3)
+  expect_equal_to_tensor(
+    x[c(1,2), 1:2, c(1,2)],
+    x[1:2,1:2,1:2]  
+  )
+  
+  expect_equal_to_tensor(
+    x[c(1,2), newaxis, 1:2, c(1,2)],
+    x[1:2, newaxis, 1:2,1:2]  
+  )
+  
+  expect_equal_to_tensor(
+    x[newaxis, c(1,2), newaxis, 1:2, c(1,2)],
+    x[newaxis, 1:2, newaxis, 1:2,1:2]  
+  )
+  
+  expect_equal_to_tensor(
+    x[c(1,2), c(1,2), ],
+    x[1:2,1:2, ]  
+  )
+  
+  expect_equal_to_tensor(
+    x[c(1,2), ,c(1,2)],
+    x[1:2,,1:2 ]  
+  )
+  
+  expect_equal_to_tensor(
+    x[c(1,2), c(1,2), c(1,2)],
+    x[1:2,1:2,1:2]  
+  )
+  
+  expect_equal_to_tensor(
+    x[c(1,2), c(1,2), newaxis, c(1,2)],
+    x[1:2,1:2, newaxis, 1:2]  
+  )
+  
+})
+
+test_that("boolean vector indexing works as expected", {
+  
+  
+  x <- torch_randn(4,4,4)
+  index <- c(TRUE, FALSE, TRUE, FALSE)
+  
+  expect_equal_to_r(
+    x[index, index, index],
+    as_array(x)[index, index, index]
+  )
+  
 })

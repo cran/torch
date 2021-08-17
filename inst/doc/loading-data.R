@@ -21,9 +21,9 @@ knitr::opts_chunk$set(
 #  
 #  dl <- dataloader(ds, batch_size = 32, shuffle = TRUE)
 #  
-#  for (b in enumerate(dl)) {
-#    # ...
-#  
+#  coro::loop(for (b in dl)) {
+#  # ...
+#  })
 
 ## -----------------------------------------------------------------------------
 #  library(palmerpenguins)
@@ -109,14 +109,14 @@ knitr::opts_chunk$set(
 #  
 #    l <- c()
 #  
-#    for (b in enumerate(dl)) {
+#    coro::loop(for (b in dl) {
 #      optimizer$zero_grad()
 #      output <- model(b[[1]])
 #      loss <- nnf_nll_loss(output, b[[2]])
 #      loss$backward()
 #      optimizer$step()
 #      l <- c(l, loss$item())
-#    }
+#    })
 #  
 #    cat(sprintf("Loss at epoch %d: %3f\n", epoch, mean(l)))
 #  }

@@ -190,6 +190,11 @@ DataLoader <- R6::R6Class(
       
       self$collate_fn <- collate_fn
       
+      # check that the dataset don't contain tensors in it and raise warnings.
+      if (self$num_workers > 0) {
+        walk_r6_instance_fields(self$dataset, warn_tensor)
+      }
+      
     },
     .iter = function() {
       
@@ -324,6 +329,12 @@ MultiProcessingDataLoaderIter <- R6::R6Class(
       } else {
         not_implemented_error()
       }
+      
+      # we call gc here because on Windows it seems that R is not aware of the
+      # memory allocated by the subsessions, so it doesn't automatically call GC.
+      # We can endup with too many worker sessions if calling dataloader in a 
+      # loop. See https://github.com/mlverse/torch/issues/622 for more info.
+      gc() 
       
       # initialize all the worker sections
       # using callr
@@ -498,4 +509,35 @@ from_exportable_tensor <- function(x) {
   r <- readRDS(con)
   close(con)
   torch_load_tensor(r)
+}
+
+walk_fields <- function(env, nms, func) {
+  for (nm in nms) {
+    func(env[[nm]], nm)
+  }
+}
+
+walk_r6_instance_fields <- function(instance, func) {
+  
+  # find active fields - those should not be checked if they are tensors or
+  # not.
+  active <- instance$.__enclos_env__$.__active__
+  
+  nms <- rlang::env_names(instance)
+  nms <- nms[!nms %in% active]
+  
+  public <- walk_fields(instance, nms, func)
+  p_env <- instance$.__enclos_env__$private
+  
+  if (!is.null(p_env)) {
+    private <- walk_fields(p_env, rlang::env_names(p_env), func)  
+  } 
+}
+
+warn_tensor <- function(x, nm) {
+  if (is_torch_tensor(x))
+    rlang::warn(c("Datasets used with parallel dataloader (num_workers > 0) shouldn't have fields containing tensors as they can't be correctly passed to the wroker subprocesses.", 
+         glue::glue("A field named '{nm}' exists.")))
+  else if (is.list(x))
+    imap(x, ~warn_tensor(.x, paste0(nm, "$", .y)))
 }

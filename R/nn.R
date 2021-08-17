@@ -12,7 +12,10 @@ nn_Module <- R6::R6Class(
     },
     
     add_module = function(name, module) {
-      
+      self$register_module(name, module)
+    },
+    
+    register_module = function(name, module) {
       if (is.numeric(name))
         name <- as.character(name)
       
@@ -210,6 +213,20 @@ nn_Module <- R6::R6Class(
       }
       fn(self)
       invisible(create_nn_module_callable(self))
+    },
+    
+    named_parameters = function(recursive = TRUE) {
+      if (recursive)
+        self$parameters
+      else
+        private$parameters_
+    },
+    
+    named_buffers = function(recursive = TRUE) {
+      if (recursive)
+        self$buffers
+      else
+        private$buffers_
     }
   
   ),
@@ -220,7 +237,7 @@ nn_Module <- R6::R6Class(
     non_persistent_buffers_ = character()
   ),
   active = list(
-    parameters = function(value) {
+    parameters = function(value, recursive = TRUE) {
       
       if (!missing(value))
         runtime_error(
@@ -230,14 +247,29 @@ nn_Module <- R6::R6Class(
           )
       
       pars <- lapply(private$modules_, function(x) x$parameters)
-      pars <- append(pars, private$parameters_)
+      pars <- append(pars, self$named_parameters(recursive = FALSE))
       pars <- unlist(pars, recursive = TRUE, use.names = TRUE)
       pars <- pars[!duplicated(pars)] # unique doesn't preserve the names
       
       pars
     },
-    modules = function(value) {
+    buffers = function(value) {
       
+      if (!missing(value))
+        runtime_error(
+          "It's not possible to modify the buffers list.\n",
+          " You can modify the parameter in-place or use",
+          " `module$parameter_name <- new_value`"
+        )
+      
+      bufs <- lapply(private$modules_, function(x) x$buffers)
+      bufs <- append(bufs, self$named_buffers(recursive = FALSE))
+      bufs <- unlist(bufs, recursive = TRUE, use.names = TRUE)
+      bufs <- bufs[!duplicated(bufs)] # unique doesn't preserve the names
+      
+      bufs
+    },
+    modules = function(value) {
       if (!missing(value))
         runtime_error(
           "It's not possible to modify the modules list.\n",
@@ -255,6 +287,15 @@ nn_Module <- R6::R6Class(
       modules <- modules[!duplicated(module_instances)]
       
       modules
+    },
+    children = function(value) {
+      if (!missing(value))
+        runtime_error(
+          "It's not possible to modify the children list.\n",
+          " You can modify the modules in-place"
+        )
+      
+      private$modules_
     }
   )
 )
@@ -483,6 +524,13 @@ create_nn_module_callable <- function(instance) {
   mods <- x[[".__enclos_env__"]][["private"]][["modules_"]]
   if (!is.null(mods)) {
     o <- mods[[y]]
+    if (!is.null(o))
+      return(o)
+  }
+  
+  find_method <- x[[".__enclos_env__"]][["private"]][["find_method"]]
+  if (!is.null(find_method)) {
+    o <- find_method(y)
     if (!is.null(o))
       return(o)
   }

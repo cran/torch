@@ -412,3 +412,86 @@ test_that("datasets can use an optional .getbatch method for speedups", {
   })
   
 })
+
+test_that("dataloaders handle .getbatch that don't necessarily return a torch_tensor", {
+  
+  d <- dataset(
+    initialize = function() {},
+    .getbatch = function(indexes) {
+      list(
+        array(0, dim = c(length(indexes), 10)),
+        array(0, dim = c(length(indexes), 1))
+      )
+    },
+    .length = function() {
+      100
+    }
+  )
+  
+  dl <- dataloader(d(), batch_size = 10)
+  coro::loop(for (x in dl) {
+    expect_length(x, 2)
+    expect_tensor_shape(x[[1]], c(10, 10))
+    expect_tensor_shape(x[[2]], c(10, 1))
+  })
+  
+})
+
+test_that("a value error is returned when its not possible to convert", {
+  
+  d <- dataset(
+    initialize = function() {},
+    .getbatch = function(indexes) {
+      "a"
+    },
+    .length = function() {
+      100
+    }
+  )
+  
+  expect_error(
+    dataloader_next(dataloader_make_iter(dataloader(d(), batch_size = 10))),
+    regexp = "Can't convert data of class.*",
+    class = "value_error"
+  )
+  
+})
+
+
+test_that("warning tensor", {
+  
+  
+  dt <- dataset(
+    initialize = function() {
+      self$x <- torch_randn(100, 100)
+      private$k <- torch_randn(10, 10)
+      self$z <- list(
+        k = torch_tensor(1),
+        torch_tensor(2)
+      )
+    },
+    .getitem = function(i) {
+      torch_randn(1,1)
+    },
+    .length = function() {
+      100
+    },
+    active = list(
+      y = function() {
+        torch_randn(1)
+      }
+    ),
+    private = list(
+      k = 1
+    )
+  )
+  
+  
+  dt <- dt()
+  expect_warning(
+    x <- dataloader(dt, batch_size = 2, num_workers=  10),
+    regexp = "parallel dataloader"
+  )
+  
+    
+})

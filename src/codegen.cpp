@@ -33,6 +33,12 @@ std::string cpp_arg_to_torch_type (SEXP obj, const std::vector<std::string> expe
     return "Tensor";
   }
   
+  bool is_character = TYPEOF(obj) == STRSXP;
+  if (is_in("std::string", etypes) && is_character)
+  {
+    return "std::string";
+  }
+  
   if (is_in("Scalar", etypes) && (Rf_inherits(obj, "torch_scalar") || is_null))
   {
     return "Scalar"; 
@@ -81,7 +87,6 @@ std::string cpp_arg_to_torch_type (SEXP obj, const std::vector<std::string> expe
     return "Tensor";
   }
   
-  bool is_character = TYPEOF(obj) == STRSXP;
   if (e_dimname_list && is_character)
   {
     return "DimnameList";
@@ -91,6 +96,11 @@ std::string cpp_arg_to_torch_type (SEXP obj, const std::vector<std::string> expe
   bool is_numeric = Rf_isNumeric(obj);
   
   bool is_numeric_or_list_or_null = is_numeric || is_list || is_null;
+  
+  if (is_in("int64_t", etypes) && ((is_numeric && len == 1) || is_null))
+  {
+    return "int64_t";
+  }
   
   if (is_in("IntArrayRef", etypes) && is_numeric_or_list_or_null)
   {
@@ -102,11 +112,6 @@ std::string cpp_arg_to_torch_type (SEXP obj, const std::vector<std::string> expe
     return "ArrayRef<double>";
   }
   
-  if (is_in("int64_t", etypes) && ((is_numeric && len == 1) || is_null))
-  {
-    return "int64_t";
-  }
-  
   if (is_in("double", etypes) && ((is_numeric && len == 1) || is_null))
   {
     return "double";
@@ -116,11 +121,6 @@ std::string cpp_arg_to_torch_type (SEXP obj, const std::vector<std::string> expe
   if (is_in("bool", etypes) && is_logical && len == 1)
   {
     return "bool";
-  }
-  
-  if (is_in("std::string", etypes) && is_character)
-  {
-    return "std::string";
   }
   
   if ((is_in("std::array<bool,4>", etypes) || is_in("std::array<bool,3>", etypes)
@@ -147,6 +147,11 @@ std::string cpp_arg_to_torch_type (SEXP obj, const std::vector<std::string> expe
   if (is_in("Device", etypes) && (Rf_inherits(obj, "torch_device") || is_character))
   {
     return "Device";
+  }
+  
+  if (is_in("const c10::List<c10::optional<Tensor>> &", etypes) && is_list)
+  {
+    return "const c10::List<c10::optional<Tensor>> &";
   }
   
   Rcpp::stop("Can't convert argument");
