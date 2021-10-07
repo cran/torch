@@ -29,7 +29,9 @@ make_load_symbols <- function(decls) {
 
 decls <- readr::read_lines(
   "
-void* _lantern_optional_tensor_value (void* x)
+int64_t _lantern_OptionalTensorList_size (void* self)
+void* _lantern_OptionalTensorList_at (void* self, int64_t i)
+bool _lantern_OptionalTensorList_at_is_null (void* self, int64_t i)
 "  
 )
 

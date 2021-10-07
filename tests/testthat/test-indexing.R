@@ -237,3 +237,33 @@ test_that("boolean vector indexing works as expected", {
   )
   
 })
+
+test_that("regression test for #691", {
+  a <- torch_randn(c(6,4))
+  b <- c(1,2,3)
+  a[b]
+  expect_equal(b, c(1,2,3))
+})
+
+test_that("regression test for #695", {
+  a <- torch_randn(c(3,4,2))
+  b <- torch_tensor(c(1,3), dtype = torch_long())
+  
+  expect_equal_to_r(
+    a[..,b,],
+    as.array(a)[,c(1,3),]
+  )
+  
+  a <- torch_randn(c(3,4,3))
+  
+  expect_equal_to_r(
+    a[..,b,b],
+    as.array(a)[,c(1,3),c(1,3)]
+  )
+  
+  expect_equal_to_r(
+    a[b,..,b],
+    as.array(a)[c(1,3),,c(1,3)]
+  )
+  
+})

@@ -144,16 +144,21 @@ XPtrTorchTensor cpp_torch_tensor (SEXP x, std::vector<std::int64_t> dim,
 
 void index_append_integer_vector (XPtrTorchTensorIndex& index, SEXP slice)
 {
-  Rcpp::NumericVector v = slice;
-  for (int j = 0; j < v.size(); j++)
+  Rcpp::NumericVector v(LENGTH(slice)); // tmp variable v to avoid changing slice object
+  Rcpp::NumericVector u = slice;       // cast slice to numeric
+  for (int j = 0; j < u.size(); j++)
   {
-    if (v[j] > 0)
+    if (u[j] > 0)
     {
-      v[j] = v[j] - 1; // make it 0-based.
+      v[j] = u[j] - 1; // make it 0-based.
     }
-    else if (v[j] == 0)
+    else if (u[j] == 0)
     {
       Rcpp::stop("Indexing in R is 1-based and found a 0.");
+    }
+    else 
+    {
+      v[j] = u[j];
     }
   }
   
@@ -234,6 +239,7 @@ bool index_append_tensor (XPtrTorchTensorIndex& index, SEXP slice)
 struct index_info {
   int dim; // number of dimensions that are kept in the output
   bool vector; // vector like?
+  bool ellipsis;
 };
 
 // returns true if appended a vector like object. We use the boolean vector
@@ -245,7 +251,7 @@ index_info index_append_sexp (XPtrTorchTensorIndex& index, SEXP slice, bool drop
   if (TYPEOF(slice) == LGLSXP && LENGTH(slice) == 1 && LOGICAL(slice)[0] == NA_LOGICAL)
   {
     index_append_empty_slice(index);
-    return {1, false};
+    return {1, false, false};
   }
   
   // a single numeric scalar to take a single element of a dimension,
@@ -257,11 +263,11 @@ index_info index_append_sexp (XPtrTorchTensorIndex& index, SEXP slice, bool drop
     if (!drop)
     {
       index_append_none(index);
-      return {1, false};
+      return {1, false, false};
     }
     else
     {
-      return {0, false};
+      return {0, false, false};
     }
     
   }
@@ -270,41 +276,41 @@ index_info index_append_sexp (XPtrTorchTensorIndex& index, SEXP slice, bool drop
   if (TYPEOF(slice) == LGLSXP && LENGTH(slice) == 1)
   {
     index_append_scalar_bool(index, slice);
-    return {1, false};
+    return {1, false, false};
   }
   
   // the fill sybol was passed. in this case we add the ellipsis ...
   if (Rf_inherits(slice, "fill"))
   {
     index_append_ellipsis(index);
-    return {1, false};
+    return {1, false, true};
   }
   
   // NULL means add an axis.
   if (TYPEOF(slice) == NILSXP)
   {
     index_append_none(index);
-    return {1, false};
+    return {1, false, false};
   }
   
   // if it's a slice with start and end values
   if (Rf_inherits(slice, "slice"))
   {
     index_append_slice(index, slice);
-    return {1, false};
+    return {1, false, false};
   }
   
   // if it's a numeric vector
   if ((TYPEOF(slice) == REALSXP || TYPEOF(slice) == INTSXP) && LENGTH(slice) > 1)
   {
     index_append_integer_vector(index, slice);
-    return {1, true};
+    return {1, true, false};
   }
   
   if (TYPEOF(slice) == LGLSXP && LENGTH(slice) > 1)
   {
     index_append_bool_vector(index, slice);
-    return {1, true};
+    return {1, true, false};
   }
   
   if (Rf_inherits(slice, "torch_tensor"))
@@ -312,11 +318,11 @@ index_info index_append_sexp (XPtrTorchTensorIndex& index, SEXP slice, bool drop
     bool is_scalar = index_append_tensor(index, slice);
     if (is_scalar) 
     {
-      return {0, false};
+      return {0, false, false};
     }
     else
     {
-      return {1, true};  
+      return {1, true, false};  
     }
   }
   
@@ -329,19 +335,34 @@ std::vector<XPtrTorchTensorIndex> slices_to_index (std::vector<Rcpp::RObject> sl
   XPtrTorchTensorIndex index = lantern_TensorIndex_new();
   SEXP slice;
   int num_dim = 0;
+  bool has_ellipsis = false;
   for (int i = 0; i < slices.size(); i++)
   {
     slice = slices[i];
     auto info = index_append_sexp(index, slice, drop);
+    
+    if (!has_ellipsis && info.ellipsis)
+    {
+      has_ellipsis = true;
+    }
+    
     num_dim += info.dim;
     if (info.vector)
     {
       bool last_dim = i >= (slices.size() - 1);
       // we add an ellipsis to get all the other dimensions and append it to the output vector.
       // we only append if it's not the last dimension too.
-      if (!last_dim)
+      if (!last_dim && !has_ellipsis)
       {
         index_append_ellipsis(index);  
+      }
+      else if (!last_dim && has_ellipsis)
+      {
+        int missing_slices = slices.size() - i - 1;
+        for (int j = 0; j < missing_slices; j++)
+        {
+          index_append_empty_slice(index);
+        }
       }
       
       output.push_back(index);
@@ -352,9 +373,16 @@ std::vector<XPtrTorchTensorIndex> slices_to_index (std::vector<Rcpp::RObject> sl
       // that is tracked by num_dim.
       if (!last_dim)
       {
-        for(int j = 0; j < num_dim; j++)
+        if (!has_ellipsis)
         {
-          index_append_empty_slice(index);
+          for(int j = 0; j < num_dim; j++)
+          {
+            index_append_empty_slice(index);
+          }
+        }
+        else 
+        {
+          index_append_ellipsis(index);
         }
       }
     }

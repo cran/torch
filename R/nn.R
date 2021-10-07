@@ -1,6 +1,17 @@
 #' @include utils-data.R
 NULL
 
+get_inherited_classes <- function(inherit) {
+  inherit_class <- inherit$public_fields$.classes
+  # Filter out classes that we eventually add in our normal flow.
+  inherit_class <- inherit_class[inherit_class != "nn_Module"]
+  inherit_class <- inherit_class[inherit_class != "R6ClassGenerator"]
+  inherit_class <- inherit_class[inherit_class != "nn_module_generator"]
+  inherit_class <- inherit_class[inherit_class != "nn_module"]
+  inherit_class <- inherit_class[!duplicated(inherit_class, fromLast = TRUE)]
+  inherit_class
+}
+
 nn_Module <- R6::R6Class(
   classname = "nn_Module",
   lock_objects = FALSE,
@@ -443,8 +454,9 @@ nn_module <- function(classname = NULL, inherit = nn_Module, ...,
   
   e <- new.env(parent = parent_env)
   e$inherit <- inherit
-    
-  classes <- c(classname, "nn_module")
+  
+  inherit_class <- get_inherited_classes(inherit)
+  classes <- c(classname, inherit_class, "nn_module")
   
   Module <- R6::R6Class(
     classname = classname,
@@ -588,7 +600,6 @@ print.nn_module <- function(x, ...) {
 #' See examples.
 #' 
 #' @param ... sequence of modules to be added
-#' @param name optional name for the generated module.
 #' 
 #' @examples 
 #' 
@@ -602,30 +613,40 @@ print.nn_module <- function(x, ...) {
 #' output <- model(input)
 #' 
 #' @export
-nn_sequential <- function(... , name = NULL) {
-  module <- nn_module(
-    classname = ifelse(is.null(name), "nn_sequential", name),
-    initialize = function(...) {
-      modules <- rlang::list2(...)
-      for (i in seq_along(modules)) {
-        self$add_module(name = i - 1, module = modules[[i]])  
-      }
-    },
-    forward = function(input) {
-      for (module in private$modules_) {
-        input <- module(input)
-      }
-      input
+nn_sequential <- module <- nn_module(
+  classname = "nn_sequential",
+  initialize = function(...) {
+    modules <- rlang::list2(...)
+    for (i in seq_along(modules)) {
+      self$add_module(name = i - 1, module = modules[[i]])  
     }
-  )
-  module(...)
-}
+  },
+  forward = function(input) {
+    for (module in private$modules_) {
+      input <- module(input)
+    }
+    input
+  }
+)
 
 #' @export
 length.nn_sequential <- function(x) {
   length(x$.__enclos_env__$private$modules_)
 }
 
+#' @export 
+`[[.nn_sequential` <- function(x, y) { 
+   if (rlang::is_scalar_integerish(y)) 
+     x$.__enclos_env__$private$modules_[[y]] 
+   else 
+     NextMethod("[[") 
+ }
+ 
+#' @export
+`[.nn_sequential` <- function(x, y) {
+  nn_sequential(!!!lapply(y, function(i) x[[i]]))
+}
+                          
 #' Holds submodules in a list.
 #' 
 #' [nn_module_list] can be indexed like a regular R list, but
@@ -752,4 +773,3 @@ get_parameter_count <- function(self) {
   pars <- sapply(self$parameters, function(x) prod(x$shape))
   sum(pars)
 }
-
