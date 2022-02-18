@@ -143,7 +143,7 @@ internal_funs <- c("logical_not", "max_pool1d_with_indices", "max_pool2d_with_in
                    "movedim", "argsort", "norm",
                    "argmax", "argmin", "one_hot", "split",
                    "nonzero", "fft_fft", "fft_ifft", "fft_rfft", "fft_irfft",
-                   "multinomial", "norm", "cross_entropy_loss"
+                   "multinomial", "norm", "cross_entropy_loss", "sort"
                    )
 
 internal_funs <- c(internal_funs, creation_ops)
@@ -178,13 +178,14 @@ r_argument_default <- function(default) {
     return("TRUE")
 
   if (default %in% c("1", "0", "-1", "2", "-2", "100", "-100",
-                     "20"))
+                     "20")) {
     return(paste0(default, "L"))
+  }
 
-  if (default %in% c("0.000010", "0.000000",
-                     "1.000000", "0.500000", "0.010000",
-                     "10.000000", "0.000001", "0.125000",
-                     "0.333333", "9223372036854775807"))
+  if (default %in% c("0.000010", "0.000000", "0", "2", "-2", "100", "-100", "20",
+                     "1.000000", "0.500000", "0.010000", "1", "-1",
+                     "10.000000", "0.000001", "0.125000", "0.333333333333333",
+                     "0.333333", "9223372036854775807", "1e-05", "1e-08", "0.5", "0.01", "1e-15", "10", "1e-06", "0.125"))
     return(default)
 
   if (default == "{}")
@@ -275,6 +276,11 @@ to_1_based <- function(x) {
   out
 }
 
+value_to_char <- function(x) {
+  as.character(x)
+}
+
+
 r_argument_with_default <- function(name, decls) {
 
   default <- purrr::map(decls, ~.x$arguments) %>%
@@ -282,8 +288,8 @@ r_argument_with_default <- function(name, decls) {
     purrr::keep(~.x$name == name) %>%
     purrr::map(~.x$default) %>%
     purrr::discard(is.null) %>%
-    purrr::flatten_chr() %>%
-    unique()
+    #purrr::flatten_chr() %>%
+    sapply(value_to_char)
 
   if (length(default) > 1) {
     default <- default[1]
@@ -407,7 +413,7 @@ internal_methods <- c("_backward", "retain_grad", "size", "to", "stride",
                       "copy_", "topk", "scatter_", "scatter", "rename",
                       "rename_", "narrow", "narrow_copy", "is_leaf", "max",
                       "min", "argsort", "argmax", "argmin", "norm", "split",
-                      "nonzero", "nonzero_numpy", "view")
+                      "nonzero", "nonzero_numpy", "view", "sort")
 
 r_method_env <- function(decls) {
   if (decls[[1]]$name %in% internal_methods)
