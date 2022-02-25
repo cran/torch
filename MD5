@@ -1,7 +1,7 @@
-fd59bd43129026fa6dc274ab6925dac7 *DESCRIPTION
+232f26bd723a6f73c446f060c711267d *DESCRIPTION
 7550b0d0d86781397172269c414715ca *LICENSE
 e7a1b137188159573ddeb3be15947164 *NAMESPACE
-f6833f0f2c48976c932e3135e4a907d5 *NEWS.md
+612df17122f2f4e8b4ce86ff9c8cf790 *NEWS.md
 c7ef920a7d96a4d858a20d20971469f0 *R/R7.R
 ce4072e2192f333148f5eb4f7cefdef9 *R/RcppExports.R
 67a2ac77bdedbaeca924df0f262fc9fd *R/autograd.R
@@ -36,7 +36,7 @@ c23807ddbfbaa370041ac7402008e712 *R/gen-namespace.R
 429be0a4831ec951d1e55d6aa143fb5a *R/generator.R
 3f96910e7555484cfcc77025270f4d4e *R/help.R
 ecb5a7addd451d88f3af7b5ebfc01c86 *R/indexing.R
-115b185851ac6d128f51bb440657baa9 *R/install.R
+681731327d1d83c0da7fd8a854baae24 *R/install.R
 1ec05e5f4884ad812a9ed6be1b04db7d *R/ivalue.R
 59f51bcc97a49f8139c88e5269f08e02 *R/jit-compile.R
 7270f5d475a16ea554c54245f910d468 *R/lantern_load.R
@@ -116,7 +116,7 @@ a57670e3693f183128299f130ce4235d *R/variable_list.R
 9a12ab9930bb7430320d391067ce9927 *R/with-indices.R
 52bf6e47a71a29f4701c6b4d03ab36da *R/wrapers.R
 b080057b46e556ec7864a9a26615c176 *README.md
-60b1ee91a764da54013fec61201e5606 *build/partial.rdb
+5de6405cab093735604052c52aea975d *build/partial.rdb
 e213d9eb7a45d316710a9fb02bea3b21 *build/vignette.rds
 b43e017c1b6099f823dad863802a1baf *inst/build-version
 9675631d0b1420b8f8c12d75e51ffb9b *inst/doc/distributions.R
@@ -135,7 +135,7 @@ b43e017c1b6099f823dad863802a1baf *inst/build-version
 09027c03311d137d3c3a27ffa9e4611e *inst/doc/loading-data.Rmd
 cc1a68ddf39567d34673415550558b98 *inst/doc/loading-data.html
 9675631d0b1420b8f8c12d75e51ffb9b *inst/doc/python-to-r.R
-c8d4c5773421643bcfbaae513111e388 *inst/doc/python-to-r.Rmd
+7295cef3042eab6765d4b8e7444b65c4 *inst/doc/python-to-r.Rmd
 f757b7599c4dedf390173a0000870cb5 *inst/doc/python-to-r.html
 9675631d0b1420b8f8c12d75e51ffb9b *inst/doc/serialization.R
 f4bf044647401342ef7ff5134e0e239c *inst/doc/serialization.Rmd
@@ -984,7 +984,7 @@ b8490b23002a9076bc96bb5bf898cd41 *tools/torchgen/inst/docs/_torch_docs.py
 83c8c1e331baeadaa66c6b465cb30751 *vignettes/indexing.Rmd
 6a4a8a0c36ab38025492e1f63e66f22a *vignettes/installation.Rmd
 09027c03311d137d3c3a27ffa9e4611e *vignettes/loading-data.Rmd
-c8d4c5773421643bcfbaae513111e388 *vignettes/python-to-r.Rmd
+7295cef3042eab6765d4b8e7444b65c4 *vignettes/python-to-r.Rmd
 f4bf044647401342ef7ff5134e0e239c *vignettes/serialization.Rmd
 6f6a7deae142cd42aa1208fec73a7b5b *vignettes/tensor-creation.Rmd
 73f98aa9b7d87bf7e4957213e072705a *vignettes/tensor/index.Rmd
