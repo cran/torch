@@ -1,9 +1,9 @@
-617e6c48b3af19df3356f19b681fefd8 *DESCRIPTION
+fd59bd43129026fa6dc274ab6925dac7 *DESCRIPTION
 7550b0d0d86781397172269c414715ca *LICENSE
-53cbf3855cfdbaf75719a6c2afd82405 *NAMESPACE
-a9cda40ecbb4a91231f0da6cb2909b09 *NEWS.md
+e7a1b137188159573ddeb3be15947164 *NAMESPACE
+f6833f0f2c48976c932e3135e4a907d5 *NEWS.md
 c7ef920a7d96a4d858a20d20971469f0 *R/R7.R
-a143dd19800900b48f7ee6462c24bfbc *R/RcppExports.R
+ce4072e2192f333148f5eb4f7cefdef9 *R/RcppExports.R
 67a2ac77bdedbaeca924df0f262fc9fd *R/autograd.R
 05ecd63b5eda1759f7a33f0e77f6d894 *R/backends.R
 0b09e3735b3523bae05ef8f45f579683 *R/call_torch_function.R
@@ -13,7 +13,7 @@ a143dd19800900b48f7ee6462c24bfbc *R/RcppExports.R
 2082b5fb385e82e62430a34b9cb6a044 *R/conditions.R
 2eb0329e2a24ec89a1a66dec1cfc968c *R/contrib.R
 e4444d133142956002f9d7e2baab0d9b *R/creation-ops.R
-8e5c9b724b1bcf34f4e9d37fd09e6967 *R/cuda.R
+f6c6b69e4d282395cdd245cae3e1b109 *R/cuda.R
 c9ab58f42c3b563642dc6b155f2b4869 *R/device.R
 788d4141ce0d5395dbe5bb35cffb10c2 *R/dimname_list.R
 8b8e46dec09819369760d681171159e2 *R/distributions-bernoulli.R
@@ -36,7 +36,7 @@ c23807ddbfbaa370041ac7402008e712 *R/gen-namespace.R
 429be0a4831ec951d1e55d6aa143fb5a *R/generator.R
 3f96910e7555484cfcc77025270f4d4e *R/help.R
 ecb5a7addd451d88f3af7b5ebfc01c86 *R/indexing.R
-0b9918b0571c85288da1a23c7d6d82de *R/install.R
+115b185851ac6d128f51bb440657baa9 *R/install.R
 1ec05e5f4884ad812a9ed6be1b04db7d *R/ivalue.R
 59f51bcc97a49f8139c88e5269f08e02 *R/jit-compile.R
 7270f5d475a16ea554c54245f910d468 *R/lantern_load.R
@@ -116,7 +116,7 @@ a57670e3693f183128299f130ce4235d *R/variable_list.R
 9a12ab9930bb7430320d391067ce9927 *R/with-indices.R
 52bf6e47a71a29f4701c6b4d03ab36da *R/wrapers.R
 b080057b46e556ec7864a9a26615c176 *README.md
-308b23937b4f4f032098f43d51c0ee84 *build/partial.rdb
+60b1ee91a764da54013fec61201e5606 *build/partial.rdb
 e213d9eb7a45d316710a9fb02bea3b21 *build/vignette.rds
 b43e017c1b6099f823dad863802a1baf *inst/build-version
 9675631d0b1420b8f8c12d75e51ffb9b *inst/doc/distributions.R
@@ -135,8 +135,8 @@ b43e017c1b6099f823dad863802a1baf *inst/build-version
 09027c03311d137d3c3a27ffa9e4611e *inst/doc/loading-data.Rmd
 cc1a68ddf39567d34673415550558b98 *inst/doc/loading-data.html
 9675631d0b1420b8f8c12d75e51ffb9b *inst/doc/python-to-r.R
-f9bc9d00f7db4e6824edc7a239492c74 *inst/doc/python-to-r.Rmd
-06fc538acf5a4ccabdfb32e9dd71a2eb *inst/doc/python-to-r.html
+c8d4c5773421643bcfbaae513111e388 *inst/doc/python-to-r.Rmd
+f757b7599c4dedf390173a0000870cb5 *inst/doc/python-to-r.html
 9675631d0b1420b8f8c12d75e51ffb9b *inst/doc/serialization.R
 f4bf044647401342ef7ff5134e0e239c *inst/doc/serialization.Rmd
 244585d2becba81ce1a47dd7dbf03cf0 *inst/doc/serialization.html
@@ -149,7 +149,7 @@ a4ee377afcae9da270b3d7060fb3957e *inst/doc/tensor-creation.html
 9675631d0b1420b8f8c12d75e51ffb9b *inst/doc/using-autograd.R
 104306ea76c848d23843c1ed240dc505 *inst/doc/using-autograd.Rmd
 c741ffb88c19f3bf3bc36d5684c891eb *inst/doc/using-autograd.html
-9d8307656d242b02ba166187d5a3f568 *inst/include/lantern/lantern.h
+dd688bc35560b2b3f5c4e93eb23addff *inst/include/lantern/lantern.h
 127418ac2104d46d8b5373fe6f10cc65 *inst/include/lantern/types.h
 a1d34d49ddd380da788cfe36d6a4c0b8 *inst/include/torch.h
 d6a303ba2f9f8da5bac1e4557cf7f0f4 *inst/include/torch_api.h
@@ -179,6 +179,7 @@ a51de02804cd51a168d2539cb12a358a *man/cuda_device_count.Rd
 8b31a444ef830a30830a46f71cd8271e *man/cuda_get_device_capability.Rd
 3e787a4b907d8bb81c008ea966617567 *man/cuda_is_available.Rd
 be6a4a08e03244bbf5b89dac2592bc43 *man/cuda_memory_stats.Rd
+410503b0f76b1a124e4b072510bb2ed6 *man/cuda_runtime_version.Rd
 aac822c1189114b83ab042524fb0c7ad *man/dataloader.Rd
 bda74df11facb3e78c012da035e2f60d *man/dataloader_make_iter.Rd
 4a832de2da25e368888e4c1147112f5b *man/dataloader_next.Rd
@@ -284,7 +285,7 @@ fffaff8d426106ba4649020f3731a5f0 *man/nn_dropout2d.Rd
 d5544ca9171d766ca84535b55fd911b7 *man/nn_dropout3d.Rd
 edd98976666e8a5dd3506edf05bd91fc *man/nn_elu.Rd
 316a5ac8aae97a33d23cb037ea10c88f *man/nn_embedding.Rd
-e4cef264e8d9f6859826257c8b9b4c5d *man/nn_flatten.Rd
+7b28d7a0fdebf7a9d8d5e2fca18c89aa *man/nn_flatten.Rd
 35efbf2423c1caf20572fd735f2ae1df *man/nn_fractional_max_pool2d.Rd
 775f98db1221efbfe7cc6547ecac26f2 *man/nn_fractional_max_pool3d.Rd
 9747ace0d9ad7f5b94013083a402fa8e *man/nn_gelu.Rd
@@ -361,7 +362,7 @@ dd40cf0814f970b53dd5f68279d0e2a4 *man/nn_softshrink.Rd
 f5c34ebc82111b224659071d2f3db9cc *man/nn_threshold.Rd
 4c872ae46db505b75572ece0a44cca7b *man/nn_triplet_margin_loss.Rd
 67d50365b100a926bbf280add4a863df *man/nn_triplet_margin_with_distance_loss.Rd
-034d89323d476adc19dae31fcae58971 *man/nn_unflatten.Rd
+54d8f211804f744a5c1a05d5f083be0f *man/nn_unflatten.Rd
 29c3cff2abc8edf35195f3d1168e1715 *man/nn_upsample.Rd
 d4f0e2e19055021d18286c2ac12585aa *man/nn_utils_clip_grad_norm_.Rd
 11bc939a1848c91ecc96dbb6e11dd7ca *man/nn_utils_clip_grad_value_.Rd
@@ -821,13 +822,13 @@ b8ecbb9707b5bfd23f0d161b15b730e3 *man/torch_zeros_like.Rd
 492b812cacd1c7d83d3d78588d632370 *man/with_enable_grad.Rd
 7359129bd05a9e4e50baebc5ea794c8a *man/with_no_grad.Rd
 08bfa0e4178ca0cf1a2811778eb1cd7d *src/Makevars
-d0883a0caf9df7f5f70d2be4cbaed157 *src/RcppExports.cpp
+1a564c19c73ba5bbaa051f64e6620229 *src/RcppExports.cpp
 eb5a53552fa1c5754b53a9e054f8e4bf *src/allocator.cpp
 1e63a8c3cff8c37b9787059653967055 *src/autograd.cpp
 c09dd57ae63aa195c1f4914a012b4814 *src/backends.cpp
 dd3c5cdc27c9a20ccec61b41cb986d32 *src/codegen.cpp
 8f2e779f04126c8b8bb3f99ea693df71 *src/contrib.cpp
-4ae5e8f60e07330fc4801fb19550af5e *src/cuda.cpp
+5e0c4d2838a68afc0e9c25a5154d6ad9 *src/cuda.cpp
 c9f2f7cfde7e4c427b3011ab7851c32c *src/device.cpp
 b04eeb8aeb5fee6c3bed2e8c290f0302 *src/dimname_list.cpp
 46e3c264d3ddf3c9d906a4df8d4666eb *src/dtype.cpp
@@ -983,7 +984,7 @@ b8490b23002a9076bc96bb5bf898cd41 *tools/torchgen/inst/docs/_torch_docs.py
 83c8c1e331baeadaa66c6b465cb30751 *vignettes/indexing.Rmd
 6a4a8a0c36ab38025492e1f63e66f22a *vignettes/installation.Rmd
 09027c03311d137d3c3a27ffa9e4611e *vignettes/loading-data.Rmd
-f9bc9d00f7db4e6824edc7a239492c74 *vignettes/python-to-r.Rmd
+c8d4c5773421643bcfbaae513111e388 *vignettes/python-to-r.Rmd
 f4bf044647401342ef7ff5134e0e239c *vignettes/serialization.Rmd
 6f6a7deae142cd42aa1208fec73a7b5b *vignettes/tensor-creation.Rmd
 73f98aa9b7d87bf7e4957213e072705a *vignettes/tensor/index.Rmd
