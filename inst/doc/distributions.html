@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
     </style>
 
 
+
 <style type="text/css">
   code {
     white-space: pre;
@@ -335,8 +336,12 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(torch)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">torch_manual_seed</span>(<span class="dv">1</span>) <span class="co"># setting seed for reproducibility</span></span></code></pre></div>
-<p>This vignette showcases the basic functionality of distributions in torch. Currently the distributions modules are considered ‘work in progress’ and are still experimental features in the torch package. You can see the progress in this <a href="https://github.com/mlverse/torch/issues/479">link</a>.</p>
-<p>The distributions modules in torch are modelled after PyTorch’s <a href="https://pytorch.org/docs/stable/distributions.html#">distributions module</a> which in turn is based on the TensorFlow <a href="https://arxiv.org/abs/1711.10604">Distributions package</a>.</p>
+<p>This vignette showcases the basic functionality of distributions in
+torch. Currently the distributions modules are considered ‘work in
+progress’ and are still experimental features in the torch package. You
+can see the progress in this <a href="https://github.com/mlverse/torch/issues/479">link</a>.</p>
+<p>The distributions modules in torch are modelled after PyTorch’s <a href="https://pytorch.org/docs/stable/distributions.html#">distributions
+module</a> which in turn is based on the TensorFlow <a href="https://arxiv.org/abs/1711.10604">Distributions package</a>.</p>
 <p>This vignette is based in the TensorFlow’s distributions <a href="https://www.tensorflow.org/probability/examples/TensorFlow_Distributions_Tutorial#basic_univariate_distributions">tutorial</a>.</p>
 <div id="basic-univariate-distributions" class="section level2">
 <h2>Basic univariate distributions</h2>
@@ -358,7 +363,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>A distribution can take a tensor as it’s parameters:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">distr_bernoulli</span>(<span class="at">probs =</span> <span class="fu">torch_tensor</span>(<span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>)))</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>b</span></code></pre></div>
-<p>This object represents 3 independent Bernoulli distributions, one for each element of the tensor.</p>
+<p>This object represents 3 independent Bernoulli distributions, one for
+each element of the tensor.</p>
 <p>We can sample a single observation:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>b<span class="sc">$</span><span class="fu">sample</span>()</span></code></pre></div>
 <p>or, a batch of <code>n</code> observations:</p>
@@ -366,8 +372,11 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="using-distributions-within-models" class="section level2">
 <h2>Using distributions within models</h2>
-<p>The <code>log_prob</code> method of distributions can be differentiated, thus, distributions can be used to train models in torch.</p>
-<p>Let’s implement a Gaussian linear model, but first let’s simulate some data</p>
+<p>The <code>log_prob</code> method of distributions can be
+differentiated, thus, distributions can be used to train models in
+torch.</p>
+<p>Let’s implement a Gaussian linear model, but first let’s simulate
+some data</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_randn</span>(<span class="dv">100</span>, <span class="dv">1</span>)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span>x <span class="sc">+</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fu">torch_randn</span>(<span class="dv">100</span>, <span class="dv">1</span>)</span></code></pre></div>
 <p>and plot:</p>

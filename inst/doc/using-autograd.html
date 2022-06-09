@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
     </style>
 
 
+
 <style type="text/css">
   code {
     white-space: pre;
@@ -334,23 +335,50 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(torch)</span></code></pre></div>
-<p>So far, all we’ve been using from torch is <em>tensors</em>, but we’ve been performing all calculations ourselves – the computing the predictions, the loss, the gradients (and thus, the necessary updates to the weights), and the new weight values. In this chapter, we’ll make a significant change: Namely, we spare ourselves the cumbersome calculation of gradients, and have torch do it for us.</p>
+<p>So far, all we’ve been using from torch is <em>tensors</em>, but
+we’ve been performing all calculations ourselves – the computing the
+predictions, the loss, the gradients (and thus, the necessary updates to
+the weights), and the new weight values. In this chapter, we’ll make a
+significant change: Namely, we spare ourselves the cumbersome
+calculation of gradients, and have torch do it for us.</p>
 <p>Before we see that in action, let’s get some more background.</p>
 <div id="automatic-differentiation-with-autograd" class="section level2">
 <h2>Automatic differentiation with autograd</h2>
-<p>Torch uses a module called <em>autograd</em> to record operations performed on tensors, and store what has to be done to obtain the respective gradients. These actions are stored as functions, and those functions are applied in order when the gradient of the output (normally, the loss) with respect to those tensors is calculated: starting from the output node and <em>propagating</em> gradients <em>back</em> through the network. This is a form of <em>reverse mode automatic differentiation</em>.</p>
-<p>As users, we can see a bit of this implementation. As a prerequisite for this “recording” to happen, tensors have to be created with <code>requires_grad = TRUE</code>. E.g.</p>
+<p>Torch uses a module called <em>autograd</em> to record operations
+performed on tensors, and store what has to be done to obtain the
+respective gradients. These actions are stored as functions, and those
+functions are applied in order when the gradient of the output
+(normally, the loss) with respect to those tensors is calculated:
+starting from the output node and <em>propagating</em> gradients
+<em>back</em> through the network. This is a form of <em>reverse mode
+automatic differentiation</em>.</p>
+<p>As users, we can see a bit of this implementation. As a prerequisite
+for this “recording” to happen, tensors have to be created with
+<code>requires_grad = TRUE</code>. E.g.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_ones</span>(<span class="dv">2</span>,<span class="dv">2</span>, <span class="at">requires_grad =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<p>To be clear, this is a tensor <em>with respect to which</em> gradients have to be calculated – normally, a tensor representing a weight or a bias, not the input data <a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. If we now perform some operation on that tensor, assigning the result to <code>y</code></p>
+<p>To be clear, this is a tensor <em>with respect to which</em>
+gradients have to be calculated – normally, a tensor representing a
+weight or a bias, not the input data <a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. If we now perform some operation on that
+tensor, assigning the result to <code>y</code></p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> x<span class="sc">$</span><span class="fu">mean</span>()</span></code></pre></div>
-<p>we find that <code>y</code> now has a non-empty <code>grad_fn</code> that tells torch how to compute the gradient of <code>y</code> with respect to <code>x</code>:</p>
+<p>we find that <code>y</code> now has a non-empty <code>grad_fn</code>
+that tells torch how to compute the gradient of <code>y</code> with
+respect to <code>x</code>:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>y<span class="sc">$</span>grad_fn</span></code></pre></div>
-<p>Actual computation of gradients is triggered by calling <code>backward()</code> on the output tensor.</p>
+<p>Actual computation of gradients is triggered by calling
+<code>backward()</code> on the output tensor.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>y<span class="sc">$</span><span class="fu">backward</span>()</span></code></pre></div>
-<p>That executed, <code>x</code> now has a non-empty field <code>grad</code> that stores the gradient of <code>y</code> with respect to <code>x</code>:</p>
+<p>That executed, <code>x</code> now has a non-empty field
+<code>grad</code> that stores the gradient of <code>y</code> with
+respect to <code>x</code>:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>x<span class="sc">$</span>grad</span></code></pre></div>
-<p>With a longer chain of computations, we can peek at how torch builds up a graph of backward operations.</p>
-<p>Here is a slightly more complex example. We call <code>retain_grad()</code> on <code>y</code> and <code>z</code> just for demonstration purposes; by default, intermediate gradients – while of course they have to be computed – aren’t stored, in order to save memory.</p>
+<p>With a longer chain of computations, we can peek at how torch builds
+up a graph of backward operations.</p>
+<p>Here is a slightly more complex example. We call
+<code>retain_grad()</code> on <code>y</code> and <code>z</code> just for
+demonstration purposes; by default, intermediate gradients – while of
+course they have to be computed – aren’t stored, in order to save
+memory.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">torch_ones</span>(<span class="dv">2</span>,<span class="dv">2</span>, <span class="at">requires_grad =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">torch_tensor</span>(<span class="fl">1.1</span>, <span class="at">requires_grad =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> x1 <span class="sc">*</span> (x2 <span class="sc">+</span> <span class="dv">2</span>)</span>
@@ -358,7 +386,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>z <span class="ot">&lt;-</span> y<span class="sc">$</span><span class="fu">pow</span>(<span class="dv">2</span>) <span class="sc">*</span> <span class="dv">3</span></span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>z<span class="sc">$</span><span class="fu">retain_grad</span>()</span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> z<span class="sc">$</span><span class="fu">mean</span>()</span></code></pre></div>
-<p>Starting from <code>out$grad_fn</code>, we can follow the graph all back to the leaf nodes:</p>
+<p>Starting from <code>out$grad_fn</code>, we can follow the graph all
+back to the leaf nodes:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># how to compute the gradient for mean, the last operation executed</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>out<span class="sc">$</span>grad_fn</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># how to compute the gradient for the multiplication by 3 in z = y$pow(2) * 3</span></span>
@@ -372,7 +401,10 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>out<span class="sc">$</span>grad_fn<span class="sc">$</span>next_functions[[<span class="dv">1</span>]]<span class="sc">$</span>next_functions[[<span class="dv">1</span>]]<span class="sc">$</span>next_functions[[<span class="dv">1</span>]]<span class="sc">$</span>next_functions</span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co"># here we arrive at the other leaf node (AccumulateGrad for x2)</span></span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>out<span class="sc">$</span>grad_fn<span class="sc">$</span>next_functions[[<span class="dv">1</span>]]<span class="sc">$</span>next_functions[[<span class="dv">1</span>]]<span class="sc">$</span>next_functions[[<span class="dv">1</span>]]<span class="sc">$</span>next_functions[[<span class="dv">2</span>]]<span class="sc">$</span>next_functions</span></code></pre></div>
-<p>After calling <code>out$backward()</code>, all tensors in the graph will have their respective gradients created. Without our calls to <code>retain_grad</code> above, <code>z$grad</code> and <code>y$grad</code> would be empty:</p>
+<p>After calling <code>out$backward()</code>, all tensors in the graph
+will have their respective gradients created. Without our calls to
+<code>retain_grad</code> above, <code>z$grad</code> and
+<code>y$grad</code> would be empty:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>out<span class="sc">$</span><span class="fu">backward</span>()</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>z<span class="sc">$</span>grad</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>y<span class="sc">$</span>grad</span>
@@ -382,7 +414,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="the-simple-network-now-using-autograd" class="section level2">
 <h2>The simple network, now using autograd</h2>
-<p>For a single new line calling <code>loss$backward()</code>, now a number of lines (that did manual backprop) are gone:</p>
+<p>For a single new line calling <code>loss$backward()</code>, now a
+number of lines (that did manual backprop) are gone:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="do">### generate training data -----------------------------------------------------</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># input dimensionality (number of input features)</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>d_in <span class="ot">&lt;-</span> <span class="dv">3</span></span>
@@ -439,12 +472,16 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a> </span></code></pre></div>
-<p>We still manually compute the forward pass, and we still manually update the weights. In the last two chapters of this section, we’ll see how these parts of the logic can be made more modular and reusable, as well.</p>
+<p>We still manually compute the forward pass, and we still manually
+update the weights. In the last two chapters of this section, we’ll see
+how these parts of the logic can be made more modular and reusable, as
+well.</p>
 </div>
 <div class="footnotes footnotes-end-of-document">
 <hr />
 <ol>
-<li id="fn1"><p>Unless we <em>want</em> to change the data, as in adversarial example generation<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn1"><p>Unless we <em>want</em> to change the data, as in
+adversarial example generation<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 

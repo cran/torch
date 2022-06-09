@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
     </style>
 
 
+
 <style type="text/css">
   code {
     white-space: pre;
@@ -334,31 +335,54 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(torch)</span></code></pre></div>
-<p><a href="https://pytorch.org/docs/stable/jit_language_reference.html#language-reference">TorchScript</a> is a statically typed subset of Python that can be interpreted by LibTorch without any Python dependency. The torch R package provides interfaces to create, serialize, load and execute TorchScript programs.</p>
+<p><a href="https://pytorch.org/docs/stable/jit_language_reference.html#language-reference">TorchScript</a>
+is a statically typed subset of Python that can be interpreted by
+LibTorch without any Python dependency. The torch R package provides
+interfaces to create, serialize, load and execute TorchScript
+programs.</p>
 <p>Advantages of using TorchScript are:</p>
 <ul>
-<li><p>TorchScript code can be invoked in its own interpreter, which is basically a restricted Python interpreter. This interpreter does not acquire the Global Interpreter Lock, and so many requests can be processed on the same instance simultaneously.</p></li>
-<li><p>This format allows us to save the whole model to disk and load it into another environment, such as on server written in a language other than R.</p></li>
-<li><p>TorchScript gives us a representation in which we can do compiler optimizations on the code to make execution more efficient.</p></li>
-<li><p>TorchScript allows us to interface with many backend/device runtimes that require a broader view of the program than individual operators.</p></li>
+<li><p>TorchScript code can be invoked in its own interpreter, which is
+basically a restricted Python interpreter. This interpreter does not
+acquire the Global Interpreter Lock, and so many requests can be
+processed on the same instance simultaneously.</p></li>
+<li><p>This format allows us to save the whole model to disk and load it
+into another environment, such as on server written in a language other
+than R.</p></li>
+<li><p>TorchScript gives us a representation in which we can do compiler
+optimizations on the code to make execution more efficient.</p></li>
+<li><p>TorchScript allows us to interface with many backend/device
+runtimes that require a broader view of the program than individual
+operators.</p></li>
 </ul>
 <div id="creating-torchscript-programs" class="section level2">
 <h2>Creating TorchScript programs</h2>
 <div id="tracing" class="section level3">
 <h3>Tracing</h3>
-<p>TorchScript programs can be created from R using tracing. When using tracing, code is automatically converted into this subset of Python by recording only the actual operators on tensors and simply executing and discarding the other surrounding R code.</p>
-<p>Currently tracing is the only supported way to create TorchScript programs from R code.</p>
-<p>For example, let’s use the <code>jit_trace</code> function to create a TorchScript program. We pass a regular R function and example inputs.</p>
+<p>TorchScript programs can be created from R using tracing. When using
+tracing, code is automatically converted into this subset of Python by
+recording only the actual operators on tensors and simply executing and
+discarding the other surrounding R code.</p>
+<p>Currently tracing is the only supported way to create TorchScript
+programs from R code.</p>
+<p>For example, let’s use the <code>jit_trace</code> function to create
+a TorchScript program. We pass a regular R function and example
+inputs.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fn <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">torch_relu</span>(x)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>traced_fn <span class="ot">&lt;-</span> <span class="fu">jit_trace</span>(fn, <span class="fu">torch_tensor</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>)))</span></code></pre></div>
-<p>The <code>jit_trace</code> function has executed the R function with the example input and recorded all torch operations that occurred during execution to create a <em>graph</em>. <em>graph</em> is how we call the intermediate representation of TorchScript programs, and it can be inspected with:</p>
+<p>The <code>jit_trace</code> function has executed the R function with
+the example input and recorded all torch operations that occurred during
+execution to create a <em>graph</em>. <em>graph</em> is how we call the
+intermediate representation of TorchScript programs, and it can be
+inspected with:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>traced_fn<span class="sc">$</span>graph</span></code></pre></div>
 <p>The traced function can now be invoked as a regular R function:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">traced_fn</span>(<span class="fu">torch_randn</span>(<span class="dv">3</span>))</span></code></pre></div>
-<p>It’s also possible to trace <code>nn_modules()</code> defined in R, for example:</p>
+<p>It’s also possible to trace <code>nn_modules()</code> defined in R,
+for example:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>module <span class="ot">&lt;-</span> <span class="fu">nn_module</span>(</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">initialize =</span> <span class="cf">function</span>() {</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>linear1 <span class="ot">&lt;-</span> <span class="fu">nn_linear</span>(<span class="dv">10</span>, <span class="dv">10</span>)</span>
@@ -372,12 +396,21 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>traced_module <span class="ot">&lt;-</span> <span class="fu">jit_trace</span>(<span class="fu">module</span>(), <span class="fu">torch_randn</span>(<span class="dv">10</span>, <span class="dv">10</span>))</span></code></pre></div>
-<p>When using <code>jit_trace</code> with a <code>nn_module</code> only the <code>forward</code> method is traced. You can use the <code>jit_trace_module</code> function to pass example inputs to other methods. Traced modules look like normal <code>nn_modules()</code>, and can be called the same way:</p>
+<p>When using <code>jit_trace</code> with a <code>nn_module</code> only
+the <code>forward</code> method is traced. You can use the
+<code>jit_trace_module</code> function to pass example inputs to other
+methods. Traced modules look like normal <code>nn_modules()</code>, and
+can be called the same way:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">traced_module</span>(<span class="fu">torch_randn</span>(<span class="dv">3</span>, <span class="dv">10</span>))</span></code></pre></div>
 <div id="limitations-of-tracing" class="section level4">
 <h4>Limitations of tracing</h4>
 <ol style="list-style-type: decimal">
-<li>Tracing will not record any control flow like if-statements or loops. When this control flow is constant across your module, this is fine and it often inlines the control flow decisions. But sometimes the control flow is actually part of the model itself. For instance, a recurrent network is a loop over the (possibly dynamic) length of an input sequence. For example:</li>
+<li>Tracing will not record any control flow like if-statements or
+loops. When this control flow is constant across your module, this is
+fine and it often inlines the control flow decisions. But sometimes the
+control flow is actually part of the model itself. For instance, a
+recurrent network is a loop over the (possibly dynamic) length of an
+input sequence. For example:</li>
 </ol>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fn does does an operation for each dimension of a tensor</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>fn <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
@@ -391,7 +424,10 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># applying it with a tensor with different size returns an error.</span></span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">traced_fn</span>(<span class="fu">torch_randn</span>(<span class="dv">11</span>, <span class="dv">5</span>, <span class="dv">5</span>))</span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
-<li>In the returned <code>ScriptModule</code>, operations that have different behaviors in training and eval modes will always behave as if it were in the mode it was in during tracing, no matter which mode the <code>ScriptModule</code> is in. For example:</li>
+<li>In the returned <code>ScriptModule</code>, operations that have
+different behaviors in training and eval modes will always behave as if
+it were in the mode it was in during tracing, no matter which mode the
+<code>ScriptModule</code> is in. For example:</li>
 </ol>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>traced_dropout <span class="ot">&lt;-</span> <span class="fu">jit_trace</span>(<span class="fu">nn_dropout</span>(), <span class="fu">torch_ones</span>(<span class="dv">5</span>,<span class="dv">5</span>))</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">traced_dropout</span>(<span class="fu">torch_ones</span>(<span class="dv">3</span>,<span class="dv">3</span>))</span>
@@ -399,7 +435,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># even after setting to eval mode, dropout is applied</span></span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">traced_dropout</span>(<span class="fu">torch_ones</span>(<span class="dv">3</span>,<span class="dv">3</span>))</span></code></pre></div>
 <ol start="3" style="list-style-type: decimal">
-<li>Tracing proegrams can only take tensors and lists of tensors as input and return tensors and lists of tensors. For example:</li>
+<li>Tracing proegrams can only take tensors and lists of tensors as
+input and return tensors and lists of tensors. For example:</li>
 </ol>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fn <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y) {</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  x <span class="sc">+</span> y</span>
@@ -409,7 +446,9 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="compiling-torchscript" class="section level3">
 <h3>Compiling TorchScript</h3>
-<p>It’s also possible to create TorchScript programs by compiling TorchScript code. TorchScript code looks a lot like standard python code. For example:</p>
+<p>It’s also possible to create TorchScript programs by compiling
+TorchScript code. TorchScript code looks a lot like standard python
+code. For example:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>tr <span class="ot">&lt;-</span> <span class="fu">jit_compile</span>(<span class="st">&quot;</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="st">def fn (x: Tensor):</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="st">  return torch.relu(x)</span></span>
@@ -420,7 +459,9 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="serializing-and-loading" class="section level2">
 <h2>Serializing and loading</h2>
-<p>TorchScript programs can be serialized using the <code>jit_save</code> function and loaded back from disk with <code>jit_load</code>.</p>
+<p>TorchScript programs can be serialized using the
+<code>jit_save</code> function and loaded back from disk with
+<code>jit_load</code>.</p>
 <p>For example:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>fn <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">torch_relu</span>(x)</span>
@@ -430,12 +471,21 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>loaded <span class="ot">&lt;-</span> <span class="fu">jit_load</span>(<span class="st">&quot;path.pt&quot;</span>)</span></code></pre></div>
 <p>Loaded programs can be executed as usual:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">loaded</span>(<span class="fu">torch_tensor</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>)))</span></code></pre></div>
-<p><strong>Note</strong> You can load TorchScript programs that were created in libraries different than <code>torch</code> for R. Eg, a TorchScript program can be created in PyTorch with <code>torch.jit.trace</code> or <code>torch.jit.script</code>, and run from R.</p>
-<p>R objects are automatically converted to their TorchScript counterpart following the Types table in this document. However, sometimes it’s necessary to make type annotations with <code>jit_tuple()</code> and <code>jit_scalar()</code> to disambiguate the conversion.</p>
+<p><strong>Note</strong> You can load TorchScript programs that were
+created in libraries different than <code>torch</code> for R. Eg, a
+TorchScript program can be created in PyTorch with
+<code>torch.jit.trace</code> or <code>torch.jit.script</code>, and run
+from R.</p>
+<p>R objects are automatically converted to their TorchScript
+counterpart following the Types table in this document. However,
+sometimes it’s necessary to make type annotations with
+<code>jit_tuple()</code> and <code>jit_scalar()</code> to disambiguate
+the conversion.</p>
 </div>
 <div id="types" class="section level2">
 <h2>Types</h2>
-<p>The following table lists all TorchScript types and how to convert the to and back to R.</p>
+<p>The following table lists all TorchScript types and how to convert
+the to and back to R.</p>
 <table>
 <colgroup>
 <col width="24%" />
@@ -454,7 +504,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tr>
 <tr class="even">
 <td><code>Tuple[T0, T1, ..., TN]</code></td>
-<td>A <code>list()</code> containing subtypes <code>T0</code>, <code>T1</code>, etc. wrapped with <code>jit_tuple()</code> .</td>
+<td>A <code>list()</code> containing subtypes <code>T0</code>,
+<code>T1</code>, etc. wrapped with <code>jit_tuple()</code> .</td>
 </tr>
 <tr class="odd">
 <td><code>bool</code></td>
@@ -470,11 +521,13 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tr>
 <tr class="even">
 <td><code>str</code></td>
-<td>A string (ie. character vector of length 1) wrapped in <code>jit_scalar</code>.</td>
+<td>A string (ie. character vector of length 1) wrapped in
+<code>jit_scalar</code>.</td>
 </tr>
 <tr class="odd">
 <td><code>List[T]</code></td>
-<td>An R list of which all types are type <code>T</code> . Or numeric vectors, logical vectors, etc.</td>
+<td>An R list of which all types are type <code>T</code> . Or numeric
+vectors, logical vectors, etc.</td>
 </tr>
 <tr class="even">
 <td><code>Optional[T]</code></td>
@@ -482,7 +535,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tr>
 <tr class="odd">
 <td><code>Dict[str, V]</code></td>
-<td>A named list with values of type <code>V</code> . Only <code>str</code> key values are currently supported.</td>
+<td>A named list with values of type <code>V</code> . Only
+<code>str</code> key values are currently supported.</td>
 </tr>
 <tr class="even">
 <td><code>T</code></td>
@@ -494,7 +548,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tr>
 <tr class="even">
 <td><code>NamedTuple[T0, T1, ...]</code></td>
-<td>A named list containing subtypes <code>T0</code>, <code>T1</code>, etc. wrapped in <code>jit_tuple()</code>.</td>
+<td>A named list containing subtypes <code>T0</code>, <code>T1</code>,
+etc. wrapped in <code>jit_tuple()</code>.</td>
 </tr>
 </tbody>
 </table>

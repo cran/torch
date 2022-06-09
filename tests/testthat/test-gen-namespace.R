@@ -50,13 +50,6 @@ test_that("_addr_out", {
   expect_equal_to_tensor(out, k)
 })
 
-test_that("_baddbmm_mkl_", {
-  x <- torch_rand(c(2, 2, 2))
-  y <- torch_rand(c(2, 2, 2))
-  z <- torch_rand(c(2, 2, 2))
-  expect_tensor(torch__baddbmm_mkl_(x, y, z))
-})
-
 test_that("_batch_norm_impl_index", {
   a <- torch_rand(c(2, 2))
   b <- torch_rand(c(2))
@@ -183,6 +176,20 @@ test_that("index_put_", {
 
   expect_equal(x[1, 1]$item(), 0)
   expect_equal(x[2, 2]$item(), 0)
+})
+
+test_that("kron", {
+  
+  mat1 <- torch_eye(2)
+  mat2 <- torch_arange(1, 4)$reshape(c(2, 2))
+  out <- torch_kron(mat1, mat2)
+  
+  expected <- rbind(c(1., 2., 0., 0.),
+                    c(3., 4., 0., 0.),
+                    c(0., 0., 1., 2.),
+                    c(0., 0., 3., 4.))
+  
+  expect_equal_to_r(out, expected)
 })
 
 test_that("logit works", {

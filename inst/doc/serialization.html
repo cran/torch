@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
     </style>
 
 
+
 <style type="text/css">
   code {
     white-space: pre;
@@ -334,16 +335,26 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(torch)</span></code></pre></div>
-<p>Torch tensors in R are pointers to Tensors allocated by LibTorch. This has one major consequence for serialization. One cannot simply use <code>saveRDS</code> for serializing tensors, as you would save the pointer but not the data itself. When reloading a tensor saved with <code>saveRDS</code> the pointer might have been deleted in LibTorch and you would get wrong results.</p>
-<p>To solve this problem, <code>torch</code> implements specialized functions for serializing tensors to the disk:</p>
+<p>Torch tensors in R are pointers to Tensors allocated by LibTorch.
+This has one major consequence for serialization. One cannot simply use
+<code>saveRDS</code> for serializing tensors, as you would save the
+pointer but not the data itself. When reloading a tensor saved with
+<code>saveRDS</code> the pointer might have been deleted in LibTorch and
+you would get wrong results.</p>
+<p>To solve this problem, <code>torch</code> implements specialized
+functions for serializing tensors to the disk:</p>
 <ul>
-<li><code>torch_save()</code>: to save tensors and models to the disk.</li>
-<li><code>torch_load()</code>: to load the models or tensors back to the session.</li>
+<li><code>torch_save()</code>: to save tensors and models to the
+disk.</li>
+<li><code>torch_load()</code>: to load the models or tensors back to the
+session.</li>
 </ul>
-<p>Please note that this format is still experimental and you shouldn’t use it for long term storage.</p>
+<p>Please note that this format is still experimental and you shouldn’t
+use it for long term storage.</p>
 <div id="saving-tensors" class="section level2">
 <h2>Saving tensors</h2>
-<p>You can save any object of type <code>torch_tensor</code> to the disk using:</p>
+<p>You can save any object of type <code>torch_tensor</code> to the disk
+using:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_randn</span>(<span class="dv">10</span>, <span class="dv">10</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">torch_save</span>(x, <span class="st">&quot;tensor.pt&quot;</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>x_ <span class="ot">&lt;-</span> <span class="fu">torch_load</span>(<span class="st">&quot;tensor.pt&quot;</span>)</span>
@@ -352,8 +363,10 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="saving-modules" class="section level2">
 <h2>Saving modules</h2>
-<p>The <code>torch_save</code> and <code>torch_load</code> functions also work for <code>nn_modules</code> objects.</p>
-<p>When saving an <code>nn_module</code>, all the object is serialized including the model structure and it’s state.</p>
+<p>The <code>torch_save</code> and <code>torch_load</code> functions
+also work for <code>nn_modules</code> objects.</p>
+<p>When saving an <code>nn_module</code>, all the object is serialized
+including the model structure and it’s state.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>module <span class="ot">&lt;-</span> <span class="fu">nn_module</span>(</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;my_module&quot;</span>,</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">initialize =</span> <span class="cf">function</span>() {</span>
@@ -377,19 +390,26 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="loading-models-saved-in-python" class="section level2">
 <h2>Loading models saved in python</h2>
-<p>Currently the only way to load models from python is to rewrite the model architecture in R. All the parameter names must be identical.</p>
+<p>Currently the only way to load models from python is to rewrite the
+model architecture in R. All the parameter names must be identical.</p>
 <p>You can then save the PyTorch model state_dict using:</p>
 <pre><code>torch.save(model, fpath, _use_new_zipfile_serialization=True)</code></pre>
-<p>You can then reload the state dict in R and reload it into the model with:</p>
+<p>You can then reload the state dict in R and reload it into the model
+with:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>state_dict <span class="ot">&lt;-</span> <span class="fu">load_state_dict</span>(fpath)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">Model</span>()</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>model<span class="sc">$</span><span class="fu">load_state_dict</span>(state_dict)</span></code></pre></div>
-<p>You can find working examples in <code>torchvision</code>. For example <a href="https://github.com/mlverse/torchvision/blob/main/R/models-alexnet.R#L2-L63">this</a> is what we do for the AlexNet model.</p>
+<p>You can find working examples in <code>torchvision</code>. For
+example <a href="https://github.com/mlverse/torchvision/blob/main/R/models-alexnet.R#L2-L63">this</a>
+is what we do for the AlexNet model.</p>
 </div>
 <div id="saving-optimizer-state" class="section level2">
 <h2>Saving optimizer state</h2>
-<p>You can save the state of optimizers so you can continue training from the exact same position.</p>
-<p>In order to this we use the <code>state_dict()</code> and <code>load_state_dict()</code> methods from the optimizer combined with <code>torch_save</code>:</p>
+<p>You can save the state of optimizers so you can continue training
+from the exact same position.</p>
+<p>In order to this we use the <code>state_dict()</code> and
+<code>load_state_dict()</code> methods from the optimizer combined with
+<code>torch_save</code>:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">nn_linear</span>(<span class="dv">1</span>, <span class="dv">1</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>opt <span class="ot">&lt;-</span> <span class="fu">optim_adam</span>(model<span class="sc">$</span>parameters)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>

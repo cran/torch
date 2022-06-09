@@ -226,7 +226,7 @@ test_that("zero_grad", {
   expect_true(is_undefined_tensor(net$linear$weight$grad))
 
   x <- torch_randn(500, 10)
-  l <- torch_mean(net(x)^2)
+  l <- torch_mean((x - net(x)*2 + 100)^2)
   l$backward()
 
   expect_false(as_array(torch_all(net$linear$weight$grad == 0)))
@@ -536,14 +536,69 @@ test_that("we can subset `nn_sequential`", {
     nn_relu(),
     nn_tanh()
   )
-
+  
   expect_true(inherits(x[[1]], "nn_relu"))
   expect_true(inherits(x[[3]], "nn_relu6"))
-
+  
   y <- x[2:4]
   expect_true(inherits(y, "nn_sequential"))
   expect_true(inherits(y[[1]], "nn_tanh"))
   expect_true(inherits(y[[2]], "nn_relu6"))
+})
+
+test_that("we can prune head of `nn_sequential`", {
+  x <- nn_sequential(
+    nn_relu(),
+    nn_tanh(),
+    nn_relu6(),
+    nn_relu(),
+    nn_tanh(),
+    nn_linear(10,3)
+  )
+  expect_error(prune <- nn_prune_head(x), NA)
+  expect_true(inherits(prune, "nn_sequential"))
+  expect_equal(length(prune), 5)
+})
+
+test_that("we can prune head of `nn_sequential` by 3 layers", {
+  x <- nn_sequential(
+    nn_relu(),
+    nn_tanh(),
+    nn_relu6(),
+    nn_relu(),
+    nn_linear(2,10),
+    nn_batch_norm1d(10),
+    nn_tanh(),
+    nn_linear(10,3)
+  )  
+  expect_error(prune <- nn_prune_head(x, 3), NA)
+  expect_true(inherits(prune, "nn_sequential"))
+  expect_equal(length(prune), 5)
+  expect_true(inherits(prune[[length(prune)]], "nn_linear"))
+})
+
+test_that("we can prune head of `nn_module` network", {
+  my_net <- nn_module(
+    "my_net",
+    initialize = function(n_inputs, n_outputs) {
+      self$linear <- nn_linear(n_inputs, n_outputs)
+      self$head <- nn_linear(n_outputs, 2)
+    },
+    forward = function(x) {
+      x <- self$linear(x)
+      self$head(x)
+    }
+  )
+  
+  x <- my_net(1, 3)
+  
+  expect_error(prune <- nn_prune_head(x, 1), NA)
+  expect_true(inherits(prune, "nn_sequential"))
+  expect_equal(length(prune), 1)
+  expect_true(inherits(prune[[length(prune)]], "nn_linear"))
+  input <- torch::torch_randn(5, 1)
+  out <- prune(input)
+  expect_tensor_shape(out, c(5, 3))
 })
 
 test_that("classes are inherited correctly", {
@@ -569,4 +624,9 @@ test_that("classes are inherited correctly", {
   expect_equal(class(n), c("hello", "nn_linear", "nn_module"))
   n2 <- nn2(10, 10)
   expect_equal(class(n2), c("goodbye", "hello", "nn_linear", "nn_module"))
+})
+
+test_that("empty initializer", {
+  model <- nn_module(forward = function(input) input)
+  expect_equal_to_r(model()(torch_tensor(1)), 1)
 })

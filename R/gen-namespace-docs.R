@@ -3142,8 +3142,10 @@ NULL
 #'
 #'
 #' @param self (Tensor) the input tensor.
+#' @param decimals Number of decimal places to round to (default: 0). 
+#'  If decimals is negative, it specifies the number of positions to 
+#'  the left of the decimal point.
 #' 
-#'
 #' @name torch_round
 #'
 #' @export
@@ -7403,7 +7405,13 @@ NULL
 #' @param sorted_sequence (Tensor) N-D or 1-D tensor, containing monotonically increasing 
 #'   sequence on the *innermost* dimension.
 #' @param self (Tensor or Scalar) N-D tensor or a Scalar containing the search value(s).
-#'
+#' @param side the same as right but preferred. “left” corresponds to `FALSE` for right 
+#'   and “right” corresponds to `TRUE` for right. It will error if this is set to 
+#'   “left” while right is `TRUE`.
+#' @param sorter if provided, a tensor matching the shape of the unsorted `sorted_sequence` 
+#'   containing a sequence of indices that sort it in the ascending order on the 
+#'   innermost dimension.
+#'   
 #' @inheritParams torch_bucketize
 #' @name torch_searchsorted
 #'
@@ -7486,5 +7494,33 @@ NULL
 #' torch_diff(c, dim = 2) 
 #' 
 #' @name torch_diff
+#' @export
+NULL
+
+#' Lu_unpack
+#'
+#' @section lu_unpack(LU_data, LU_pivots, unpack_data = TRUE, unpack_pivots=TRUE) -> Tensor :
+#'
+#' Unpacks the data and pivots from a LU factorization of a tensor into tensors `L` and `U` and
+#' a permutation tensor `P` such that `LU_data_and_pivots <- torch_lu(P$matmul(L)$matmul(U))`.
+#' Returns a list of tensors as `list(the P tensor (permutation matrix), the L tensor, the U tensor)`
+#' 
+#' @param LU_data (Tensor) – the packed LU factorization data
+#' @param LU_pivots (Tensor) – the packed LU factorization pivots
+#' @param unpack_data (logical) – flag indicating if the data should be unpacked. If FALSE, then the returned L and U are NULL Default: TRUE
+#' @param unpack_pivots (logical) – flag indicating if the pivots should be unpacked into a permutation matrix P. If FALSE, then the returned P is None. Default: TRUE
+#'
+#' @name torch_lu_unpack
+#' @export
+NULL
+
+#' Kronecker product
+#'
+#' Computes the Kronecker product of `self` and `other`.
+#' 
+#' @param self (`Tensor`) input Tensor
+#' @param other (`Tensor`) other tensor.
+#' 
+#' @name torch_kron
 #' @export
 NULL

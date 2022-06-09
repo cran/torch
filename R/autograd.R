@@ -14,7 +14,7 @@ NULL
 #' This mode should be enabled only for debugging as the different tests
 #' will slow down your program execution.
 #'
-#' @param code Cod that will be execued in the detect anomaly context.
+#' @param code Code that will be executed in the detect anomaly context.
 #'
 #' @examples
 #' x <- torch_randn(2, requires_grad = TRUE)
@@ -101,8 +101,13 @@ with_enable_grad <- function(code) {
   )(code)
 }
 
-Tensor$set("active", "grad", function() {
-  Tensor$new(ptr = cpp_tensor_grad(self$ptr))
+Tensor$set("active", "grad", function(x) {
+  if (missing(x)) {
+    Tensor$new(ptr = cpp_tensor_grad(self$ptr))
+  } else {
+    self$set_grad_(x)
+    invisible(x)
+  }
 })
 
 Tensor$set("active", "requires_grad", function(requires_grad) {
@@ -113,10 +118,22 @@ Tensor$set("active", "requires_grad", function(requires_grad) {
   }
 })
 
-Tensor$set("public", "backward", function(gradient = list(), keep_graph = FALSE,
-                                          create_graph = FALSE, inputs = NULL) {
+Tensor$set("public", "backward", function(gradient = list(), retain_graph = create_graph,
+                                          create_graph = FALSE, inputs = NULL, ...) {
+  
+  args <- list(...)
+  if (!is.null(args$keep_graph)) {
+    rlang::warn(c(
+      "`keep_graph` has been deprecated. Please use `retain_graph` instead.",
+      "i" = "`keep_graph` will take precedence."),
+      .frequency = "once",
+      .frequency_id = "keep_graph"
+    )
+    retain_graph <- keep_graph
+  }
+  
   invisible(private$`__backward`(
-    gradient = gradient, inputs = inputs, retain_graph = keep_graph,
+    gradient = gradient, inputs = inputs, retain_graph = retain_graph,
     create_graph = create_graph
   ))
 })
