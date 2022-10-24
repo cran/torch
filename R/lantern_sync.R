@@ -24,7 +24,7 @@ lantern_sync <- function(sync_lib = FALSE) {
       path <- list.files("lantern/build/Release/", full.names = TRUE)
     }
 
-    dir.create("inst/lib", showWarnings = FALSE, recursive = TRUE)
+    dir.create(file.path(lib_dest, "lib"), showWarnings = FALSE, recursive = TRUE)
 
     file.copy(
       path,

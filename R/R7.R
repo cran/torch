@@ -1,12 +1,15 @@
 prepare_method <- function(m, active = FALSE) {
+  if (is.function(m)) {
+    formals(m) <- c(alist(self = , private = ), formals(m))  
+  }
   if (active) {
     attr(m, "active") <- TRUE
   }
-
   m
 }
 
 .generators <- new.env(parent = emptyenv())
+.r7_pvt_class <- c("R7_private", "R7")
 
 #' @importFrom rlang env_bind
 #' @importFrom rlang :=
@@ -27,7 +30,7 @@ R7Class <- function(classname = NULL, public = list(), private = list(),
   generator <- new.env(parent = methods)
 
   generator$new <- function(...) {
-    self <- methods$initialize(...)
+    self <- methods$initialize(NULL, NULL, ...)
     class(self) <- c(classname, "R7")
     self
   }
@@ -43,6 +46,8 @@ R7Class <- function(classname = NULL, public = list(), private = list(),
       stop("can only set to public, private and active")
     }
   }
+  
+  generator$methods <- methods
 
   # set the generator/classname env
   .generators[[classname]] <- generator
@@ -50,60 +55,54 @@ R7Class <- function(classname = NULL, public = list(), private = list(),
   generator
 }
 
+r7_func_factory <- function(self, private, fn) {
+  f <- function(...) {
+    fn(self, private,...)
+  }
+  attr(f, "active") <- attr(fn, "active")
+  f
+}
+
+find_method <- function(self, name) {
+  if (inherits(self, "R7_private"))
+    find_method.R7_private(self, name)
+  else
+    find_method.default(self, name)
+}
+
+find_method.default <- function(self, name) {
+  # private is a special case because we need to return an object that is aware
+  # of which objets is its `self`, and not only the private_methods env.
+  if (name == "private") {
+    return(structure(
+      list(),
+      r7_slf = self,
+      class = .r7_pvt_class
+    ))
+  }
+  method <- .generators[[class(self)[1]]][["methods"]][[name]]
+  r7_func_factory(self, self$private, method)
+}
+
+find_method.R7_private <- function(self, name) {
+  slf <- attr(self, "r7_slf")
+  
+  env <- .generators[[class(slf)[1]]][["methods"]][["private"]]
+  method <- env[[name]]
+  r7_func_factory(slf, slf$private, method)  
+}
 
 extract_method <- function(self, name, call = TRUE) {
-
-  # resolve the class environment
-  # every R7 class is registered in the .generators env
-  # so we can find the generator give the class name
-  if (inherits(self, "R7Private")) {
-    e <- unclass(self)$pvt
+  method <- find_method(self, name)
+  if (call && isTRUE(attr(method, "active"))) {
+    method()
   } else {
-    e <- .generators[[class(self)[1]]]
-  }
-
-  # gets the object from the class environment
-  o <- mget(
-    name,
-    envir = e,
-    inherits = TRUE,
-    ifnotfound = list(NULL)
-  )
-  o <- o[[1]]
-
-  if (name == "private") {
-    o <- list(
-      env = environment(),
-      pvt = o
-    )
-    class(o) <- c("R7", "R7Private")
-  }
-
-  if (!is.function(o)) {
-    return(o)
-  }
-
-  if (!inherits(self, "R7Private")) {
-    private <- self$private
-  }
-
-  if (inherits(self, "R7Private")) {
-    environment(o) <- unclass(self)$env
-  } else {
-    environment(o) <- environment()
-  }
-
-  if (call && isTRUE(attr(o, "active"))) {
-    o()
-  } else {
-    o
+    method
   }
 }
 
 #' @export
-`$.R7` <- function(x, name) {
-  extract_method(x, name)
-}
+`$.R7` <- extract_method
 
 #' @export
 `$<-.R7` <- function(x, name, value) {

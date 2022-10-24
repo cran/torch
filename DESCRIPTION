@@ -1,7 +1,7 @@
 Package: torch
 Type: Package
 Title: Tensors and Neural Networks with 'GPU' Acceleration
-Version: 0.8.1
+Version: 0.9.0
 Authors@R: c(
     person("Daniel", "Falbel", email = "daniel@rstudio.com", role = c("aut", "cre", "cph")),
     person("Javier", "Luraschi", email = "jluraschi@gmail.com", role = c("aut")),
@@ -21,7 +21,8 @@ URL: https://torch.mlverse.org/docs, https://github.com/mlverse/torch
 BugReports: https://github.com/mlverse/torch/issues
 Encoding: UTF-8
 SystemRequirements: C++11, LibTorch (https://pytorch.org/); Only x86_64
-        platforms are currently supported.
+        platforms are currently supported except for ARM system running
+        macOS.
 LinkingTo: Rcpp
 Imports: Rcpp, R6, withr, rlang, methods, utils, stats, bit64,
         magrittr, tools, coro (>= 1.0.2), callr, cli, ellipsis
@@ -65,7 +66,7 @@ Collate: 'R7.R' 'RcppExports.R' 'tensor.R' 'autograd.R' 'backends.R'
         'utils-data-sampler.R' 'utils-pipe.R' 'variable_list.R'
         'with-indices.R' 'wrapers.R'
 NeedsCompilation: yes
-Packaged: 2022-08-18 23:15:21 UTC; dfalbel
+Packaged: 2022-10-24 12:43:01 UTC; dfalbel
 Author: Daniel Falbel [aut, cre, cph],
   Javier Luraschi [aut],
   Dmitriy Selivanov [ctb],
@@ -76,4 +77,4 @@ Author: Daniel Falbel [aut, cre, cph],
   RStudio [cph]
 Maintainer: Daniel Falbel <daniel@rstudio.com>
 Repository: CRAN
-Date/Publication: 2022-08-19 09:20:02 UTC
+Date/Publication: 2022-10-24 15:50:02 UTC

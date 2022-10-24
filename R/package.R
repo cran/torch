@@ -59,6 +59,11 @@ globalVariables(c("..", "self", "private", "N"))
       {
         lantern_start()
         cpp_set_lantern_allocator(getOption("torch.threshold_call_gc", 4000L))
+        cpp_set_cuda_allocator_allocator_thresholds(
+          getOption("torch.cuda_allocator_reserved_rate", 0.2),
+          getOption("torch.cuda_allocator_allocated_rate", 0.8),
+          getOption("torch.cuda_allocator_allocated_reserved_rate", 0.8)
+        )
         register_lambda_function_deleter()
 
         # .generator_null is no longer used. set the option `torch.old_seed_behavior=TRUE` to use it.
@@ -100,11 +105,13 @@ get_confirmation <-  function() {
 
 check_can_autoinstall <- function() {
   if (!grepl("x86_64", R.version$arch)) {
-    cli::cli_abort(c(
-      "Currently only {.code x86_64} systems are supported for automatic installation. ",
-      i = "You can manually compile LibTorch for you architecture following instructions in {.url https://github.com/pytorch/pytorch#from-source}",
-      i = "You can then use {.fn install_torch_from_file} to install manually."
-    ))
+    if (!grepl("darwin", R.version$os)) {
+      cli::cli_abort(c(
+        "Currently only {.code x86_64} systems are supported for automatic installation. ",
+        i = "You can manually compile LibTorch for you architecture following instructions in {.url https://github.com/pytorch/pytorch#from-source}",
+        i = "You can then use {.fn install_torch_from_file} to install manually."
+      ))
+    }
   }
   TRUE
 }

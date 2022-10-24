@@ -291,6 +291,11 @@ std::vector<int> cpp_tensor_dim(Rcpp::XPtr<torch::Tensor> x) {
 }
 
 // [[Rcpp::export]]
+int cpp_tensor_ndim (torch::Tensor x) {
+  return lantern_Tensor_ndimension(x.get());
+}
+
+// [[Rcpp::export]]
 int cpp_tensor_numel(Rcpp::XPtr<torch::Tensor> x) {
   return lantern_Tensor_numel(x->get());
 }
@@ -380,4 +385,9 @@ torch::Tensor nnf_pad_circular(torch::Tensor input,
                                XPtrTorchIntArrayRef padding) {
   return torch::Tensor(
       lantern_nn_functional_pad_circular(input.get(), padding.get()));
+}
+
+// [[Rcpp::export]]
+bool cpp_method_Tensor_is_sparse (torch::Tensor x) {
+  return lantern_Tensor_is_sparse(x.get());
 }

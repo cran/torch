@@ -469,3 +469,27 @@ test_that("create complex from and to R", {
   expect_equal(as.complex(x), complex(real = 1,imag = 1))
   
 })
+
+test_that("expand works", {
+  x <- torch_tensor(1)
+  y <- x$expand(c(1, 2, 3))
+  expect_equal(y$size(), c(1, 2, 3))
+  y <- x$expand(c(2, 2, 3), TRUE)
+  expect_equal(y$size(), c(2, 2, 3))
+  y <- x$expand(c(2, 2, 3), FALSE)
+  expect_equal(y$size(), c(2, 2, 3))
+})
+
+test_that("narrow_copy works", {
+  x <- torch_tensor(1:10)
+  y <- torch_narrow_copy(x, dim = 1, start = 1, length = 3)
+  expect_equal(y$size(), c(3))
+  expect_equal(y, torch_tensor(2:4))
+})
+
+test_that("is_sparse works", {
+  x <- torch_randn(5, 5)
+  expect_false(x$is_sparse())
+  x <- torch_sparse_coo_tensor(rbind(sample(10), sample(10)), rnorm(10))
+  expect_true(x$is_sparse())
+})

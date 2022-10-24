@@ -133,6 +133,8 @@ test_that("movedim", {
   x <- torch_randn(3, 2, 1)
   expect_tensor_shape(torch_movedim(x, 1, 2), c(2, 3, 1))
   expect_tensor_shape(torch_movedim(x, c(1, 2), c(2, 3)), c(1, 3, 2))
+  expect_tensor_shape(x$movedim(1, 2), c(2, 3, 1))
+  expect_tensor_shape(x$movedim(c(1, 2), c(2, 3)), c(1, 3, 2))
 })
 
 test_that("norm", {
@@ -324,4 +326,8 @@ test_that("multinomial works", {
     torch_multinomial(x, 10, replacement = TRUE),
     torch_ones(10)
   )
+})
+
+test_that("blackman_window", {
+  expect_tensor_shape(torch_blackman_window(window_length = 2), 2)
 })

@@ -19,6 +19,19 @@ cuda_device_count <- function() {
   cpp_cuda_device_count()
 }
 
+#' Waits for all kernels in all streams on a CUDA device to complete.
+#'
+#' @param device device for which to synchronize. It uses the current device
+#'  given by [cuda_current_device()] if no device is specified.
+#'
+#' @export
+cuda_synchronize <- function(device = NULL) {
+  if (is.null(device)) {
+    device <- -1L
+  }
+  cpp_cuda_synchronize(device)
+}
+
 #' Returns the major and minor CUDA capability of `device`
 #'
 #' @param device Integer value of the CUDA device to return capabilities of.
@@ -160,4 +173,18 @@ cuda_runtime_version <- function() {
   minor <- trunc((v - major * 1000) / 10)
   patch <- v - major * 1000 - minor * 10
   numeric_version(paste(major, minor, patch, sep = "."))
+}
+
+#' Empty cache
+#' 
+#' Releases all unoccupied cached memory currently held by the caching allocator 
+#' so that those can be used in other GPU application and visible in `nvidia-smi`.
+#' 
+#' @note [cuda_empty_cache()] doesn’t increase the amount of GPU memory available 
+#' for torch. However, it may help reduce fragmentation of GPU memory in certain 
+#' cases. See Memory management article for more details about GPU memory management.
+#' 
+#' @export
+cuda_empty_cache <- function() {
+  cpp_cuda_empty_cache()
 }

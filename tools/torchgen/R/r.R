@@ -143,7 +143,8 @@ internal_funs <- c("logical_not", "max_pool1d_with_indices", "max_pool2d_with_in
                    "movedim", "argsort", "norm",
                    "argmax", "argmin", "one_hot", "split",
                    "nonzero", "fft_fft", "fft_ifft", "fft_rfft", "fft_irfft",
-                   "multinomial", "norm", "cross_entropy_loss", "sort"
+                   "multinomial", "norm", "cross_entropy_loss", "sort",
+                   "nll_loss_nd", "bincount"
                    )
 
 internal_funs <- c(internal_funs, creation_ops)
@@ -226,6 +227,15 @@ r_argument_default <- function(default) {
 
   if (default == "\"linear\"")
     return("\"linear\"")
+
+  if (default == "\"none\"")
+    return("\"none\"")
+
+  if (default == "\"constant\"")
+    return("\"constant\"")
+
+  if (default == "\"reflect\"")
+    return("\"reflect\"")
 
   browser()
 }
@@ -416,7 +426,8 @@ internal_methods <- c("_backward", "retain_grad", "size", "to", "stride",
                       "copy_", "topk", "scatter_", "scatter", "rename",
                       "rename_", "narrow", "narrow_copy", "is_leaf", "max",
                       "min", "argsort", "argmax", "argmin", "norm", "split",
-                      "nonzero", "nonzero_numpy", "view", "sort")
+                      "nonzero", "nonzero_numpy", "view", "sort", "bincount",
+                      "movedim")
 
 r_method_env <- function(decls) {
   if (decls[[1]]$name %in% internal_methods)
@@ -453,7 +464,7 @@ r_method_body <- function(decls) {
 
   glue::glue(
     "{r_method_list_of_arguments(decls)}",
-    "args <- append(list(self = self), args)",
+    "args <- c(list(self = self), args)",
     "{r_arguments_expected_types(decls)}",
     "{r_arguments_with_no_default(decls)}",
     "{r_return_types(decls)}",

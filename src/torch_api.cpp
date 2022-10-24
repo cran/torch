@@ -648,12 +648,17 @@ SEXP operator_sexp_optional_generator(const XPtrTorchOptionalGenerator* self) {
 }
 
 XPtrTorchOptionalGenerator from_sexp_optional_generator(SEXP x) {
-  // We actualy do the same as we do with non-optional Generator's which is
-  // getting the default LibTorch Generator and pass that.
-  // This is because we want to have full control over the default Generator
-  // to be able to make changes that don't break backward compatibility.
-  return XPtrTorchOptionalGenerator(
-      lantern_optional_generator(Rcpp::as<XPtrTorchGenerator>(x).get()));
+  Rcpp::Function torch_option =
+        Rcpp::Environment::namespace_env("torch").find("torch_option");
+
+  if (TYPEOF(x) == NILSXP && !Rcpp::as<bool>(torch_option("old_seed_behavior", false))) {
+    // When we are not using the old seed behavior, we can let LibTorch 
+    // grab the correct generator.
+    return XPtrTorchOptionalGenerator(lantern_optional_generator(nullptr));
+  } else {
+    return XPtrTorchOptionalGenerator(
+        lantern_optional_generator(Rcpp::as<XPtrTorchGenerator>(x).get()));
+  }
 }
 
 void delete_optional_generator(void* x) {
@@ -1329,6 +1334,17 @@ XPtrTorchIntArrayRef from_sexp_int_array_ref(SEXP x, bool allow_null,
 
   auto ptr = lantern_vector_int64_t(vec.data(), vec.size());
   return XPtrTorchIntArrayRef(ptr);
+}
+
+// sym int array ref
+
+XPtrTorchSymIntArrayRef from_sexp_sym_int_array_ref (SEXP x) {
+  return XPtrTorchSymIntArrayRef(from_sexp_int_array_ref(x, false, false).get_shared());
+}
+
+// sym int
+XPtrTorchSymInt from_sexp_sym_int (SEXP x) {
+  return XPtrTorchSymInt((void*)nullptr);
 }
 
 // optional double array ref

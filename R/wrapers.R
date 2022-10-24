@@ -55,6 +55,9 @@ torch_logical_not <- function(self) {
 torch_bartlett_window <- function(window_length, periodic = TRUE, dtype = NULL,
                                   layout = torch_strided(), device = NULL,
                                   requires_grad = FALSE) {
+  if (is.null(dtype)) {
+    dtype <- torch_float()
+  }
   opt <- torch_tensor_options(
     dtype = dtype, layout = layout, device = device,
     requires_grad = requires_grad
@@ -69,6 +72,9 @@ torch_bartlett_window <- function(window_length, periodic = TRUE, dtype = NULL,
 torch_blackman_window <- function(window_length, periodic = TRUE, dtype = NULL,
                                   layout = torch_strided(), device = NULL,
                                   requires_grad = FALSE) {
+  if (is.null(dtype)) {
+    dtype <- torch_float()
+  }
   opt <- torch_tensor_options(
     dtype = dtype, layout = layout, device = device,
     requires_grad = requires_grad
@@ -83,6 +89,9 @@ torch_blackman_window <- function(window_length, periodic = TRUE, dtype = NULL,
 torch_hamming_window <- function(window_length, periodic = TRUE, alpha = 0.54,
                                  beta = 0.46, dtype = NULL, layout = torch_strided(),
                                  device = NULL, requires_grad = FALSE) {
+  if (is.null(dtype)) {
+    dtype <- torch_float()
+  }
   opt <- torch_tensor_options(
     dtype = dtype, layout = layout, device = device,
     requires_grad = requires_grad
@@ -161,30 +170,13 @@ torch_sparse_coo_tensor <- function(indices, values, size = NULL, dtype = NULL,
 #' @rdname torch_stft
 torch_stft <- function(input, n_fft, hop_length = NULL, win_length = NULL,
                        window = NULL, center = TRUE, pad_mode = "reflect",
-                       normalized = FALSE, onesided = TRUE, return_complex = NULL) {
-  if (center) {
-    signal_dim <- input$dim()
-    extended_shape <- c(
-      rep(1, 3 - signal_dim),
-      input$size()
-    )
-    pad <- as.integer(n_fft %/% 2)
-    input <- nnf_pad(
-      input = input$view(extended_shape), pad = c(pad, pad),
-      mode = pad_mode
-    )
-    input <- input$view(utils::tail(input$shape, signal_dim))
-  }
-
-  if (is.null(return_complex)) {
-    return_complex <- FALSE
-  }
-
+                       normalized = FALSE, onesided = NULL, return_complex = NULL) {
   .torch_stft(
     self = input, n_fft = n_fft, hop_length = hop_length,
     win_length = win_length, window = window,
     normalized = normalized, onesided = onesided,
-    return_complex = return_complex
+    return_complex = return_complex,
+    center = center
   )
 }
 
@@ -397,6 +389,9 @@ torch_dequantize <- function(tensor) {
 #' @rdname torch_kaiser_window
 torch_kaiser_window <- function(window_length, periodic, beta, dtype = torch_float(),
                                 layout = NULL, device = NULL, requires_grad = NULL) {
+  if (is.null(dtype)) {
+    dtype <- torch_float()
+  }
   options <- torch_tensor_options(
     dtype = dtype, layout = layout, device = device,
     requires_grad = requires_grad
@@ -437,7 +432,7 @@ torch_norm <- function(self, p = 2L, dim, keepdim = FALSE, dtype) {
       dtype = dtype$ptr
     )
 
-    return(Tensor$new(ptr = o))
+    return(o)
   }
 
   if (is.numeric(unlist(dim))) {

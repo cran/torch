@@ -105,39 +105,47 @@ cpp_function_name <- function(method, type) {
   make_cpp_function_name(method$name, arg_types, type)
 }
 
+indexing_special_cases <- function(argument) {
+  !(argument$decl_name %in% c("tile"))
+}
+
 cpp_parameter_type <- function(argument) {
 
-  if (argument$name %in% c("index", "indices", "dims") &&
+  if (indexing_special_cases(argument) &&
+      argument$name %in% c("index", "indices", "dims") &&
       argument$dynamic_type == "Tensor")
   {
     return("XPtrTorchIndexTensor")
   }
 
-  if (argument$name %in% c("dims", "dims_self", "dims_other", "dim") &&
+  if (indexing_special_cases(argument) &&
+      argument$name %in% c("dims", "dims_self", "dims_other", "dim") &&
       argument$dynamic_type == "IntArrayRef")
   {
-    if (argument$type == "c10::optional<IntArrayRef>") {
+    if (argument$type %in% c("c10::optional<IntArrayRef>", "OptionalIntArrayRef")) {
       return("XPtrTorchOptionalIndexIntArrayRef")
     } else {
       return("XPtrTorchIndexIntArrayRef")
     }
   }
 
-  if (argument$name %in% c("dim", "dim0", "dim1", "dim2", "start_dim", "end_dim", "index") &&
+  if (indexing_special_cases(argument) &&
+      argument$name %in% c("dim", "dim0", "dim1", "dim2", "start_dim", "end_dim", "index") &&
       argument$dynamic_type == "int64_t") {
-
     if (argument$type == "c10::optional<int64_t>")
       return("XPtrTorchoptional_index_int64_t")
     else
       return("XPtrTorchindex_int64_t")
   }
 
-  if (argument$name == "indices" &&
+  if (indexing_special_cases(argument) &&
+      argument$name == "indices" &&
       argument$dynamic_type == "TensorList") {
     return("XPtrTorchIndexTensorList")
   }
 
-  if (argument$name == "indices" &&
+  if (indexing_special_cases(argument) &&
+      argument$name == "indices" &&
       argument$dynamic_type == "const c10::List<c10::optional<Tensor>> &") {
     return("XPtrTorchOptionalIndexTensorList")
   }
@@ -171,8 +179,8 @@ cpp_parameter_type <- function(argument) {
     declaration <- "XPtrTorchTensorList"
   }
 
-  if (argument$dynamic_type == "IntArrayRef" && argument$type == "c10::optional<IntArrayRef>") {
-    declaration <- "XPtrTorchOptionalIntArrayRef"
+  if (argument$dynamic_type == "IntArrayRef" && argument$type %in% c("c10::optional<IntArrayRef>", "OptionalIntArrayRef")) {
+    return("XPtrTorchOptionalIntArrayRef")
   }
 
   if (argument$dynamic_type == "IntArrayRef" && argument$type != "c10::optional<IntArrayRef>") {
@@ -295,6 +303,18 @@ cpp_parameter_type <- function(argument) {
     declaration <- "XPtrTorchstring_view"
   }
 
+  if(argument$dynamic_type == "c10::SymIntArrayRef") {
+    declaration <- "XPtrTorchSymIntArrayRef"
+  }
+
+  if(argument$dynamic_type == "c10::SymInt") {
+    declaration <- "XPtrTorchSymIntArrayRef"
+  }
+
+  if(argument$dynamic_type == "Layout") {
+    declaration <- "XPtrTorchLayout"
+  }
+
   # FIXME: Stop if argument$dynamic_type is not handled
   if (!exists("declaration")) {
     stop(paste(argument$dynamic_type, "is not handled!"))
@@ -321,8 +341,11 @@ cpp_parameter <- function(argument) {
 }
 
 cpp_signature <- function(decl) {
-
-  res <- purrr::map_chr(decl$arguments, cpp_parameter) %>%
+  name <- decl$name
+  res <- purrr::map_chr(decl$arguments, function(x) {
+    x$decl_name <- name #expose de declaration name
+    cpp_parameter(x)
+  }) %>%
     glue::glue_collapse(sep = ", ")
 
   if(length(res) == 0)
@@ -355,7 +378,7 @@ cpp_argument_transform <- function(argument) {
     result <- glue::glue("{argument$name}.get()")
   }
 
-  if (argument$dynamic_type == "IntArrayRef" && argument$type == "c10::optional<IntArrayRef>") {
+  if (argument$dynamic_type == "IntArrayRef" && argument$type %in% c("c10::optional<IntArrayRef>", "OptionalIntArrayRef")) {
     result <- glue::glue("{argument$name}.get()")
   }
 
@@ -444,6 +467,18 @@ cpp_argument_transform <- function(argument) {
   }
 
   if (argument$dynamic_type == "c10::string_view") {
+    result <- glue::glue("{argument$name}.get()")
+  }
+
+  if (argument$dynamic_type == "c10::SymIntArrayRef") {
+    result <- glue::glue("{argument$name}.get()")
+  }
+
+  if (argument$dynamic_type == "c10::SymInt") {
+    result <- glue::glue("{argument$name}.get()")
+  }
+
+  if (argument$dynamic_type == "Layout") {
     result <- glue::glue("{argument$name}.get()")
   }
 
@@ -620,9 +655,10 @@ SKIP_CPP_BINDING <- c()
 
 cpp <- function(path) {
 
-  decls <-declarations() %>%
+  decls <- declarations() %>%
     purrr::discard(~.x$name %in% SKIP_R_BINDIND) %>%
-    purrr::discard(~.x$name == "range" && length(.x$arguments) == 3)
+    purrr::discard(~.x$name == "range" && length(.x$arguments) == 3) %>%
+    purrr::discard(~.x$name == "stft" && length(.x$arguments) == 8)
 
   pb <- NULL
 
