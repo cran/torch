@@ -472,6 +472,16 @@ torch_nonzero <- function(self, as_list = FALSE) {
   }
 }
 
+#' @rdname torch_where
+torch_where <- function(condition, self = NULL, other = NULL) {
+  if (is.null(self) && is.null(other)) {
+    out <- .torch_where(condition)
+    lapply(out, function(x) x + 1L)
+  } else {
+    .torch_where(condition, self, other)
+  }
+}
+
 #' Normal distributed
 #'
 #' @param mean (tensor or scalar double) Mean of the normal distribution.
@@ -512,9 +522,9 @@ torch_normal <- function(mean, std, size = NULL, generator = NULL, ...) {
     }
   }
 
-  if (is.null(generator)) {
-    generator <- .generator_null
-  }
+  # if (is.null(generator)) {
+  #   generator <- .generator_null
+  # }
 
   if (!is_torch_tensor(mean) && !is_torch_tensor(std) && is.null(size)) {
     value_error("size is not set.")
@@ -596,6 +606,16 @@ torch_fft_irfft <- function(self, n = NULL, dim = -1L, norm = NULL) {
     norm <- "backward"
   }
   .torch_fft_irfft(self = self, n = n, dim = dim, norm = norm)
+}
+
+#' @rdname torch_fft_fftfreq
+torch_fft_fftfreq <- function(n, d = 1, dtype = torch_get_default_dtype(),
+                                  layout = torch_strided(), device = NULL,
+                                  requires_grad = FALSE) {
+  opt <- torch_tensor_options(
+    dtype = dtype, layout = layout, device = device, requires_grad = requires_grad
+  )
+  .torch_fft_fftfreq(n = n, d = d, options = opt)
 }
 
 torch_broadcast_shapes <- function(...) {

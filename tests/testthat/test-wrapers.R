@@ -299,6 +299,16 @@ test_that("normal works", {
   expect_error(torch_normal(1, torch_zeros(2), dtype = torch_float64()), class = "value_error")
 })
 
+test_that("torch_where", {
+  t <- torch_arange(1,6)
+  x <- torch_where(t < 3)
+  expect_equal(x[[1]] %>% as.numeric(), c(1,2))
+  t <- torch_arange(1,6)$view(c(2,3))
+  x <- torch_where(t < 3)
+  expect_equal(x[[1]] %>% as.numeric(), c(1,1))
+  expect_equal(x[[2]] %>% as.numeric(), c(1,2))
+})
+
 test_that("polygamma works", {
   a <- torch_tensor(c(1, 0.5))
   r <- torch_polygamma(1, a)
@@ -331,3 +341,8 @@ test_that("multinomial works", {
 test_that("blackman_window", {
   expect_tensor_shape(torch_blackman_window(window_length = 2), 2)
 })
+
+test_that("torch_fft_fftfreq", {
+  expect_tensor_shape(torch_fft_fftfreq(5), 5)
+})
+

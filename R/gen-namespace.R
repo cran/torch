@@ -14153,8 +14153,8 @@ fun_type = 'namespace'
 }
 
 
-#' @rdname torch_fft_fftfreq
-torch_fft_fftfreq <- function(n, d = 1L, options = list()) {
+#' @rdname .torch_fft_fftfreq
+.torch_fft_fftfreq <- function(n, d = 1L, options = list()) {
   args <- mget(x = c("n", "d", "options"))
 expected_types <- list(n = "int64_t", d = "double", options = "TensorOptions")
 nd_args <- "n"
@@ -31838,8 +31838,8 @@ fun_type = 'namespace'
 }
 
 
-#' @rdname torch_where
-torch_where <- function(condition, self, other) {
+#' @rdname .torch_where
+.torch_where <- function(condition, self, other) {
   args <- mget(x = c("condition", "self", "other"))
 expected_types <- list(condition = "Tensor", self = c("Tensor", "Scalar"), other = c("Tensor", 
 "Scalar"))
