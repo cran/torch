@@ -5,23 +5,14 @@
 \alias{install_torch_from_file}
 \title{Install Torch from files}
 \usage{
-get_install_libs_url(
-  version = "1.12.1",
-  type = install_type(version = version)
-)
+get_install_libs_url(version = NA, type = NA)
 
-install_torch_from_file(
-  version = "1.12.1",
-  type = install_type(version = version),
-  libtorch,
-  liblantern,
-  ...
-)
+install_torch_from_file(version = NA, type = NA, libtorch, liblantern, ...)
 }
 \arguments{
-\item{version}{The Torch version to install.}
+\item{version}{Not used}
 
-\item{type}{The installation type for Torch. Valid values are \code{"cpu"} or the 'CUDA' version.}
+\item{type}{Not used. This function is deprecated.}
 
 \item{libtorch}{The installation archive file to use for Torch. Shall be a \code{"file://"} URL scheme.}
 
@@ -44,12 +35,11 @@ that is used for the R package. Both are highly dependent, and should be checked
 if (torch_is_installed()) {
 \dontrun{
 # on a linux CPU platform 
-get_install_libs_url(type = "cpu")
+get_install_libs_url()
 # then after making both files available into /tmp/
-install_torch_from_file(
-  libtorch = "file:////tmp/libtorch-cxx11-abi-shared-with-deps-1.12.1\%2Bcpu.zip",
-  liblantern = "file:////tmp/Linux-cpu.zip"
-)
+Sys.setenv(TORCH_URL="/tmp/libtorch-v1.13.1.zip")
+Sys.setenv(LANTERN_URL="/tmp/lantern-0.9.1.9001+cpu+arm64-Darwin.zip")
+torch::install_torch()
 }
 }
 }

@@ -22,6 +22,7 @@ SEXP operator_sexp_memory_format(const XPtrTorchMemoryFormat* self);
 SEXP operator_sexp_vector_string(const XPtrTorchvector_string* self);
 SEXP operator_sexp_vector_scalar(const XPtrTorchvector_Scalar* self);
 SEXP operator_sexp_string(const XPtrTorchstring* self);
+std::string operator_string_string(const XPtrTorchstring* self);
 SEXP operator_sexp_jit_named_parameter_list(
     const XPtrTorchjit_named_parameter_list* self);
 SEXP operator_sexp_jit_named_buffer_list(
@@ -52,6 +53,7 @@ SEXP operator_sexp_optional_scalar(const XPtrTorchoptional_scalar* x);
 SEXP operator_sexp_optional_memory_format(
     const XPtrTorchoptional_memory_format* x);
 SEXP operator_sexp_variable_list(const XPtrTorchvariable_list* x);
+SEXP operator_sexp_int_array_ref(const XPtrTorchIntArrayRef* x);
 
 XPtrTorchTensor from_sexp_tensor(SEXP x);
 XPtrTorchOptionalTensor from_sexp_optional_tensor(SEXP x);

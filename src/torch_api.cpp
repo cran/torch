@@ -83,6 +83,13 @@ XPtrTorchOptionalTensorList cpp_torch_optional_tensor_list(const Rcpp::List& x);
 XPtrTorchDevice cpp_torch_device(std::string type,
                                  Rcpp::Nullable<std::int64_t> index);
 
+static inline std::string torch_string_to_string (XPtrTorchstring x) {
+  char* out = lantern_string_get(x.get());
+  auto output = std::string(out, lantern_string_size(x.get()));
+  lantern_const_char_delete(out);
+  return output;
+}
+
 // torch_tensor
 
 SEXP operator_sexp_tensor(const XPtrTorchTensor* self) {
@@ -170,12 +177,12 @@ XPtrTorchIndexTensor from_sexp_index_tensor(SEXP x) {
 // tensor_list
 
 SEXP operator_sexp_tensor_list(const XPtrTorchTensorList* self) {
-  Rcpp::List out;
   int64_t sze = lantern_TensorList_size(self->get());
-
+  Rcpp::List out(sze);
+  
   for (int i = 0; i < sze; i++) {
     void* tmp = lantern_TensorList_at(self->get(), i);
-    out.push_back(XPtrTorchTensor(tmp));
+    out[i] = XPtrTorchTensor(tmp);
   }
 
   return out;
@@ -215,10 +222,8 @@ void delete_tensor_list(void* x) { lantern_TensorList_delete(x); }
 
 SEXP operator_sexp_scalar(const XPtrTorchScalar* self) {
   XPtrTorchScalarType dtype_ptr = lantern_Scalar_dtype(self->get());
-  const char* dtype_c = lantern_Dtype_type(dtype_ptr.get());
-  auto dtype = std::string(dtype_c);
-  lantern_const_char_delete(dtype_c);
-
+  std::string dtype = XPtrTorchstring(lantern_Dtype_type(dtype_ptr.get()));
+  
   Rcpp::RObject output;
   if (dtype == "Double") {
     output = lantern_Scalar_to_double(self->get());
@@ -744,11 +749,12 @@ void delete_vector_string(void* x) { lantern_vector_string_delete(x); }
 
 SEXP operator_sexp_vector_scalar(const XPtrTorchvector_Scalar* self) {
   int size = lantern_vector_Scalar_size(self->get());
-  Rcpp::List output;
+  Rcpp::List output(size);
+  
   for (int i = 0; i < size; i++) {
-    auto value = XPtrTorchScalar(lantern_vector_Scalar_at(self->get(), i));
-    output.push_back(value);
+    output[i] = XPtrTorchScalar(lantern_vector_Scalar_at(self->get(), i));
   }
+  
   return output;
 }
 
@@ -767,16 +773,17 @@ void delete_vector_scalar(void* x) { lantern_vector_Scalar_delete(x); }
 // string
 
 SEXP operator_sexp_string(const XPtrTorchstring* self) {
-  char* out = lantern_string_get(self->get());
-  auto output = std::string(out, lantern_string_size(self->get()));
-  lantern_const_char_delete(out);
-
+  auto output = torch_string_to_string(*self);
   return Rcpp::wrap(output);
 }
 
 XPtrTorchstring from_sexp_string(SEXP x) {
   std::string v = Rcpp::as<std::string>(x);
   return XPtrTorchstring(lantern_string_new(v.c_str(), v.size()));
+}
+
+std::string operator_string_string (const XPtrTorchstring* self) {
+  return torch_string_to_string(*self);
 }
 
 void delete_string(void* x) { lantern_string_delete(x); }
@@ -867,15 +874,15 @@ void delete_jit_named_buffer_list(void* x) {
 SEXP operator_sexp_jit_named_module_list(
     const XPtrTorchjit_named_module_list* self) {
   int size = lantern_jit_named_module_list_size(self->get());
-  Rcpp::List out;
+  Rcpp::List out(size);
 
   if (size == 0) {
     return out;
   }
 
   for (int i = 0; i < size; i++) {
-    out.push_back(XPtrTorchScriptModule(
-        lantern_jit_named_module_list_module_at(self->get(), i)));
+    out[i] = XPtrTorchScriptModule(
+        lantern_jit_named_module_list_module_at(self->get(), i));
   }
 
   XPtrTorchvector_string names =
@@ -958,9 +965,9 @@ void delete_vector_double(void* x) { lantern_vector_double_delete(x); }
 
 SEXP operator_sexp_stack(const XPtrTorchStack* self) {
   int64_t size = lantern_Stack_size(self->get());
-  Rcpp::List output;
+  Rcpp::List output(size);
   for (int64_t i = 0; i < size; i++) {
-    output.push_back(XPtrTorchIValue(lantern_Stack_at(self->get(), i)));
+    output[i] = XPtrTorchIValue(lantern_Stack_at(self->get(), i));
   }
   return output;
 }
@@ -1137,10 +1144,9 @@ void delete_ivalue(void* x) { lantern_IValue_delete(x); }
 SEXP operator_sexp_tuple(const XPtrTorchTuple* self) {
   auto size = lantern_jit_Tuple_size(self->get());
 
-  Rcpp::List out;
+  Rcpp::List out(size);
   for (int i = 0; i < size; i++) {
-    out.push_back(
-        Rcpp::wrap(XPtrTorchIValue(lantern_jit_Tuple_at(self->get(), i))));
+    out[size]=Rcpp::wrap(XPtrTorchIValue(lantern_jit_Tuple_at(self->get(), i)));
   }
 
   return out;
@@ -1197,10 +1203,9 @@ void delete_named_tuple_helper(void* x) { lantern_NamedTupleHelper_delete(x); }
 SEXP operator_sexp_vector_ivalue(const XPtrTorchvector_IValue* self) {
   auto size = lantern_jit_vector_IValue_size(self->get());
 
-  Rcpp::List out;
+  Rcpp::List out(size);
   for (int i = 0; i < size; i++) {
-    out.push_back(Rcpp::wrap(
-        XPtrTorchIValue(lantern_jit_vector_IValue_at(self->get(), i))));
+    out[i]=XPtrTorchIValue(lantern_jit_vector_IValue_at(self->get(), i));
   }
 
   return out;
@@ -1214,11 +1219,11 @@ SEXP operator_sexp_generic_dict(const XPtrTorchGenericDict* self) {
   XPtrTorchvector_IValue keys = lantern_jit_GenericDict_keys(self->get());
   int64_t size = lantern_jit_vector_IValue_size(keys.get());
 
-  Rcpp::List out;
+  Rcpp::List out(size);
   for (int i = 0; i < size; i++) {
-    out.push_back(XPtrTorchIValue(lantern_jit_GenericDict_at(
+    out[i] = XPtrTorchIValue(lantern_jit_GenericDict_at(
         self->get(),
-        XPtrTorchIValue(lantern_jit_vector_IValue_at(keys.get(), i)).get())));
+        XPtrTorchIValue(lantern_jit_vector_IValue_at(keys.get(), i)).get()));
   }
   out.attr("names") = Rcpp::wrap(keys);
   return out;
@@ -1231,9 +1236,9 @@ void delete_generic_dict(void* x) { lantern_jit_GenericDict_delete(x); }
 SEXP operator_sexp_generic_list(const XPtrTorchGenericList* self) {
   int64_t size = lantern_jit_GenericList_size(self->get());
 
-  Rcpp::List out;
+  Rcpp::List out(size);
   for (int i = 0; i < size; i++) {
-    out.push_back(XPtrTorchIValue(lantern_jit_GenericList_at(self->get(), i)));
+    out[i]=XPtrTorchIValue(lantern_jit_GenericList_at(self->get(), i));
   }
 
   return out;
@@ -1334,6 +1339,10 @@ XPtrTorchIntArrayRef from_sexp_int_array_ref(SEXP x, bool allow_null,
 
   auto ptr = lantern_vector_int64_t(vec.data(), vec.size());
   return XPtrTorchIntArrayRef(ptr);
+}
+
+SEXP operator_sexp_int_array_ref (const XPtrTorchIntArrayRef* x) {
+  return torch::vector::int64_t(lantern_IntArrayRef_get(x->get()));
 }
 
 // sym int array ref
@@ -1553,11 +1562,10 @@ XPtrTorchvariable_list from_sexp_variable_list(SEXP x) {
 }
 
 SEXP operator_sexp_variable_list(const XPtrTorchvariable_list* self) {
-  Rcpp::List out;
   int64_t sze = lantern_variable_list_size(self->get());
-
+  Rcpp::List out(sze);
   for (int64_t i = 0; i < sze; i++) {
-    out.push_back(XPtrTorchTensor(lantern_variable_list_get(self->get(), i)));
+    out[i] = XPtrTorchTensor(lantern_variable_list_get(self->get(), i));
   }
 
   return out;

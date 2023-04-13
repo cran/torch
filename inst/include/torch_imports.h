@@ -64,6 +64,7 @@ IMPORT_SEXP_OPERATOR(operator_sexp_optional_scalar_type,
 IMPORT_SEXP_OPERATOR(operator_sexp_optional_memory_format,
                      XPtrTorchoptional_memory_format)
 IMPORT_SEXP_OPERATOR(operator_sexp_variable_list, XPtrTorchvariable_list)
+IMPORT_SEXP_OPERATOR(operator_sexp_int_array_ref, XPtrTorchIntArrayRef)
 
 #define IMPORT_FROM_SEXP(name, type)                      \
   type name(SEXP x) {                                     \
@@ -238,6 +239,14 @@ void* fixme_new_dimname(const char* x) {
     fn = (void* (*)(const char*))R_GetCCallable("torch", "fixme_new_dimname");
   }
   return fn(x);
+}
+
+std::string operator_string_string(const XPtrTorchstring* self) {                                  
+  static std::string (*fn)(const XPtrTorchstring*) = NULL;                       
+  if (fn == NULL) {                                            
+    fn = (std::string(*)(const XPtrTorchstring*))R_GetCCallable("torch", "operator_string_string"); 
+  }
+  return fn(self);
 }
 
 #endif  // TORCH_IMPORTS

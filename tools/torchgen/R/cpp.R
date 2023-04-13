@@ -62,9 +62,14 @@ cpp_type <- function(decl) {
     if (returns$dynamic_type == "ScalarType")
       return("XPtrTorchScalarType")
 
+    if (returns$dynamic_type == "IntArrayRef")
+      return("XPtrTorchIntArrayRef")
+
   } else {
     return("Rcpp::List")
   }
+
+  browser()
 
 }
 
@@ -96,7 +101,8 @@ cpp_function_name <- function(method, type) {
     arg_types[[nm]] <- method$arguments %>%
       purrr::keep(~.x$name == nm)  %>%
       purrr::pluck(1) %>%
-      purrr::pluck("dynamic_type")
+      purrr::pluck("dynamic_type") %>%
+      r_mask_dynamic_type_name()
   }
 
   if (is.null(arg_types))
@@ -315,6 +321,10 @@ cpp_parameter_type <- function(argument) {
     declaration <- "XPtrTorchLayout"
   }
 
+  if (argument$dynamic_type == "const ITensorListRef &") {
+    declaration <- "XPtrTorchTensorList"
+  }
+
   # FIXME: Stop if argument$dynamic_type is not handled
   if (!exists("declaration")) {
     stop(paste(argument$dynamic_type, "is not handled!"))
@@ -482,6 +492,10 @@ cpp_argument_transform <- function(argument) {
     result <- glue::glue("{argument$name}.get()")
   }
 
+  if (argument$dynamic_type == "const ITensorListRef &") {
+    result <- glue::glue("{argument$name}.get()")
+  }
+
   # FIXME: Stop if argument$dynamic_type is not handled
   if (!exists("result")) {
     stop(paste(argument$dynamic_type, "is not handled!"))
@@ -531,6 +545,11 @@ cpp_return_statement <- function(returns) {
 
     if (returns$dynamic_type == "ScalarType")
       return(cast_call("XPtrTorchScalarType"))
+
+    if (returns$dynamic_type == "IntArrayRef")
+      return(cast_call("XPtrTorchIntArrayRef"))
+
+    browser()
 
   } else {
 
@@ -658,6 +677,8 @@ cpp <- function(path) {
   decls <- declarations() %>%
     purrr::discard(~.x$name %in% SKIP_R_BINDIND) %>%
     purrr::discard(~.x$name == "range" && length(.x$arguments) == 3) %>%
+    purrr::discard(~.x$name == "range_out" && length(.x$arguments) == 3) %>%
+    purrr::discard(~.x$name == "arange" && length(.x$arguments) == 3) %>%
     purrr::discard(~.x$name == "stft" && length(.x$arguments) == 8)
 
   pb <- NULL
@@ -671,7 +692,10 @@ cpp <- function(path) {
     } %>%
     purrr::map_chr(function(x) {
       pb$tick()
-      cpp_method(x)
+      res <- cpp_method(x)
+      if (length(res) != 1)
+        browser()
+      res
     })
 
   namespace_code <- decls %>%

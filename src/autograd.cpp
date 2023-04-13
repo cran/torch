@@ -60,9 +60,13 @@ namespace {
 EventLoop<void*> gTasks;
 EventLoop<void> gBackwardTasks;
 std::atomic<bool> backward_is_running(false);
-static ThreadPool<void>* pool = new ThreadPool<void>(5);
+static ThreadPool<void>* pool;
 
 void schedule_backward_task(std::packaged_task<void()>&& task) {
+  if (!pool) {
+    pool = new ThreadPool<void>(5);
+  }
+  
   if (std::this_thread::get_id() == main_thread_id()) {
     pool->push(std::move(task));
   } else {
@@ -409,4 +413,9 @@ void cpp_set_lantern_allocator(uint64_t threshold_call_gc = 4000) {
 void cpp_set_cuda_allocator_allocator_thresholds (double reserved_rate, double allocated_rate, 
                                                   double allocated_reserved_rate) {
   lantern_set_cuda_allocator_thresholds(reserved_rate, allocated_rate, allocated_reserved_rate);
+}
+
+// [[Rcpp::export]]
+void cpp_autograd_zero_grad (torch::TensorList x) {
+  lantern_autograd_zero_grad(x.get());
 }

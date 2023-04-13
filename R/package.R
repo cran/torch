@@ -1,4 +1,4 @@
-#' @useDynLib torchpkg
+#' @useDynLib torchpkg, .registration = TRUE
 #' @importFrom Rcpp sourceCpp
 NULL
 
@@ -27,7 +27,7 @@ globalVariables(c("..", "self", "private", "N"))
   autoinstall <- autoinstall || (Sys.getenv("TORCH_INSTALL", unset = 2) == "1")
   
   # we only autoinstall if installation doesn't yet exist.
-  autoinstall <- autoinstall && (!install_exists())
+  autoinstall <- autoinstall && (!torch_is_installed())
   
   if (autoinstall) {
     install_success <- tryCatch(
@@ -44,16 +44,17 @@ globalVariables(c("..", "self", "private", "N"))
         TRUE
       },
       error = function(e) {
+        msg <- if (is.character(e$message)) e$message else "Unknown error."
         cli::cli_warn(c(
-          i = "Failed to install torch, manually run install_torch()",
-          x = e$message
-        ))
+          i = "Failed to install torch, manually run {.fn install_torch}",
+          x = msg
+        ), parent = e)
         FALSE
       }
     )
   }
 
-  if (install_exists() && install_success && Sys.getenv("TORCH_LOAD", unset = 1) != 0) {
+  if (torch_is_installed() && install_success && Sys.getenv("TORCH_LOAD", unset = 1) != 0) {
     # in case init fails aallow user to restart session rather than blocking install
     tryCatch(
       {
@@ -73,11 +74,12 @@ globalVariables(c("..", "self", "private", "N"))
         .compilation_unit <<- cpp_jit_compilation_unit()
       },
       error = function(e) {
+        msg <- if (is.character(e$message)) e$message else "Unknown error."
         cli::cli_warn(c(
           i = "torch failed to start, restart your R session to try again.",
           i = "You might need to reinstall torch using {.fn install_torch}",
-          x = e$message
-        ))
+          x = msg
+        ), parent = e)
         FALSE
       }
     )

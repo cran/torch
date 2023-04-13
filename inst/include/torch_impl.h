@@ -205,6 +205,7 @@ XPtrTorchvector_Scalar::XPtrTorchvector_Scalar(SEXP x)
 // string
 
 XPtrTorchstring::operator SEXP() const { return operator_sexp_string(this); }
+XPtrTorchstring::operator std::string() const { return operator_string_string(this); }
 
 XPtrTorchstring::XPtrTorchstring(SEXP x)
     : XPtrTorchstring{from_sexp_string(x)} {}
@@ -345,6 +346,8 @@ XPtrTorchOptionalDoubleArrayRef::XPtrTorchOptionalDoubleArrayRef(SEXP x)
     : XPtrTorch{from_sexp_optional_double_array_ref(x)} {}
 
 // int array ref
+
+XPtrTorchIntArrayRef::operator SEXP() const { return operator_sexp_int_array_ref(this); }
 
 XPtrTorchIntArrayRef::XPtrTorchIntArrayRef(SEXP x)
     : XPtrTorch{from_sexp_int_array_ref(x, false, false)} {}

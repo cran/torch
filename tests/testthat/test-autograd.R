@@ -776,6 +776,22 @@ test_that("with detect anomaly", {
   })
 })
 
+test_that("try and with_detect_anomaly", {
+  
+  x <- torch_randn(2, requires_grad = TRUE)
+  y <- torch_randn(1)
+  b <- (x^y)$sum()
+  y$add_(1)
+  k <- try(silent = TRUE, {
+    b$backward()
+    with_detect_anomaly({
+      b$backward()
+    })
+  })
+  expect_true(inherits(k, "try-error"))
+  
+})
+
 test_that("autograd_grad works with custom autograd fucntions", {
   torch_manual_seed(1)
   w1 <- torch_randn(4, 3, 5, 5)$requires_grad_()
@@ -836,4 +852,33 @@ test_that("can modify the gradient of a tensor", {
   expect_equal_to_r(x$grad, 12)
   x$grad <- x$grad/2
   expect_equal_to_r(x$grad, 6)
+})
+
+test_that("local grad functions", {
+  
+  f <- function() {
+    x <- torch_tensor(2, requires_grad = TRUE)
+    y <- x^3
+    y$backward()
+  }
+  
+  fun <- function(f, grad_mode) {
+    if (grad_mode) {
+      local_enable_grad()
+    } else {
+      local_no_grad()
+    }
+    f()
+  }
+  
+  with_no_grad({
+    expect_error(fun(f, TRUE), regex = NA)
+  })
+  expect_error(f(), regex = NA)  
+  
+  with_enable_grad({
+    expect_error(fun(f, FALSE))
+    expect_error(f(), regex = NA)  
+  })
+  
 })

@@ -290,7 +290,7 @@ class XPtrTorchIntArrayRef : public XPtrTorch {
   XPtrTorchIntArrayRef(const XPtrTorchIntArrayRef& x)
       : XPtrTorch(x.get_shared()){};
   explicit XPtrTorchIntArrayRef(SEXP x);
-  // operator SEXP () const;
+  operator SEXP () const;
 };
 
 class XPtrTorchSymIntArrayRef : public XPtrTorch {
@@ -418,6 +418,7 @@ class XPtrTorchstring : public XPtrTorch {
   XPtrTorchstring(std::string x)
       : XPtrTorchstring(fixme_new_string(x.c_str(), x.size())){};
   operator SEXP() const;
+  operator std::string() const;
 };
 
 class XPtrTorchstring_view : public XPtrTorch {
