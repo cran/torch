@@ -67,24 +67,41 @@ Tensor <- R7Class(
       cpp_tensor_numel(self$ptr)
     },
     to = function(dtype = NULL, device = NULL, other = NULL, non_blocking = FALSE,
-                  copy = FALSE, memory_format = torch_preserve_format()) {
-      if (!is.null(other)) {
-        args <- list(other = other)
-      } else if (is.null(device)) {
-        args <- list(dtype = dtype)
+                  copy = FALSE, memory_format = NULL) {
+      
+      has_device <- !is.null(device)
+      has_dtype <- !is.null(dtype)
+      has_other <- !is.null(other)
+      
+      if (has_other) {
+        # can't have device and dtype
+        if (has_device || has_dtype) {
+          cli::cli_abort("Had {.arg other} but {.arg device} or {.arg dtype} are non {.val NULL}")
+        }
+        
+        return(private$`_to`(other = other, non_blocking = non_blocking, copy = copy))
+      }
+      
+      if (!has_dtype) {
+        dtype <- self$dtype
+      }
+      
+      if (has_device) {
+        private$`_to`(
+          dtype = dtype, 
+          device = device,
+          non_blocking = non_blocking,
+          copy = copy,
+          memory_format = memory_format
+        )
       } else {
-        args <- list(dtype = dtype, device = device)
+        private$`_to`(
+          dtype = dtype,
+          non_blocking = non_blocking,
+          copy = copy,
+          memory_format = memory_format
+        )
       }
-
-      args$non_blocking <- non_blocking
-      args$copy <- copy
-      args$memory_format <- memory_format
-
-      if (is.null(args$dtype) && is.null(args$other)) {
-        args$dtype <- self$dtype
-      }
-
-      do.call(private$`_to`, args)
     },
     bool = function(memory_format = torch_preserve_format()) {
       self$to(torch_bool(), memory_format = memory_format)
@@ -265,6 +282,9 @@ Tensor <- R7Class(
     },
     double = function() {
       self$to(dtype=torch_double())
+    },
+    half = function() {
+      self$to(dtype=torch_half())
     }
   ),
   active = list(
@@ -368,7 +388,7 @@ as_array_impl <- function(x) {
     return(out)
   }
   
-  a <- cpp_as_array(x$ptr)
+  a <- cpp_as_array(x)
 
   if (length(a$dim) <= 1L) {
     out <- a$vec
@@ -457,4 +477,25 @@ tensor_to_complex <- function(x) {
     torch_tensor(Re(x), dtype = torch_double()), 
     torch_tensor(Im(x), dtype = torch_double())
   )
+}
+
+#' Creates a tensor from a buffer of memory
+#' 
+#' It creates a tensor without taking ownership of the memory it points to.
+#' You must call `clone` if you want to copy the memory over a new tensor.
+#'
+#' @param buffer An R atomic object containing the data in a contiguous array.
+#' @param tensor Tensor object that will be converted into a buffer.
+#' @param shape The shape of the resulting tensor.
+#' @param dtype A torch data type for the tresulting tensor.
+#'
+#' @export
+torch_tensor_from_buffer <- function(buffer, shape, dtype = "float") {
+  cpp_tensor_from_buffer(buffer, shape, list(dtype=dtype))
+}
+
+#' @describeIn torch_tensor_from_buffer Creates a raw vector containing the tensor data. Causes a data copy.
+#' @export
+buffer_from_torch_tensor <- function(tensor) {
+  cpp_buffer_from_tensor(tensor)
 }

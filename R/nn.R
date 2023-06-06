@@ -42,7 +42,7 @@ nn_Module <- R6::R6Class(
           private$non_persistent_buffers_ != name
         ]
       } else {
-        private$non_persistent_buffers <- unique(c(
+        private$non_persistent_buffers_ <- unique(c(
           private$non_persistent_buffers_,
           name
         ))
@@ -134,10 +134,10 @@ nn_Module <- R6::R6Class(
           out[[paste0(prefix, param_name)]] <- keepvars_or_detach(param, keepvars)
         }
       }
-
+      
       for (buf_name in names(private$buffers_)) {
         buf <- private$buffers_[[buf_name]]
-        if (!is.null(buf) && !buf_name %in% private$non_persistent_buffers_) {
+        if (!is.null(buf) && !(buf_name %in% private$non_persistent_buffers_)) {
           out[[paste0(prefix, buf_name)]] <- keepvars_or_detach(buf, keepvars)
         }
       }
@@ -170,16 +170,31 @@ nn_Module <- R6::R6Class(
         if (key %in% names(state_dict)) {
           input_param <- state_dict[[key]]
           param <- local_state[[name]]
-          with_no_grad({
-            param$copy_(input_param)
-          })
+          if (!self$..refer_to_state_dict..) {
+            with_no_grad({
+              param$copy_(input_param)
+            })  
+          } else {
+            if (name %in% names(persistent_buffers)) {
+              private$buffers_[[name]] <- input_param$requires_grad_(param$requires_grad)
+            } else {
+              private$parameters_[[name]] <- input_param$requires_grad_(param$requires_grad)
+            }
+          }
         } else {
           value_error("Could not find {key} in the state_dict.")
         }
       }
     },
-    load_state_dict = function(state_dict) {
+    load_state_dict = function(state_dict, ..., .refer_to_state_dict = FALSE) {
+      # by default the state dict parameter values are copied into the parameters
+      # of the modules. with `.refer_to_state_dict` you can make the parameters
+      # refer to the tensors in the state dict. USE WITH CAUTION as it's easy to
+      # mess up and link the parametrs of two models that way. This is useful when
+      # you want to initialize the model with the state dict values and will dispose
+      # of the state dict rightly after.
       load <- function(module, state_dict, prefix = "") {
+        module$..refer_to_state_dict.. <- .refer_to_state_dict
         module$.load_from_state_dict(state_dict, prefix)
         for (nm in names(module$.__enclos_env__$private$modules_)) {
           child <- module$.__enclos_env__$private$modules_[[nm]]
@@ -753,7 +768,7 @@ nn_prune_head.nn_module <- nn_module(
 #' `nn_module` methods.
 #'
 #' @param modules a list of modules to add
-#'
+#' @seealso [nn_module_dict()]
 #' @examples
 #'
 #' my_module <- nn_module(
@@ -792,6 +807,36 @@ nn_module_list <- nn_module(
     }
   }
 )
+
+#' Container that allows named values
+#' 
+#' @param dict A named list of submodules that will be saved in that module.
+#' @examples
+#' nn_module <- nn_module(
+#'   initialize = function() {
+#'     self$dict <- nn_module_dict(list(
+#'       l1 = nn_linear(10, 20),
+#'       l2 = nn_linear(20, 10)
+#'     ))
+#'   },
+#'   forward = function(x) {
+#'     x <- self$dict$l1(x)
+#'     self$dict$l2(x)
+#'   }
+#' )
+#' @seealso [nn_module_list()]
+#' @export
+nn_module_dict <- nn_module(
+  initialize = function(dict) {
+    if (!rlang::is_named(dict)) cli::cli_abort("All elements in {.arg dict} must be named.")
+    for(nm in names(dict)) {
+      self[[nm]] <- dict[[nm]]
+    } 
+  },
+  forward = function(...) {
+    cli::cli_abort("{.fn nn_module_dict} has {.fn forward} implementation.")
+  }
+) 
 
 #' @export
 `[[.nn_module_list` <- function(x, y) {

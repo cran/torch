@@ -1,4 +1,4 @@
-branch <- "cran/v0.10.0"
+branch <- "cran/v0.11.0"
 torch_version <- "1.13.1"
 
 #' Install Torch
@@ -6,9 +6,12 @@ torch_version <- "1.13.1"
 #' Installs Torch and its dependencies.
 #'
 #' @param reinstall Re-install Torch even if its already installed?
-#'
-#' @details
+#' @param ... Currently unused.
+#' @param .inform_restart if `TRUE` and running in an `interactive()` session, after
+#'   installation it will print a message to inform the user that the session must
+#'   be restarted for torch to work correctly.
 #' 
+#' @details
 #' This function is mainly controlled by environment variables that can be used
 #' to override the defaults:
 #' 
@@ -26,6 +29,12 @@ torch_version <- "1.13.1"
 #' - `TORCH_COMMIT_SHA`: torch repository commit sha to be used when querying lantern
 #'   uploads. Set it to `'none'` to avoid looking for build for that commit and 
 #'   use the latest build for the branch.
+#' - `CUDA`: We try to automatically detect the CUDA version installed in your system,
+#'   but you might want to manually set it here. You can also disable CUDA installation
+#'   by setting it to 'cpu'.
+#' - `TORCH_R_VERSION`: The R torch version. It's unlikely that you need to change it,
+#'   but it can be useful if you don't have the R package installed, but want to
+#'   install the dependencies.
 #' 
 #' The \code{TORCH_INSTALL} environment
 #' variable can be set to \code{0} to prevent auto-installing torch and \code{TORCH_LOAD} set to \code{0}
@@ -35,12 +44,21 @@ torch_version <- "1.13.1"
 #' reported length, an increase of the \code{timeout} value should help.
 #' 
 #' @export
-install_torch <- function(reinstall = FALSE) {
+install_torch <- function(reinstall = FALSE, ..., .inform_restart = TRUE) {
+  have_installed <- !torch_is_installed() || reinstall
+  
   liblantern <- lantern_url()
   libtorch <- libtorch_url()
   
   install_lib("torch", libtorch, reinstall)
   install_lib("lantern", liblantern, reinstall)
+  
+  if (.inform_restart && have_installed && interactive()) {
+    cli::cli_inform(c(
+      v = "torch dependencies have been installed.",
+      i = "You must restart your session to use {.pkg torch} correctly."
+    ))
+  }
   
   return(invisible(TRUE))
 }
@@ -91,7 +109,7 @@ install_lib <- function(libname, url, reinstall = FALSE) {
   if (grepl("\\.zip$", url) && file.exists(url)) {
     tmp_ex <- tempfile()
     dir.create(tmp_ex)
-    on.exit({unlink(tmp_ex)})
+    on.exit({unlink(tmp_ex)}, add = TRUE)
     
     utils::unzip(url, exdir = tmp_ex)
     url <- tmp_ex
@@ -191,7 +209,7 @@ lantern_url <- function() {
   # Otherwise we construct it from available information
   # file name we want to download has the following format:
   # lantern-<pkg-version>+<cpu|cu113>+<arch>+<precxx11>-<os>.zip
-  pkg_version <- as.character(utils::packageVersion("torch"))
+  pkg_version <- torch_r_version()
   kind <- installation_kind()
   arch <- architecture()
   precxx11 <- precxx11abi()
@@ -221,6 +239,13 @@ lantern_url <- function() {
       remote_sha <- NA # if the user explicitly set it to none, we won't search for the SHA
     } else if (!nzchar(remote_sha)) {
       remote_sha <- desc::desc(package = "torch")$get("RemoteSha")  
+      
+      # pak adds the package version as the remote_sha when installing from
+      # CRAN which breaks our assumption that it's always a commit sha. 
+      # We identify this case and manually remove it.
+      if (is_package_version(remote_sha)) {
+        remote_sha <- NA
+      }
     }
     
     if (is.na(remote_sha)) {
@@ -250,6 +275,13 @@ lantern_url <- function() {
   ))
   
   final_url
+}
+
+torch_r_version <- function() {
+  version <- Sys.getenv("TORCH_R_VERSION", unset = "")
+  if (version != "") return(version)
+  
+  as.character(utils::packageVersion("torch"))
 }
 
 os_name <- function() {
@@ -629,4 +661,10 @@ download_file <- function(url, destfile) {
       additional_messages
     ), parent = e)
   })
+}
+
+is_package_version <- function(x) {
+  # .standard_regexps()$valid_numeric_version
+  regex <- "([[:digit:]]+[.-])*[[:digit:]]+"
+  grepl(regex, x)
 }

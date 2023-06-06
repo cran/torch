@@ -1,7 +1,7 @@
 Package: torch
 Type: Package
 Title: Tensors and Neural Networks with 'GPU' Acceleration
-Version: 0.10.0
+Version: 0.11.0
 Authors@R: c(
     person("Daniel", "Falbel", email = "daniel@rstudio.com", role = c("aut", "cre", "cph")),
     person("Javier", "Luraschi", email = "jluraschi@gmail.com", role = c("aut")),
@@ -45,13 +45,14 @@ Collate: 'R7.R' 'RcppExports.R' 'autocast.R' 'tensor.R' 'autograd.R'
         'distributions-poisson.R' 'dtype.R' 'gen-method.R'
         'gen-namespace-docs.R' 'gen-namespace-examples.R'
         'gen-namespace.R' 'generator.R' 'help.R' 'indexing.R'
-        'install.R' 'ivalue.R' 'jit-compile.R' 'lantern_load.R'
-        'lantern_sync.R' 'layout.R' 'linalg.R' 'memory_format.R'
-        'utils-data.R' 'nn.R' 'nn-activation.R' 'nn-batchnorm.R'
-        'nn-conv.R' 'nn-distance.R' 'nn-dropout.R' 'nn-flatten.R'
-        'nn-init.R' 'nn-linear.R' 'nn-loss.R' 'nn-normalization.R'
-        'nn-pooling.R' 'nn-rnn.R' 'nn-sparse.R' 'nn-upsampling.R'
-        'nn-utils-clip-grad.R' 'nn-utils-rnn.R' 'nn-utils.R'
+        'install.R' 'ivalue.R' 'jit-compile.R' 'jit-execute.R'
+        'jit-ops.R' 'lantern_load.R' 'lantern_sync.R' 'layout.R'
+        'linalg.R' 'memory_format.R' 'utils-data.R' 'nn.R'
+        'nn-activation.R' 'nn-batchnorm.R' 'nn-conv.R' 'nn-distance.R'
+        'nn-dropout.R' 'nn-flatten.R' 'nn-init.R' 'nn-linear.R'
+        'nn-loss.R' 'nn-normalization.R' 'nn-pooling.R' 'nn-rnn.R'
+        'nn-sparse.R' 'nn-upsampling.R' 'nn-utils-clip-grad.R'
+        'nn-utils-rnn.R' 'nn-utils-weight-norm.R' 'nn-utils.R'
         'nn_adaptive.R' 'nnf-activation.R' 'nnf-batchnorm.R'
         'nnf-conv.R' 'nnf-distance.R' 'nnf-dropout.R' 'nnf-embedding.R'
         'nnf-fold.R' 'nnf-instancenorm.R' 'nnf-linear.R' 'nnf-loss.R'
@@ -62,13 +63,13 @@ Collate: 'R7.R' 'RcppExports.R' 'autocast.R' 'tensor.R' 'autograd.R'
         'optim-lr_scheduler.R' 'optim-rmsprop.R' 'optim-rprop.R'
         'optim-sgd.R' 'package.R' 'qscheme.R' 'quantization.R'
         'reduction.R' 'save.R' 'scalar.R' 'script_module.R' 'stack.R'
-        'storage.R' 'tensor_options.R' 'threads.R' 'trace.R'
-        'translate.R' 'type-info.R' 'utils-data-collate.R'
-        'utils-data-dataloader.R' 'utils-data-enum.R'
-        'utils-data-fetcher.R' 'utils-data-sampler.R' 'utils-pipe.R'
-        'variable_list.R' 'with-indices.R' 'wrapers.R'
+        'storage.R' 'threads.R' 'trace.R' 'translate.R' 'type-info.R'
+        'utils-data-collate.R' 'utils-data-dataloader.R'
+        'utils-data-enum.R' 'utils-data-fetcher.R'
+        'utils-data-sampler.R' 'utils-pipe.R' 'variable_list.R'
+        'with-indices.R' 'wrapers.R'
 NeedsCompilation: yes
-Packaged: 2023-04-13 06:12:56 UTC; dfalbel
+Packaged: 2023-06-06 16:30:47 UTC; dfalbel
 Author: Daniel Falbel [aut, cre, cph],
   Javier Luraschi [aut],
   Dmitriy Selivanov [ctb],
@@ -79,4 +80,4 @@ Author: Daniel Falbel [aut, cre, cph],
   RStudio [cph]
 Maintainer: Daniel Falbel <daniel@rstudio.com>
 Repository: CRAN
-Date/Publication: 2023-04-13 22:30:03 UTC
+Date/Publication: 2023-06-06 17:30:02 UTC

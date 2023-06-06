@@ -4,7 +4,11 @@
 \alias{nn_gelu}
 \title{GELU module}
 \usage{
-nn_gelu()
+nn_gelu(approximate = "none")
+}
+\arguments{
+\item{approximate}{the gelu approximation algorithm to use: \code{'none'} or \code{'tanh'}.
+Default: \code{'none'}.}
 }
 \description{
 Applies the Gaussian Error Linear Units function:

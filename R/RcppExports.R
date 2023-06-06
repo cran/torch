@@ -281,6 +281,14 @@ cpp_torch_device <- function(type, index) {
     .Call(`_torch_cpp_torch_device`, type, index)
 }
 
+cpp_set_default_device <- function(device) {
+    invisible(.Call(`_torch_cpp_set_default_device`, device))
+}
+
+cpp_get_current_default_device <- function() {
+    .Call(`_torch_cpp_get_current_default_device`)
+}
+
 cpp_torch_dimname <- function(str) {
     .Call(`_torch_cpp_torch_dimname`, str)
 }
@@ -14277,6 +14285,46 @@ cpp_jit_compile_get_function <- function(cu, name) {
     .Call(`_torch_cpp_jit_compile_get_function`, cu, name)
 }
 
+cpp_jit_all_operators <- function() {
+    .Call(`_torch_cpp_jit_all_operators`)
+}
+
+cpp_jit_operator_info <- function(name) {
+    .Call(`_torch_cpp_jit_operator_info`, name)
+}
+
+cpp_jit_all_schemas_for <- function(name) {
+    .Call(`_torch_cpp_jit_all_schemas_for`, name)
+}
+
+cpp_jit_execute <- function(name, stack) {
+    .Call(`_torch_cpp_jit_execute`, name, stack)
+}
+
+function_schema_name <- function(schema) {
+    .Call(`_torch_function_schema_name`, schema)
+}
+
+function_schema_arguments <- function(schema) {
+    .Call(`_torch_function_schema_arguments`, schema)
+}
+
+function_schema_argument_name <- function(arg) {
+    .Call(`_torch_function_schema_argument_name`, arg)
+}
+
+function_schema_argument_type <- function(arg) {
+    .Call(`_torch_function_schema_argument_type`, arg)
+}
+
+function_schema_returns <- function(schema) {
+    .Call(`_torch_function_schema_returns`, schema)
+}
+
+function_schema_return_type <- function(ret) {
+    .Call(`_torch_function_schema_return_type`, ret)
+}
+
 cpp_lantern_configure <- function(log) {
     invisible(.Call(`_torch_cpp_lantern_configure`, log))
 }
@@ -14413,8 +14461,8 @@ cpp_tensor_load <- function(input, device, base64) {
     .Call(`_torch_cpp_tensor_load`, input, device, base64)
 }
 
-cpp_load_state_dict <- function(path) {
-    .Call(`_torch_cpp_load_state_dict`, path)
+cpp_load_state_dict <- function(path, legacy_stream = FALSE) {
+    .Call(`_torch_cpp_load_state_dict`, path, legacy_stream)
 }
 
 cpp_torch_scalar <- function(x) {
@@ -14549,6 +14597,14 @@ cpp_torch_tensor_print <- function(x, n) {
     invisible(.Call(`_torch_cpp_torch_tensor_print`, x, n))
 }
 
+cpp_tensor_from_buffer <- function(data, shape, options) {
+    .Call(`_torch_cpp_tensor_from_buffer`, data, shape, options)
+}
+
+cpp_buffer_from_tensor <- function(data) {
+    .Call(`_torch_cpp_buffer_from_tensor`, data)
+}
+
 cpp_torch_tensor_dtype <- function(x) {
     .Call(`_torch_cpp_torch_tensor_dtype`, x)
 }
@@ -14639,14 +14695,6 @@ cpp_method_Tensor_is_sparse <- function(x) {
 
 cpp_torch_tensor_list <- function(x) {
     .Call(`_torch_cpp_torch_tensor_list`, x)
-}
-
-cpp_torch_tensor_options <- function(dtype_ptr, layout_ptr, device_ptr, requires_grad, pinned_memory) {
-    .Call(`_torch_cpp_torch_tensor_options`, dtype_ptr, layout_ptr, device_ptr, requires_grad, pinned_memory)
-}
-
-cpp_torch_tensor_options_print <- function(x) {
-    invisible(.Call(`_torch_cpp_torch_tensor_options_print`, x))
 }
 
 cpp_trace_function <- function(fn, inputs, compilation_unit, name, strict = TRUE, module = NULL, should_mangle = TRUE, manage_memory = TRUE) {

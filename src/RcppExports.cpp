@@ -781,6 +781,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cpp_set_default_device
+void cpp_set_default_device(SEXP device);
+RcppExport SEXP _torch_cpp_set_default_device(SEXP deviceSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type device(deviceSEXP);
+    cpp_set_default_device(device);
+    return R_NilValue;
+END_RCPP
+}
+// cpp_get_current_default_device
+SEXP cpp_get_current_default_device();
+RcppExport SEXP _torch_cpp_get_current_default_device() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(cpp_get_current_default_device());
+    return rcpp_result_gen;
+END_RCPP
+}
 // cpp_torch_dimname
 XPtrTorchDimname cpp_torch_dimname(XPtrTorchstring str);
 RcppExport SEXP _torch_cpp_torch_dimname(SEXP strSEXP) {
@@ -47472,6 +47492,116 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cpp_jit_all_operators
+torch::vector::string cpp_jit_all_operators();
+RcppExport SEXP _torch_cpp_jit_all_operators() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(cpp_jit_all_operators());
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_jit_operator_info
+torch::jit::FunctionSchema cpp_jit_operator_info(torch::string name);
+RcppExport SEXP _torch_cpp_jit_operator_info(SEXP nameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< torch::string >::type name(nameSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_jit_operator_info(name));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_jit_all_schemas_for
+torch::jit::FunctionSchemaList cpp_jit_all_schemas_for(torch::string name);
+RcppExport SEXP _torch_cpp_jit_all_schemas_for(SEXP nameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< torch::string >::type name(nameSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_jit_all_schemas_for(name));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_jit_execute
+torch::jit::Stack cpp_jit_execute(torch::string name, torch::jit::Stack stack);
+RcppExport SEXP _torch_cpp_jit_execute(SEXP nameSEXP, SEXP stackSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< torch::string >::type name(nameSEXP);
+    Rcpp::traits::input_parameter< torch::jit::Stack >::type stack(stackSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_jit_execute(name, stack));
+    return rcpp_result_gen;
+END_RCPP
+}
+// function_schema_name
+torch::string function_schema_name(XPtrTorchFunctionSchema schema);
+RcppExport SEXP _torch_function_schema_name(SEXP schemaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< XPtrTorchFunctionSchema >::type schema(schemaSEXP);
+    rcpp_result_gen = Rcpp::wrap(function_schema_name(schema));
+    return rcpp_result_gen;
+END_RCPP
+}
+// function_schema_arguments
+torch::jit::ArgumentList function_schema_arguments(XPtrTorchFunctionSchema schema);
+RcppExport SEXP _torch_function_schema_arguments(SEXP schemaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< XPtrTorchFunctionSchema >::type schema(schemaSEXP);
+    rcpp_result_gen = Rcpp::wrap(function_schema_arguments(schema));
+    return rcpp_result_gen;
+END_RCPP
+}
+// function_schema_argument_name
+torch::string function_schema_argument_name(XPtrTorchFunctionSchemaArgument arg);
+RcppExport SEXP _torch_function_schema_argument_name(SEXP argSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< XPtrTorchFunctionSchemaArgument >::type arg(argSEXP);
+    rcpp_result_gen = Rcpp::wrap(function_schema_argument_name(arg));
+    return rcpp_result_gen;
+END_RCPP
+}
+// function_schema_argument_type
+torch::string function_schema_argument_type(XPtrTorchFunctionSchemaArgument arg);
+RcppExport SEXP _torch_function_schema_argument_type(SEXP argSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< XPtrTorchFunctionSchemaArgument >::type arg(argSEXP);
+    rcpp_result_gen = Rcpp::wrap(function_schema_argument_type(arg));
+    return rcpp_result_gen;
+END_RCPP
+}
+// function_schema_returns
+torch::jit::ArgumentList function_schema_returns(XPtrTorchFunctionSchema schema);
+RcppExport SEXP _torch_function_schema_returns(SEXP schemaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< XPtrTorchFunctionSchema >::type schema(schemaSEXP);
+    rcpp_result_gen = Rcpp::wrap(function_schema_returns(schema));
+    return rcpp_result_gen;
+END_RCPP
+}
+// function_schema_return_type
+torch::string function_schema_return_type(XPtrTorchFunctionSchemaArgument ret);
+RcppExport SEXP _torch_function_schema_return_type(SEXP retSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< XPtrTorchFunctionSchemaArgument >::type ret(retSEXP);
+    rcpp_result_gen = Rcpp::wrap(function_schema_return_type(ret));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cpp_lantern_configure
 void cpp_lantern_configure(int log);
 RcppExport SEXP _torch_cpp_lantern_configure(SEXP logSEXP) {
@@ -47541,18 +47671,18 @@ BEGIN_RCPP
 END_RCPP
 }
 // cpp_layout_to_string
-std::string cpp_layout_to_string(Rcpp::XPtr<XPtrTorchLayout> layout_ptr);
+std::string cpp_layout_to_string(XPtrTorchLayout layout_ptr);
 RcppExport SEXP _torch_cpp_layout_to_string(SEXP layout_ptrSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<XPtrTorchLayout> >::type layout_ptr(layout_ptrSEXP);
+    Rcpp::traits::input_parameter< XPtrTorchLayout >::type layout_ptr(layout_ptrSEXP);
     rcpp_result_gen = Rcpp::wrap(cpp_layout_to_string(layout_ptr));
     return rcpp_result_gen;
 END_RCPP
 }
 // cpp_torch_strided
-Rcpp::XPtr<XPtrTorchLayout> cpp_torch_strided();
+XPtrTorchLayout cpp_torch_strided();
 RcppExport SEXP _torch_cpp_torch_strided() {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -47562,7 +47692,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // cpp_torch_sparse
-Rcpp::XPtr<XPtrTorchLayout> cpp_torch_sparse();
+XPtrTorchLayout cpp_torch_sparse();
 RcppExport SEXP _torch_cpp_torch_sparse() {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -47841,13 +47971,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // cpp_load_state_dict
-Rcpp::List cpp_load_state_dict(std::string path);
-RcppExport SEXP _torch_cpp_load_state_dict(SEXP pathSEXP) {
+Rcpp::List cpp_load_state_dict(torch::string path, bool legacy_stream);
+RcppExport SEXP _torch_cpp_load_state_dict(SEXP pathSEXP, SEXP legacy_streamSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::string >::type path(pathSEXP);
-    rcpp_result_gen = Rcpp::wrap(cpp_load_state_dict(path));
+    Rcpp::traits::input_parameter< torch::string >::type path(pathSEXP);
+    Rcpp::traits::input_parameter< bool >::type legacy_stream(legacy_streamSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_load_state_dict(path, legacy_stream));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -48225,6 +48356,30 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// cpp_tensor_from_buffer
+torch::Tensor cpp_tensor_from_buffer(const SEXP& data, std::vector<int64_t> shape, XPtrTorchTensorOptions options);
+RcppExport SEXP _torch_cpp_tensor_from_buffer(SEXP dataSEXP, SEXP shapeSEXP, SEXP optionsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< std::vector<int64_t> >::type shape(shapeSEXP);
+    Rcpp::traits::input_parameter< XPtrTorchTensorOptions >::type options(optionsSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_tensor_from_buffer(data, shape, options));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_buffer_from_tensor
+SEXP cpp_buffer_from_tensor(torch::Tensor data);
+RcppExport SEXP _torch_cpp_buffer_from_tensor(SEXP dataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< torch::Tensor >::type data(dataSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_buffer_from_tensor(data));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cpp_torch_tensor_dtype
 Rcpp::XPtr<XPtrTorchDtype> cpp_torch_tensor_dtype(torch::Tensor x);
 RcppExport SEXP _torch_cpp_torch_tensor_dtype(SEXP xSEXP) {
@@ -48487,31 +48642,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Rcpp::List& >::type x(xSEXP);
     rcpp_result_gen = Rcpp::wrap(cpp_torch_tensor_list(x));
     return rcpp_result_gen;
-END_RCPP
-}
-// cpp_torch_tensor_options
-XPtrTorchTensorOptions cpp_torch_tensor_options(Rcpp::Nullable<Rcpp::XPtr<XPtrTorchDtype>> dtype_ptr, Rcpp::Nullable<Rcpp::XPtr<XPtrTorch>> layout_ptr, Rcpp::Nullable<Rcpp::XPtr<XPtrTorch>> device_ptr, Rcpp::Nullable<bool> requires_grad, Rcpp::Nullable<bool> pinned_memory);
-RcppExport SEXP _torch_cpp_torch_tensor_options(SEXP dtype_ptrSEXP, SEXP layout_ptrSEXP, SEXP device_ptrSEXP, SEXP requires_gradSEXP, SEXP pinned_memorySEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::XPtr<XPtrTorchDtype>> >::type dtype_ptr(dtype_ptrSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::XPtr<XPtrTorch>> >::type layout_ptr(layout_ptrSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::XPtr<XPtrTorch>> >::type device_ptr(device_ptrSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Nullable<bool> >::type requires_grad(requires_gradSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Nullable<bool> >::type pinned_memory(pinned_memorySEXP);
-    rcpp_result_gen = Rcpp::wrap(cpp_torch_tensor_options(dtype_ptr, layout_ptr, device_ptr, requires_grad, pinned_memory));
-    return rcpp_result_gen;
-END_RCPP
-}
-// cpp_torch_tensor_options_print
-void cpp_torch_tensor_options_print(Rcpp::XPtr<XPtrTorchTensorOptions> x);
-RcppExport SEXP _torch_cpp_torch_tensor_options_print(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<XPtrTorchTensorOptions> >::type x(xSEXP);
-    cpp_torch_tensor_options_print(x);
-    return R_NilValue;
 END_RCPP
 }
 // cpp_trace_function
@@ -48830,6 +48960,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_torch_cpp_device_type_to_string", (DL_FUNC) &_torch_cpp_device_type_to_string, 1},
     {"_torch_cpp_device_index_to_int", (DL_FUNC) &_torch_cpp_device_index_to_int, 1},
     {"_torch_cpp_torch_device", (DL_FUNC) &_torch_cpp_torch_device, 2},
+    {"_torch_cpp_set_default_device", (DL_FUNC) &_torch_cpp_set_default_device, 1},
+    {"_torch_cpp_get_current_default_device", (DL_FUNC) &_torch_cpp_get_current_default_device, 0},
     {"_torch_cpp_torch_dimname", (DL_FUNC) &_torch_cpp_torch_dimname, 1},
     {"_torch_cpp_torch_dimname_list", (DL_FUNC) &_torch_cpp_torch_dimname_list, 1},
     {"_torch_cpp_dimname_to_string", (DL_FUNC) &_torch_cpp_dimname_to_string, 1},
@@ -52329,6 +52461,16 @@ static const R_CallMethodDef CallEntries[] = {
     {"_torch_cpp_jit_compile", (DL_FUNC) &_torch_cpp_jit_compile, 1},
     {"_torch_cpp_jit_compile_list_methods", (DL_FUNC) &_torch_cpp_jit_compile_list_methods, 1},
     {"_torch_cpp_jit_compile_get_function", (DL_FUNC) &_torch_cpp_jit_compile_get_function, 2},
+    {"_torch_cpp_jit_all_operators", (DL_FUNC) &_torch_cpp_jit_all_operators, 0},
+    {"_torch_cpp_jit_operator_info", (DL_FUNC) &_torch_cpp_jit_operator_info, 1},
+    {"_torch_cpp_jit_all_schemas_for", (DL_FUNC) &_torch_cpp_jit_all_schemas_for, 1},
+    {"_torch_cpp_jit_execute", (DL_FUNC) &_torch_cpp_jit_execute, 2},
+    {"_torch_function_schema_name", (DL_FUNC) &_torch_function_schema_name, 1},
+    {"_torch_function_schema_arguments", (DL_FUNC) &_torch_function_schema_arguments, 1},
+    {"_torch_function_schema_argument_name", (DL_FUNC) &_torch_function_schema_argument_name, 1},
+    {"_torch_function_schema_argument_type", (DL_FUNC) &_torch_function_schema_argument_type, 1},
+    {"_torch_function_schema_returns", (DL_FUNC) &_torch_function_schema_returns, 1},
+    {"_torch_function_schema_return_type", (DL_FUNC) &_torch_function_schema_return_type, 1},
     {"_torch_cpp_lantern_configure", (DL_FUNC) &_torch_cpp_lantern_configure, 1},
     {"_torch_cpp_lantern_version", (DL_FUNC) &_torch_cpp_lantern_version, 0},
     {"_torch_cpp_lantern_init", (DL_FUNC) &_torch_cpp_lantern_init, 1},
@@ -52363,7 +52505,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_torch_cpp_torch_reduction_sum", (DL_FUNC) &_torch_cpp_torch_reduction_sum, 0},
     {"_torch_cpp_tensor_save", (DL_FUNC) &_torch_cpp_tensor_save, 2},
     {"_torch_cpp_tensor_load", (DL_FUNC) &_torch_cpp_tensor_load, 3},
-    {"_torch_cpp_load_state_dict", (DL_FUNC) &_torch_cpp_load_state_dict, 1},
+    {"_torch_cpp_load_state_dict", (DL_FUNC) &_torch_cpp_load_state_dict, 2},
     {"_torch_cpp_torch_scalar", (DL_FUNC) &_torch_cpp_torch_scalar, 1},
     {"_torch_cpp_torch_scalar_dtype", (DL_FUNC) &_torch_cpp_torch_scalar_dtype, 1},
     {"_torch_cpp_torch_scalar_to_int", (DL_FUNC) &_torch_cpp_torch_scalar_to_int, 1},
@@ -52397,6 +52539,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_torch_cpp_Tensor_has_storage", (DL_FUNC) &_torch_cpp_Tensor_has_storage, 1},
     {"_torch_cpp_Storage_data_ptr", (DL_FUNC) &_torch_cpp_Storage_data_ptr, 1},
     {"_torch_cpp_torch_tensor_print", (DL_FUNC) &_torch_cpp_torch_tensor_print, 2},
+    {"_torch_cpp_tensor_from_buffer", (DL_FUNC) &_torch_cpp_tensor_from_buffer, 3},
+    {"_torch_cpp_buffer_from_tensor", (DL_FUNC) &_torch_cpp_buffer_from_tensor, 1},
     {"_torch_cpp_torch_tensor_dtype", (DL_FUNC) &_torch_cpp_torch_tensor_dtype, 1},
     {"_torch_torch_tensor_cpp", (DL_FUNC) &_torch_torch_tensor_cpp, 5},
     {"_torch_cpp_as_array", (DL_FUNC) &_torch_cpp_as_array, 1},
@@ -52420,8 +52564,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_torch_nnf_pad_circular", (DL_FUNC) &_torch_nnf_pad_circular, 2},
     {"_torch_cpp_method_Tensor_is_sparse", (DL_FUNC) &_torch_cpp_method_Tensor_is_sparse, 1},
     {"_torch_cpp_torch_tensor_list", (DL_FUNC) &_torch_cpp_torch_tensor_list, 1},
-    {"_torch_cpp_torch_tensor_options", (DL_FUNC) &_torch_cpp_torch_tensor_options, 5},
-    {"_torch_cpp_torch_tensor_options_print", (DL_FUNC) &_torch_cpp_torch_tensor_options_print, 1},
     {"_torch_cpp_trace_function", (DL_FUNC) &_torch_cpp_trace_function, 8},
     {"_torch_cpp_save_traced_fn", (DL_FUNC) &_torch_cpp_save_traced_fn, 2},
     {"_torch_cpp_jit_compilation_unit", (DL_FUNC) &_torch_cpp_jit_compilation_unit, 0},

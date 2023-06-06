@@ -341,49 +341,50 @@ SEXP operator_sexp_tensor_options(const XPtrTorchTensorOptions* self) {
   return xptr;
 }
 
+torch::Device get_current_device ();
 XPtrTorchTensorOptions from_sexp_tensor_options(SEXP x) {
   if (TYPEOF(x) == EXTPTRSXP && Rf_inherits(x, "torch_tensor_options")) {
     auto out = Rcpp::as<Rcpp::XPtr<XPtrTorchTensorOptions>>(x);
     return XPtrTorchTensorOptions(out->get_shared());
   }
 
-  if (TYPEOF(x) == VECSXP || Rf_inherits(x, "torch_tensor_options")) {
+  if (TYPEOF(x) == VECSXP) {
     XPtrTorchTensorOptions options(lantern_TensorOptions());
+    
+    if (get_current_device().get()) {
+      options = lantern_TensorOptions_device(options.get(), get_current_device().get());
+    }
+    
     Rcpp::List args = Rcpp::as<Rcpp::List>(x);
-
+    
     if (args.size() == 0) {
       return options;
     }
 
     std::vector<std::string> names = args.names();
 
-    for (auto i = names.begin(); i != names.end(); ++i) {
-      if (TYPEOF(args[*i]) == NILSXP) {
+    for (auto i = 0; i < names.size(); ++i) {
+      auto name = names[i];
+      
+      if (TYPEOF(args[name]) == NILSXP) {
         continue;
-      }
-
-      if (*i == "dtype") {
-        auto dtype = *Rcpp::as<Rcpp::XPtr<XPtrTorch>>(args[*i]);
+      } else if (name == "dtype") {
+        auto dtype = from_sexp_dtype(args[name]);
         options = lantern_TensorOptions_dtype(options.get(), dtype.get());
-      }
-      if (*i == "layout") {
-        auto layout = *Rcpp::as<Rcpp::XPtr<XPtrTorch>>(args[*i]);
+      } else if (name == "layout") {
+        auto layout = Rcpp::as<torch::Layout>(args[name]);
         options = lantern_TensorOptions_layout(options.get(), layout.get());
-      }
-      if (*i == "device") {
-        auto device = *Rcpp::as<Rcpp::XPtr<XPtrTorch>>(args[*i]);
+      } else if (name == "device") {
+        auto device = Rcpp::as<torch::Device>(args[name]);
         options = lantern_TensorOptions_device(options.get(), device.get());
-      }
-      if (*i == "requires_grad") {
+      } else if (name == "requires_grad") {
         options = lantern_TensorOptions_requires_grad(options.get(),
-                                                      Rcpp::as<bool>(args[*i]));
-      }
-      if (*i == "pinned_memory") {
+                                                      Rcpp::as<bool>(args[name]));
+      } else if (name == "pinned_memory") {
         options = lantern_TensorOptions_pinned_memory(options.get(),
-                                                      Rcpp::as<bool>(args[*i]));
+                                                      Rcpp::as<bool>(args[name]));
       }
     }
-
     return options;
   }
 
@@ -447,7 +448,12 @@ XPtrTorchDevice from_sexp_device(SEXP x) {
   Rcpp::stop("Expected a torch_device");
 }
 
-void delete_device(void* x) { lantern_Device_delete(x); }
+void delete_device(void* x) { 
+  // if the device is a nullptr there's no need to call the lantern function.
+  if (x) {
+    lantern_Device_delete(x);   
+  }
+}
 
 // script module
 
@@ -520,6 +526,11 @@ XPtrTorchDtype from_sexp_dtype(SEXP x) {
     auto out = Rcpp::as<Rcpp::XPtr<XPtrTorchDtype>>(x);
     return XPtrTorchDtype(out->get_shared());
   }
+  
+  if (TYPEOF(x) == STRSXP) {
+    auto dtype_string = Rcpp::as<XPtrTorchstring>(x);
+    return XPtrTorchDtype(lantern_Dtype_from_string(dtype_string.get()));
+  }
 
   if (TYPEOF(x) == NILSXP) {
     return XPtrTorchDtype();
@@ -529,6 +540,28 @@ XPtrTorchDtype from_sexp_dtype(SEXP x) {
 }
 
 void delete_dtype(void* x) { lantern_Dtype_delete(x); }
+
+// layout
+
+SEXP operator_sexp_layout(const XPtrTorchLayout* self) {
+  auto xptr = make_xptr<XPtrTorchLayout>(*self);
+  xptr.attr("class") = Rcpp::CharacterVector::create("torch_layout", "R7");
+  return xptr;
+}
+
+XPtrTorchLayout from_sexp_layout(SEXP x) {
+  if (TYPEOF(x) == EXTPTRSXP && Rf_inherits(x, "torch_layout")) {
+    auto out = Rcpp::as<Rcpp::XPtr<XPtrTorchLayout>>(x);
+    return XPtrTorchLayout(out->get_shared());
+  }
+  
+  if (TYPEOF(x) == NILSXP) {
+    return XPtrTorchLayout();
+  }
+  
+  Rcpp::stop("Expected a torch_layout");
+}
+
 
 // dimname
 
@@ -1138,6 +1171,87 @@ XPtrTorchIValue from_sexp_ivalue(SEXP x) {
 }
 
 void delete_ivalue(void* x) { lantern_IValue_delete(x); }
+
+
+// function schema
+
+void delete_function_schema(void* x) { lantern_function_schema_delete(x); }
+
+XPtrTorchFunctionSchema from_sexp_function_schema(SEXP x) {
+  if (TYPEOF(x) == EXTPTRSXP && Rf_inherits(x, "function_schema")) {
+    auto out = Rcpp::as<Rcpp::XPtr<XPtrTorchFunctionSchema>>(x);
+    return XPtrTorchFunctionSchema(out->get_shared());
+  }
+  Rcpp::stop("Unsupported type. Expected an external pointer.");
+}
+
+XPtrTorchFunctionSchema::operator SEXP() const {
+  auto xptr = make_xptr<XPtrTorchFunctionSchema>(*this);
+  xptr.attr("class") = Rcpp::CharacterVector::create("function_schema", "R7");
+  return xptr;
+}
+
+
+// function schema list
+
+void delete_function_schema_list(void* x) { lantern_function_schema_list_delete(x); }
+
+XPtrTorchFunctionSchemaList from_sexp_function_schema_list(SEXP x) {
+  if (TYPEOF(x) == EXTPTRSXP && Rf_inherits(x, "function_schema_list")) {
+    auto out = Rcpp::as<Rcpp::XPtr<XPtrTorchFunctionSchemaList>>(x);
+    return XPtrTorchFunctionSchemaList(out->get_shared());
+  }
+  Rcpp::stop("Unsupported type. Expected an external pointer.");
+}
+
+SEXP operator_sexp_function_schema_list(const XPtrTorchFunctionSchemaList* self) {
+  int64_t sze = _lantern_function_schema_list_size(self->get());
+  Rcpp::List out(sze);
+  for (int i = 0; i < sze; i++) {
+    void* tmp = _lantern_function_schema_list_at(self->get(), i);
+    out[i] = XPtrTorchFunctionSchema(tmp);
+  }
+  return out;
+}
+
+// function schema argument
+
+void delete_function_schema_argument(void* x) { lantern_function_schema_argument_delete(x); }
+
+XPtrTorchFunctionSchemaArgument from_sexp_function_schema_argument(SEXP x) {
+  if (TYPEOF(x) == EXTPTRSXP && Rf_inherits(x, "function_schema_argument")) {
+    auto out = Rcpp::as<Rcpp::XPtr<XPtrTorchFunctionSchemaArgument>>(x);
+    return XPtrTorchFunctionSchemaArgument(out->get_shared());
+  }
+  Rcpp::stop("Unsupported type. Expected an external pointer.");
+}
+XPtrTorchFunctionSchemaArgument::operator SEXP() const {
+  auto xptr = make_xptr<XPtrTorchFunctionSchemaArgument>(*this);
+  xptr.attr("class") = Rcpp::CharacterVector::create("function_schema_argument", "R7");
+  return xptr;
+}
+
+
+// function schema argument list
+void delete_function_schema_argument_list(void* x) { lantern_function_schema_argument_list_delete(x); }
+
+XPtrTorchFunctionSchemaArgumentList from_sexp_function_schema_argument_list(SEXP x) {
+  if (TYPEOF(x) == EXTPTRSXP && Rf_inherits(x, "function_schema_argument_list")) {
+    auto out = Rcpp::as<Rcpp::XPtr<XPtrTorchFunctionSchemaArgumentList>>(x);
+    return XPtrTorchFunctionSchemaArgumentList(out->get_shared());
+  }
+  Rcpp::stop("Unsupported type. Expected an external pointer.");
+}
+
+SEXP operator_sexp_function_schema_argument_list(const XPtrTorchFunctionSchemaArgumentList* self) {
+  int64_t sze = _lantern_function_schema_num_arguments(self->get());
+  Rcpp::List out(sze);
+  for (int i = 0; i < sze; i++) {
+    void* tmp = _lantern_function_schema_argument_at(self->get(), i);
+    out[i] = XPtrTorchFunctionSchemaArgument(tmp);
+  }
+  return out;
+}
 
 // tuple
 

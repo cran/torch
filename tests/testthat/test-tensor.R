@@ -506,3 +506,37 @@ test_that("can make a byte tensor from a raw vector", {
   expect_equal(as.array(ten), x)
   expect_equal(rawToChar(as.array(ten)), "hello world")
 })
+
+test_that("to can change both device and dtype", {
+  
+  x <- torch_randn(10, 10)
+  y <- x$to(dtype = "double", device = "meta")
+  
+  expect_true(y$dtype == torch_double())
+  expect_true(y$device == torch_device("meta"))
+})
+
+test_that("can convert to half using the method `half()`", {
+  x <- torch_randn(10, 10)
+  y <- x$half()
+
+  expect_true(y$dtype == torch_half())
+
+  x <- torch_tensor(1, dtype="half")
+  expect_equal(as.numeric(x), 1)
+})
+
+test_that("can create tensor from a buffer", {
+  x <- runif(10)
+  y <- torch_tensor_from_buffer(x, shape = 10, dtype = "float64")
+  expect_equal(as.numeric(y), x)
+  y$add_(1)
+  expect_equal(as.numeric(y), x)
+})
+
+test_that("can create a buffer from a tensor", {
+  x <- torch_randn(10, 10)
+  y <- buffer_from_torch_tensor(x)
+  z <- torch_tensor_from_buffer(y, shape = c(10, 10), dtype="float")
+  expect_true(torch_allclose(x, z))
+})

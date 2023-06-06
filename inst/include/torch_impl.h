@@ -124,6 +124,13 @@ XPtrTorchDtype::operator SEXP() const { return operator_sexp_dtype(this); }
 
 XPtrTorchDtype::XPtrTorchDtype(SEXP x) : XPtrTorch{from_sexp_dtype(x)} {}
 
+// layout
+
+XPtrTorchLayout::operator SEXP() const { return operator_sexp_layout(this); }
+
+XPtrTorchLayout::XPtrTorchLayout(SEXP x) : XPtrTorch{from_sexp_layout(x)} {}
+
+
 // dimname
 
 XPtrTorchDimname::operator SEXP() const { return operator_sexp_dimname(this); }
@@ -286,6 +293,30 @@ XPtrTorchIValue::operator SEXP() const { return operator_sexp_ivalue(this); }
 
 XPtrTorchIValue::XPtrTorchIValue(SEXP x)
     : XPtrTorchIValue{from_sexp_ivalue(x)} {}
+
+// function schema
+
+XPtrTorchFunctionSchema::XPtrTorchFunctionSchema(SEXP x)
+  : XPtrTorchFunctionSchema{from_sexp_function_schema(x)} {}
+
+// function schema list
+
+XPtrTorchFunctionSchemaList::operator SEXP() const { return operator_sexp_function_schema_list(this); }
+
+XPtrTorchFunctionSchemaList::XPtrTorchFunctionSchemaList(SEXP x)
+  : XPtrTorchFunctionSchemaList{from_sexp_function_schema_list(x)} {}
+
+// function schema argument
+
+XPtrTorchFunctionSchemaArgument::XPtrTorchFunctionSchemaArgument(SEXP x)
+  : XPtrTorchFunctionSchemaArgument{from_sexp_function_schema_argument(x)} {}
+
+// function schema argument list
+
+XPtrTorchFunctionSchemaArgumentList::operator SEXP() const { return operator_sexp_function_schema_argument_list(this); }
+
+XPtrTorchFunctionSchemaArgumentList::XPtrTorchFunctionSchemaArgumentList(SEXP x)
+  : XPtrTorchFunctionSchemaArgumentList{from_sexp_function_schema_argument_list(x)} {}
 
 // tuple
 
