@@ -340,8 +340,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(torch)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">torch_manual_seed</span>(<span class="dv">1</span>) <span class="co"># setting seed for reproducibility</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(torch)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">torch_manual_seed</span>(<span class="dv">1</span>) <span class="co"># setting seed for reproducibility</span></span></code></pre></div>
 <p>This vignette showcases the basic functionality of distributions in
 torch. Currently the distributions modules are considered ‘work in
 progress’ and are still experimental features in the torch package. You
@@ -352,29 +352,29 @@ module</a> which in turn is based on the TensorFlow <a href="https://arxiv.org/a
 <div id="basic-univariate-distributions" class="section level2">
 <h2>Basic univariate distributions</h2>
 <p>Let’s start and create a new instance of a normal distribution:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">distr_normal</span>(<span class="at">loc =</span> <span class="dv">0</span>, <span class="at">scale =</span> <span class="dv">1</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>n</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">distr_normal</span>(<span class="at">loc =</span> <span class="dv">0</span>, <span class="at">scale =</span> <span class="dv">1</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>n</span></code></pre></div>
 <p>We can draw samples from it with:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>n<span class="sc">$</span><span class="fu">sample</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>n<span class="sc">$</span><span class="fu">sample</span>()</span></code></pre></div>
 <p>or, draw multiple samples:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>n<span class="sc">$</span><span class="fu">sample</span>(<span class="dv">3</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>n<span class="sc">$</span><span class="fu">sample</span>(<span class="dv">3</span>)</span></code></pre></div>
 <p>We can evaluate the log probability of values:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>n<span class="sc">$</span><span class="fu">log_prob</span>(<span class="dv">0</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">log</span>(<span class="fu">dnorm</span>(<span class="dv">0</span>)) <span class="co"># equivalent R code</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>n<span class="sc">$</span><span class="fu">log_prob</span>(<span class="dv">0</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">log</span>(<span class="fu">dnorm</span>(<span class="dv">0</span>)) <span class="co"># equivalent R code</span></span></code></pre></div>
 <p>or, evaluate multiple log probabilities:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>n<span class="sc">$</span><span class="fu">log_prob</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">4</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>n<span class="sc">$</span><span class="fu">log_prob</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">4</span>))</span></code></pre></div>
 </div>
 <div id="multiple-distributions" class="section level2">
 <h2>Multiple distributions</h2>
 <p>A distribution can take a tensor as it’s parameters:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">distr_bernoulli</span>(<span class="at">probs =</span> <span class="fu">torch_tensor</span>(<span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>)))</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>b</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">distr_bernoulli</span>(<span class="at">probs =</span> <span class="fu">torch_tensor</span>(<span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>)))</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>b</span></code></pre></div>
 <p>This object represents 3 independent Bernoulli distributions, one for
 each element of the tensor.</p>
 <p>We can sample a single observation:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>b<span class="sc">$</span><span class="fu">sample</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>b<span class="sc">$</span><span class="fu">sample</span>()</span></code></pre></div>
 <p>or, a batch of <code>n</code> observations:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>b<span class="sc">$</span><span class="fu">sample</span>(<span class="dv">6</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>b<span class="sc">$</span><span class="fu">sample</span>(<span class="dv">6</span>)</span></code></pre></div>
 </div>
 <div id="using-distributions-within-models" class="section level2">
 <h2>Using distributions within models</h2>
@@ -383,43 +383,43 @@ differentiated, thus, distributions can be used to train models in
 torch.</p>
 <p>Let’s implement a Gaussian linear model, but first let’s simulate
 some data</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_randn</span>(<span class="dv">100</span>, <span class="dv">1</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span>x <span class="sc">+</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fu">torch_randn</span>(<span class="dv">100</span>, <span class="dv">1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_randn</span>(<span class="dv">100</span>, <span class="dv">1</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span>x <span class="sc">+</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fu">torch_randn</span>(<span class="dv">100</span>, <span class="dv">1</span>)</span></code></pre></div>
 <p>and plot:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">as.numeric</span>(x), <span class="fu">as.numeric</span>(y))</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">as.numeric</span>(x), <span class="fu">as.numeric</span>(y))</span></code></pre></div>
 <p>We can now define our model:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>GaussianLinear <span class="ot">&lt;-</span> <span class="fu">nn_module</span>(</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">initialize =</span> <span class="cf">function</span>() {</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># this linear predictor will estimate the mean of the normal distribution</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>linear <span class="ot">&lt;-</span> <span class="fu">nn_linear</span>(<span class="dv">1</span>, <span class="dv">1</span>)</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># this parameter will hold the estimate of the variability</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>scale <span class="ot">&lt;-</span> <span class="fu">nn_parameter</span>(<span class="fu">torch_ones</span>(<span class="dv">1</span>))</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  },</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">forward =</span> <span class="cf">function</span>(x) {</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># we estimate the mean</span></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    loc <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">linear</span>(x)</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># return a normal distribution</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">distr_normal</span>(loc, self<span class="sc">$</span>scale)</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">GaussianLinear</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>GaussianLinear <span class="ot">&lt;-</span> <span class="fu">nn_module</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>  <span class="at">initialize =</span> <span class="cf">function</span>() {</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>    <span class="co"># this linear predictor will estimate the mean of the normal distribution</span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>    self<span class="sc">$</span>linear <span class="ot">&lt;-</span> <span class="fu">nn_linear</span>(<span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>    <span class="co"># this parameter will hold the estimate of the variability</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>    self<span class="sc">$</span>scale <span class="ot">&lt;-</span> <span class="fu">nn_parameter</span>(<span class="fu">torch_ones</span>(<span class="dv">1</span>))</span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>  },</span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a>  <span class="at">forward =</span> <span class="cf">function</span>(x) {</span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a>    <span class="co"># we estimate the mean</span></span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a>    loc <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">linear</span>(x)</span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a>    <span class="co"># return a normal distribution</span></span>
+<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a>    <span class="fu">distr_normal</span>(loc, self<span class="sc">$</span>scale)</span>
+<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a>  }</span>
+<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a>)</span>
+<span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">GaussianLinear</span>()</span></code></pre></div>
 <p>We can now train our model with:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>opt <span class="ot">&lt;-</span> <span class="fu">optim_sgd</span>(model<span class="sc">$</span>parameters, <span class="at">lr =</span> <span class="fl">0.1</span>)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>) {</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  opt<span class="sc">$</span><span class="fu">zero_grad</span>()</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">model</span>(x)</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  loss <span class="ot">&lt;-</span> <span class="fu">torch_mean</span>(<span class="sc">-</span>d<span class="sc">$</span><span class="fu">log_prob</span>(y))</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  loss<span class="sc">$</span><span class="fu">backward</span>()</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  opt<span class="sc">$</span><span class="fu">step</span>()</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (i <span class="sc">%%</span> <span class="dv">10</span> <span class="sc">==</span> <span class="dv">0</span>)</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">&quot;iter: &quot;</span>, i, <span class="st">&quot; loss: &quot;</span>, loss<span class="sc">$</span><span class="fu">item</span>(), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>opt <span class="ot">&lt;-</span> <span class="fu">optim_sgd</span>(model<span class="sc">$</span>parameters, <span class="at">lr =</span> <span class="fl">0.1</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>) {</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  opt<span class="sc">$</span><span class="fu">zero_grad</span>()</span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">model</span>(x)</span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>  loss <span class="ot">&lt;-</span> <span class="fu">torch_mean</span>(<span class="sc">-</span>d<span class="sc">$</span><span class="fu">log_prob</span>(y))</span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>  loss<span class="sc">$</span><span class="fu">backward</span>()</span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a>  opt<span class="sc">$</span><span class="fu">step</span>()</span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>  <span class="cf">if</span> (i <span class="sc">%%</span> <span class="dv">10</span> <span class="sc">==</span> <span class="dv">0</span>)</span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">&quot;iter: &quot;</span>, i, <span class="st">&quot; loss: &quot;</span>, loss<span class="sc">$</span><span class="fu">item</span>(), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a>}</span></code></pre></div>
 <p>We can see the parameter estimates with:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>model<span class="sc">$</span>parameters</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>model<span class="sc">$</span>parameters</span></code></pre></div>
 <p>and quickly compare with the <code>glm()</code> function:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">glm</span>(<span class="fu">as.numeric</span>(y) <span class="sc">~</span> <span class="fu">as.numeric</span>(x)))</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">glm</span>(<span class="fu">as.numeric</span>(y) <span class="sc">~</span> <span class="fu">as.numeric</span>(x)))</span></code></pre></div>
 </div>
 
 

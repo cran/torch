@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(torch)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(torch)</span></code></pre></div>
 <p>In this article we describe the indexing operator for torch tensors
 and how it compares to the R indexing operator for arrays.</p>
 <p>Torch’s indexing semantics are closer to numpy’s semantics than R’s.
@@ -352,35 +352,36 @@ You will find a lot of similarities between this article and the
 Like R, it is 1-based. Unlike R though, it accepts negative indices for
 indexing from the end of the array. (In R, negative indices are used to
 remove elements.)</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_tensor</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>x[<span class="dv">1</span>]</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>x[<span class="sc">-</span><span class="dv">1</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_tensor</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>x[<span class="dv">1</span>]</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>x[<span class="sc">-</span><span class="dv">1</span>]</span></code></pre></div>
 <p>You can also subset matrices and higher dimensions arrays using the
 same syntax:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> x<span class="sc">$</span><span class="fu">reshape</span>(<span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">5</span>))</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>x</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>x[<span class="dv">1</span>,<span class="dv">3</span>]</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>x[<span class="dv">1</span>,<span class="sc">-</span><span class="dv">1</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> x<span class="sc">$</span><span class="fu">reshape</span>(<span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">5</span>))</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>x</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>x[<span class="dv">1</span>,<span class="dv">3</span>]</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>x[<span class="dv">1</span>,<span class="sc">-</span><span class="dv">1</span>]</span></code></pre></div>
 <p>Note that if one indexes a multidimensional tensor with fewer indices
-than dimensions, one gets an error, unlike in R that would flatten the
-array. For example:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>x[<span class="dv">1</span>]</span></code></pre></div>
+than dimensions, torch’s behaviour differs from R, which flattens the
+array. In torch, the missing indices are considered complete slices
+<code>:</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>x[<span class="dv">1</span>]</span></code></pre></div>
 </div>
 <div id="slicing-and-striding" class="section level2">
 <h2>Slicing and striding</h2>
 <p>It is possible to slice and stride arrays to extract sub-arrays of
 the same number of dimensions, but of different sizes than the original.
 This is best illustrated by a few examples:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_tensor</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>x</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>x[<span class="dv">2</span><span class="sc">:</span><span class="dv">5</span>]</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>x[<span class="dv">1</span><span class="sc">:</span>(<span class="sc">-</span><span class="dv">7</span>)]</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_tensor</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>x</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>x[<span class="dv">2</span><span class="sc">:</span><span class="dv">5</span>]</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>x[<span class="dv">1</span><span class="sc">:</span>(<span class="sc">-</span><span class="dv">7</span>)]</span></code></pre></div>
 <p>You can also use the <code>1:10:2</code> syntax which means: In the
 range from 1 to 10, take every second item. For example:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>x[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span><span class="sc">:</span><span class="dv">2</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>x[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span><span class="sc">:</span><span class="dv">2</span>]</span></code></pre></div>
 <p>Another special syntax is the <code>N</code>, meaning the size of the
 specified dimension.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>x[<span class="dv">5</span><span class="sc">:</span>N]</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>x[<span class="dv">5</span><span class="sc">:</span>N]</span></code></pre></div>
 <blockquote>
 <p>Note: the slicing behavior relies on <a href="https://adv-r.hadley.nz/evaluation.html#evaluation">Non Standard
 Evaluation</a>. It requires that the expression is passed to the
@@ -388,52 +389,52 @@ Evaluation</a>. It requires that the expression is passed to the
 </blockquote>
 <p>To allow dynamic dynamic indices, you can create a new slice using
 the <code>slc</code> function. For example:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>x[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span><span class="sc">:</span><span class="dv">2</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>x[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span><span class="sc">:</span><span class="dv">2</span>]</span></code></pre></div>
 <p>is equivalent to:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>x[<span class="fu">slc</span>(<span class="at">start =</span> <span class="dv">1</span>, <span class="at">end =</span> <span class="dv">5</span>, <span class="at">step =</span> <span class="dv">2</span>)]</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>x[<span class="fu">slc</span>(<span class="at">start =</span> <span class="dv">1</span>, <span class="at">end =</span> <span class="dv">5</span>, <span class="at">step =</span> <span class="dv">2</span>)]</span></code></pre></div>
 </div>
 <div id="getting-the-complete-dimension" class="section level2">
 <h2>Getting the complete dimension</h2>
 <p>Like in R, you can take all elements in a dimension by leaving an
 index empty.</p>
 <p>Consider a matrix:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_randn</span>(<span class="dv">2</span>, <span class="dv">3</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>x</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_randn</span>(<span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>x</span></code></pre></div>
 <p>The following syntax will give you the first row:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>x[<span class="dv">1</span>,]</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>x[<span class="dv">1</span>,]</span></code></pre></div>
 <p>And this would give you the first 2 columns:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>x[,<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>x[,<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>]</span></code></pre></div>
 </div>
 <div id="dropping-dimensions" class="section level2">
 <h2>Dropping dimensions</h2>
 <p>By default, when indexing by a single integer, this dimension will be
 dropped to avoid the singleton dimension:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_randn</span>(<span class="dv">2</span>, <span class="dv">3</span>)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>x[<span class="dv">1</span>,]<span class="sc">$</span>shape</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_randn</span>(<span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>x[<span class="dv">1</span>,]<span class="sc">$</span>shape</span></code></pre></div>
 <p>You can optionally use the <code>drop = FALSE</code> argument to
 avoid dropping the dimension.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>x[<span class="dv">1</span>,,drop <span class="ot">=</span> <span class="cn">FALSE</span>]<span class="sc">$</span>shape</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>x[<span class="dv">1</span>,,drop <span class="ot">=</span> <span class="cn">FALSE</span>]<span class="sc">$</span>shape</span></code></pre></div>
 </div>
 <div id="adding-a-new-dimension" class="section level2">
 <h2>Adding a new dimension</h2>
 <p>It’s possible to add a new dimension to a tensor using index-like
 syntax:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_tensor</span>(<span class="fu">c</span>(<span class="dv">10</span>))</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>x<span class="sc">$</span>shape</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>x[, newaxis]<span class="sc">$</span>shape</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>x[, newaxis, newaxis]<span class="sc">$</span>shape</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_tensor</span>(<span class="fu">c</span>(<span class="dv">10</span>))</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>x<span class="sc">$</span>shape</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>x[, newaxis]<span class="sc">$</span>shape</span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a>x[, newaxis, newaxis]<span class="sc">$</span>shape</span></code></pre></div>
 <p>You can also use <code>NULL</code> instead of
 <code>newaxis</code>:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>x[,<span class="cn">NULL</span>]<span class="sc">$</span>shape</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>x[,<span class="cn">NULL</span>]<span class="sc">$</span>shape</span></code></pre></div>
 </div>
 <div id="dealing-with-variable-number-of-indices" class="section level2">
 <h2>Dealing with variable number of indices</h2>
 <p>Sometimes we don’t know how many dimensions a tensor has, but we do
 know what to do with the last available dimension, or the first one. To
 subsume all others, we can use <code>..</code>:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>z <span class="ot">&lt;-</span> <span class="fu">torch_tensor</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">125</span>)<span class="sc">$</span><span class="fu">reshape</span>(<span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">5</span>,<span class="dv">5</span>))</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>z[<span class="dv">1</span>,..]</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>z[..,<span class="dv">1</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>z <span class="ot">&lt;-</span> <span class="fu">torch_tensor</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">125</span>)<span class="sc">$</span><span class="fu">reshape</span>(<span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">5</span>,<span class="dv">5</span>))</span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>z[<span class="dv">1</span>,..]</span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>z[..,<span class="dv">1</span>]</span></code></pre></div>
 </div>
 <div id="indexing-with-vectors" class="section level2">
 <h2>Indexing with vectors</h2>
@@ -447,18 +448,18 @@ advanced indexing</a>. To use the old behavior, consider using
 <code>?torch_index</code>, <code>?torch_index_put</code> or
 <code>torch_index_put_</code>.</p>
 </blockquote>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_randn</span>(<span class="dv">4</span>,<span class="dv">4</span>)</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>x[<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>), <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>)]</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_randn</span>(<span class="dv">4</span>,<span class="dv">4</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>x[<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>), <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>)]</span></code></pre></div>
 <p>You can also use boolean vectors, for example:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>x[<span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">FALSE</span>, <span class="cn">TRUE</span>, <span class="cn">FALSE</span>), <span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">FALSE</span>, <span class="cn">TRUE</span>, <span class="cn">FALSE</span>)]</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>x[<span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">FALSE</span>, <span class="cn">TRUE</span>, <span class="cn">FALSE</span>), <span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">FALSE</span>, <span class="cn">TRUE</span>, <span class="cn">FALSE</span>)]</span></code></pre></div>
 <p>The above examples also work if the index were long or boolean
 tensors, instead of R vectors. It’s also possible to index with
 multi-dimensional boolean tensors:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_tensor</span>(<span class="fu">rbind</span>(</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>)</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>))</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>x[x<span class="sc">&gt;</span><span class="dv">3</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_tensor</span>(<span class="fu">rbind</span>(</span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),</span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a>))</span>
+<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a>x[x<span class="sc">&gt;</span><span class="dv">3</span>]</span></code></pre></div>
 </div>
 
 

@@ -50,7 +50,10 @@ dtype_from_string <- function(str) {
     "bool" = torch_bool(),
     "quint8" = torch_quint8(),
     "qint8" = torch_qint8(),
-    "qint32" = torch_qint32()
+    "qint32" = torch_qint32(),
+    "chalf" = torch_chalf(),
+    "cfloat" = torch_cfloat(),
+    "cdouble" = torch_cdouble()
   )
 }
 
@@ -81,16 +84,24 @@ torch_double <- function() torch_dtype$new(cpp_torch_float64())
 
 #' @rdname torch_dtype
 #' @export
+torch_cfloat32 <- function() torch_dtype$new(cpp_torch_chalf())
+#' @rdname torch_dtype
+#' @export
+torch_chalf <- function() torch_dtype$new(cpp_torch_chalf())
+
+#' @rdname torch_dtype
+#' @export
 torch_cfloat <- function() torch_dtype$new(cpp_torch_cfloat())
 #' @rdname torch_dtype
 #' @export
-torch_cfloat32 <- function() torch_dtype$new(cpp_torch_cfloat())
+torch_cfloat64 <- function() torch_dtype$new(cpp_torch_cfloat())
+
 #' @rdname torch_dtype
 #' @export
 torch_cdouble <- function() torch_dtype$new(cpp_torch_cdouble())
 #' @rdname torch_dtype
 #' @export
-torch_cfloat64 <- function() torch_dtype$new(cpp_torch_cdouble())
+torch_cfloat128 <- function() torch_dtype$new(cpp_torch_cdouble())
 
 #' @rdname torch_dtype
 #' @export
@@ -147,6 +158,9 @@ torch_qint32 <- function() torch_dtype$new(cpp_torch_qint32())
 
 #' @export
 `==.torch_dtype` <- function(e1, e2) {
+  if (!is_torch_dtype(e1) || !is_torch_dtype(e2)) {
+    runtime_error("One of the objects is not a dtype. Comparison is not possible.")
+  }
   cpp_dtype_to_string(e1$ptr) == cpp_dtype_to_string(e2$ptr)
 }
 

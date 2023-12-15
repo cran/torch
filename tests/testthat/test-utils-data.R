@@ -131,7 +131,7 @@ test_that("datasets have a custom print method", {
     parent_env = .GlobalEnv
   )
 
-  expect_output(print(data), regex = "dataset_generator")
+  expect_output(print(data), regexp = "dataset_generator")
 })
 
 test_that("dataset subset adds more classes", {
@@ -171,4 +171,21 @@ test_that("can get a single element using `[[`", {
   # this should call getitem and drop the batch dimension when possible.
   ds <- tensor_dataset(torch_rand(11,3), torch_rand(11,1))
   expect_equal(dim(ds[[1]][[1]]), 3)
+})
+
+test_that("can have a dataset named torch_tensor", {
+
+  ds <- dataset("torch_tensor",
+    initialize = function() {
+    },
+    .getitem = function(id) {
+      torch::torch_tensor(1)
+    },
+    .length = function() 1L
+  )
+  
+  expect_no_error({
+    a <- ds()
+  })
+  
 })

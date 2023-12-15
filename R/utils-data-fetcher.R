@@ -10,6 +10,12 @@ BaseDatasetFetcher <- R6::R6Class(
     },
     fetch = function(possibly_batched_index) {
       not_implemented_error()
+    },
+    state_dict = function() {
+      self$dataset$state_dict()
+    },
+    load_state_dict = function(x, ...) {
+      self$dataset$load_state_dict(x, ...)
     }
   )
 )
@@ -30,6 +36,12 @@ IterableDatasetFetcher <- R6::R6Class(
           d <- self$dataset_iter()
 
           if (is_exhausted(d)) {
+            if (self$drop_last || i ==  1) {
+              return(coro::exhausted())
+            }
+            
+            # we drop the null values in that list.
+            data <- data[seq_len(i-1L)]
             break
           }
 
@@ -38,6 +50,7 @@ IterableDatasetFetcher <- R6::R6Class(
       } else {
         data <- self$dataset_iter()
       }
+      
       self$collate_fn(data)
     }
   )

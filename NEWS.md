@@ -1,3 +1,30 @@
+# torch 0.12.0
+
+## Breaking changes
+
+- New `torch_save` serialization format. It's ~10x faster and since it's based on safetensors, files can be read with any safetensors implementation. (#1071)
+- Updated to LibTorch 2.0.1. (#1085)
+- `torch_load` no longer supports `device=NULL` to load weights in the same device they were saved. (#1085)
+- Lantern binaries and torch pre-built binaries are now built on Ubuntu 20.04. (#1124)
+
+## New features
+
+- Added support for CUDA 11.8. (#1089)
+- Added support for iterable datasets. (#1095)
+
+## Bug fixes
+
+- fix printer of torch device (add new line at the end)
+- `as.array` now moves tensors to the cpu before copying data into R. (#1080)
+- Fixed segfault caused by comparing a `dtype` with a `NULL`. (#1090)
+- Fixed incorrect naming of complex data type names, such as `torch_cfloat64`. (#1091)
+- Fixed name of the `out_features` attribute in the `nn_linear` module. (#1097)
+- Fixed issues when loading the state dict of optimizers and learning rate schedulers. (#1100)
+- Fixed bug when cloning `nn_module`s with empty state dicts. (#1108)
+- `distr_multivariate_normal` now correctly handles precision matrix's. (#1110)
+- Moved `length.torch_tensor` implementation to R7 to avoid problems when a torch dataset has the `torch_tensor` class. (#1111)
+- Fixed problem when deep cloning a `nn_module`. (#1123)
+
 # torch 0.11.0
 
 ## Breaking changes
@@ -317,7 +344,7 @@ everytime backward is called. (#873)
 - Added `distr_categorical()` (#576)
 - Added `distr_mixture_same_family()` (#576)
 - Improve handling of optimizers state and implement `load_state_dict()` and `state_dict()` for optimizers. (#585)
-- Added the ability to save R `list`s containing `torch_tensor`s using `torch_save`. This allows us to save the state of optimizers and modules using `torch_save()`. (#586) 
+- Added the ability to save R `list`s containing `torch_tensor`s using `torch_save`. This allows us to save the state of optimizers and modules using `torch_save()`. (#586)
 
 ## Bug fixes
 
@@ -389,10 +416,10 @@ everytime backward is called. (#873)
 
 - Removed the PerformanceReporter from tests to get easier to read stack traces. (#449)
 - Internal change in the R7 classes so R7 objects are simple external pointer instead of environments. This might cause breaking change if you relied on saving any kind of state in the Tensor object. (#452)
-- Internal refactoring making Rcpp aware of some XPtrTorch* types so making it simpler to return them from Rcpp code. This might cause a breaking change if you are relying on `torch_dtype()` being an R6 class. (#451) 
+- Internal refactoring making Rcpp aware of some XPtrTorch* types so making it simpler to return them from Rcpp code. This might cause a breaking change if you are relying on `torch_dtype()` being an R6 class. (#451)
 - Internal changes to auto unwrap arguments from SEXP's in Rcpp. This will make easier to move the dispatcher system to C++ in the future, but already allows us to gain ~30% speedups in small operations. (#454)
 - Added a Windows GPU CI workflow (#508).
-- Update to LibTorch v1.8 (#513) 
+- Update to LibTorch v1.8 (#513)
 - Moved some parts of the dispatcher to C++ to make it faster. (#520)
 
 # torch 0.2.1
@@ -478,13 +505,13 @@ everytime backward is called. (#873)
 - Fixed bug that made `RandomSampler(replacement = TRUE)` to never take the last
   element in the dataset. (84861fa)
 - Fixed `torch_topk` and `x$topk` so the returned indexes are 1-based (#280)
-- Fixed a bug (#275) that would cause `1 - torch_tensor(1, device = "cuda")` to 
+- Fixed a bug (#275) that would cause `1 - torch_tensor(1, device = "cuda")` to
   fail because `1` was created in the CPU. (#279)
 - We now preserve names in the `dataloader` output (#286)
-- `torch_narrow`, `Tensor$narrow()` and `Tensor$narrow_copy` are now indexed 
+- `torch_narrow`, `Tensor$narrow()` and `Tensor$narrow_copy` are now indexed
   starting at 1. (#294)
 - `Tensor$is_leaf` is now an active method. (#295)
-- Fixed bug when passing equations to `torch_einsum`. (#296)  
+- Fixed bug when passing equations to `torch_einsum`. (#296)
 - Fixed `nn_module_list()` to correctly name added modules, otherwise they are not
   returned when doing `state_dict()` on it. (#300)
 - Fixed bug related to random number seeds when using in-place methods. (#303)
@@ -496,7 +523,7 @@ everytime backward is called. (#873)
 ## New features
 
 - Expanded the `utils_data_default_collate` to support converting R objects to
-  torch tensors when needed. (#269) 
+  torch tensors when needed. (#269)
 - Added an `as.matrix` method for torch Tensors. (#282)
 - By default we now truncate the output of `print(totrch_tensor(1:40))` if it
   spans for more than 30 lines. This is useful for not spamming the console or

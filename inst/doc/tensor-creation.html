@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(torch)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(torch)</span></code></pre></div>
 <p>In this article we describe various ways of creating
 <code>torch</code> tensors in R.</p>
 <div id="from-r-objects" class="section level2">
@@ -350,11 +350,11 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 function takes an R vector, matrix or array and creates an equivalent
 <code>torch_tensor</code>.</p>
 <p>You can see a few examples below:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">torch_tensor</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>))</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># conform to row-major indexing used in torch</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">torch_tensor</span>(<span class="fu">matrix</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="at">ncol =</span> <span class="dv">5</span>, <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">torch_tensor</span>(<span class="fu">array</span>(<span class="fu">runif</span>(<span class="dv">12</span>), <span class="at">dim =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">3</span>)))</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">torch_tensor</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>))</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co"># conform to row-major indexing used in torch</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="fu">torch_tensor</span>(<span class="fu">matrix</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="at">ncol =</span> <span class="dv">5</span>, <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="fu">torch_tensor</span>(<span class="fu">array</span>(<span class="fu">runif</span>(<span class="dv">12</span>), <span class="at">dim =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">3</span>)))</span></code></pre></div>
 <p>By default, we will create tensors in the <code>cpu</code> device,
 converting their R datatype to the corresponding torch
 <code>dtype</code>.</p>
@@ -364,8 +364,8 @@ supported.</p>
 </blockquote>
 <p>You can always modify <code>dtype</code> and <code>device</code> when
 converting an R object to a torch tensor. For example:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">torch_tensor</span>(<span class="dv">1</span>, <span class="at">dtype =</span> <span class="fu">torch_long</span>())</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">torch_tensor</span>(<span class="dv">1</span>, <span class="at">device =</span> <span class="st">&quot;cpu&quot;</span>, <span class="at">dtype =</span> <span class="fu">torch_float64</span>())</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">torch_tensor</span>(<span class="dv">1</span>, <span class="at">dtype =</span> <span class="fu">torch_long</span>())</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">torch_tensor</span>(<span class="dv">1</span>, <span class="at">device =</span> <span class="st">&quot;cpu&quot;</span>, <span class="at">dtype =</span> <span class="fu">torch_float64</span>())</span></code></pre></div>
 <p>Other options available when creating a tensor are:</p>
 <ul>
 <li><code>requires_grad</code>: boolean indicating if you want
@@ -387,12 +387,12 @@ tensors using the normal distribution with mean 0 and standard deviation
 1. You can use the <code>...</code> argument to pass the size of the
 dimensions. For example, the code below will create a normally
 distributed tensor with shape 5x3.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_randn</span>(<span class="dv">5</span>, <span class="dv">3</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>x</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_randn</span>(<span class="dv">5</span>, <span class="dv">3</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>x</span></code></pre></div>
 <p>Another example is <code>torch_ones</code>, which creates a tensor
 filled with ones.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_ones</span>(<span class="dv">2</span>, <span class="dv">4</span>, <span class="at">dtype =</span> <span class="fu">torch_int64</span>(), <span class="at">device =</span> <span class="st">&quot;cpu&quot;</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>x</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_ones</span>(<span class="dv">2</span>, <span class="dv">4</span>, <span class="at">dtype =</span> <span class="fu">torch_int64</span>(), <span class="at">device =</span> <span class="st">&quot;cpu&quot;</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>x</span></code></pre></div>
 <p>Here is the full list of functions that can be used to bulk-create
 tensors in torch:</p>
 <ul>
@@ -424,13 +424,13 @@ zeros.</li>
 <h2>Conversion</h2>
 <p>Once a tensor exists you can convert between <code>dtype</code>s and
 move to a different device with <code>to</code> method. For example:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_tensor</span>(<span class="dv">1</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> x<span class="sc">$</span><span class="fu">to</span>(<span class="at">dtype =</span> <span class="fu">torch_int32</span>())</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>x</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>y</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_tensor</span>(<span class="dv">1</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>y <span class="ot">&lt;-</span> x<span class="sc">$</span><span class="fu">to</span>(<span class="at">dtype =</span> <span class="fu">torch_int32</span>())</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>x</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>y</span></code></pre></div>
 <p>You can also copy a tensor to the GPU using:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_tensor</span>(<span class="dv">1</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> x<span class="sc">$</span><span class="fu">cuda</span>()<span class="er">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_tensor</span>(<span class="dv">1</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>y <span class="ot">&lt;-</span> x<span class="sc">$</span><span class="fu">cuda</span>()<span class="er">)</span></span></code></pre></div>
 </div>
 
 

@@ -3656,7 +3656,6 @@ NULL
 #' @param unbiased (bool) whether to use the unbiased estimation or not
 #' @param dim (int or tuple of ints) the dimension or dimensions to reduce.
 #' @param keepdim (bool) whether the output tensor has `dim` retained or not.
-#' @param correction The type of correction.
 #'
 #' @name torch_std
 #'
@@ -5161,59 +5160,11 @@ NULL
 #' @export
 NULL
 
-
-#' Symeig
-#'
-#' @section symeig(input, eigenvectors=False, upper=TRUE) -> (Tensor, Tensor) :
-#'
-#' This function returns eigenvalues and eigenvectors
-#' of a real symmetric matrix `input` or a batch of real symmetric matrices,
-#' represented by a namedtuple (eigenvalues, eigenvectors).
-#' 
-#' This function calculates all eigenvalues (and vectors) of `input`
-#' such that \eqn{\mbox{input} = V \mbox{diag}(e) V^T}.
-#' 
-#' The boolean argument `eigenvectors` defines computation of
-#' both eigenvectors and eigenvalues or eigenvalues only.
-#' 
-#' If it is `FALSE`, only eigenvalues are computed. If it is `TRUE`,
-#' both eigenvalues and eigenvectors are computed.
-#' 
-#' Since the input matrix `input` is supposed to be symmetric,
-#' only the upper triangular portion is used by default.
-#' 
-#' If `upper` is `FALSE`, then lower triangular portion is used.
-#' 
-#' @note The eigenvalues are returned in ascending order. If `input` is a batch of matrices,
-#'           then the eigenvalues of each matrix in the batch is returned in ascending order.
-#' 
-#' @note Irrespective of the original strides, the returned matrix `V` will
-#'           be transposed, i.e. with strides `V.contiguous().transpose(-1, -2).stride()`.
-#' 
-#' @note Extra care needs to be taken when backward through outputs. Such
-#'           operation is really only stable when all eigenvalues are distinct.
-#'           Otherwise, `NaN` can appear as the gradients are not properly defined.
-#'
-#'
-#' @param self (Tensor) the input tensor of size \eqn{(*, n, n)} where `*` is zero or more                    batch dimensions consisting of symmetric matrices.
-#' @param eigenvectors (boolean, optional) controls whether eigenvectors have to be computed
-#' @param upper (boolean, optional) controls whether to consider upper-triangular or lower-triangular region
-#'
-#' @name torch_symeig
-#'
-#' @export
-NULL
-
-
 #' Eig
 #'
 #' @section eig(input, eigenvectors=False, out=NULL) -> (Tensor, Tensor) :
 #'
 #' Computes the eigenvalues and eigenvectors of a real square matrix.
-#' 
-#' @note
-#'     Since eigenvalues and eigenvectors might be complex, backward pass is supported only
-#'     for [`torch_symeig`]
 #'
 #'
 #' @param self (Tensor) the square matrix of shape \eqn{(n \times n)} for which the eigenvalues and eigenvectors        will be computed
@@ -5458,7 +5409,6 @@ NULL
 #' formed by [torch_geqrf()] that is represented by `(a, tau)` (given by (`input`, `input2`)).
 #' 
 #' This directly calls the underlying LAPACK function `?ormqr`.
-#' See [LAPACK documentation for ormqr](https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-c/2023-0/overview.html) for further details.
 #'
 #'
 #' @param self (Tensor) the `a` from [`torch_geqrf`].

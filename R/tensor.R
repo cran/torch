@@ -45,6 +45,9 @@ Tensor <- R7Class(
     dim = function() {
       cpp_tensor_ndim(self)
     },
+    length = function() {
+      prod(dim(self))
+    },
     size = function(dim) {
       x <- cpp_tensor_dim(self$ptr)
 
@@ -378,6 +381,8 @@ as.matrix.torch_tensor <- function(x, ...) {
 }
 
 as_array_impl <- function(x) {
+  # move tensor to cpu before copying to R
+  x <- x$cpu()
   
   if (x$is_complex()) {
     out <- complex(

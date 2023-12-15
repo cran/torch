@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(torch)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(torch)</span></code></pre></div>
 <p>Adding operations to autograd requires implementing a new
 <code>autograd_function</code> for each operation. Recall that
 <code>autograd_functions</code>s are what <code>autograd</code> uses to
@@ -385,55 +385,55 @@ engine if an output is not differentiable.</p></li>
 <div id="examples" class="section level2">
 <h2>Examples</h2>
 <p>Below you can find code for a linear function:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>linear <span class="ot">&lt;-</span> <span class="fu">autograd_function</span>(</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">forward =</span> <span class="cf">function</span>(ctx, input, weight, <span class="at">bias =</span> <span class="cn">NULL</span>) {</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    ctx<span class="sc">$</span><span class="fu">save_for_backward</span>(<span class="at">input =</span> input, <span class="at">weight =</span> weight, <span class="at">bias =</span> bias)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    output <span class="ot">&lt;-</span> input<span class="sc">$</span><span class="fu">mm</span>(weight<span class="sc">$</span><span class="fu">t</span>())</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(bias))</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>      output <span class="ot">&lt;-</span> output <span class="sc">+</span> bias<span class="sc">$</span><span class="fu">unsqueeze</span>(<span class="dv">0</span>)<span class="sc">$</span><span class="fu">expand_as</span>(output)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    output</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  },</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">backward =</span> <span class="cf">function</span>(ctx, grad_output) {</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    s <span class="ot">&lt;-</span> ctx<span class="sc">$</span>saved_variables</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    grads <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">input =</span> <span class="cn">NULL</span>,</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">weight =</span> <span class="cn">NULL</span>,</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">bias =</span> <span class="cn">NULL</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (ctx<span class="sc">$</span>needs_input_grad<span class="sc">$</span>input)</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>      grads<span class="sc">$</span>input <span class="ot">&lt;-</span> grad_output<span class="sc">$</span><span class="fu">mm</span>(s<span class="sc">$</span>weight)</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (ctx<span class="sc">$</span>needs_input_grad<span class="sc">$</span>weight)</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>      grads<span class="sc">$</span>weight <span class="ot">&lt;-</span> grad_output<span class="sc">$</span><span class="fu">t</span>()<span class="sc">$</span><span class="fu">mm</span>(s<span class="sc">$</span>input)</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(s<span class="sc">$</span>bias) <span class="sc">&amp;&amp;</span> ctx<span class="sc">$</span>needs_input_grad<span class="sc">$</span>bias)</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>      grads<span class="sc">$</span>bias <span class="ot">&lt;-</span> grad_output<span class="sc">$</span><span class="fu">sum</span>(<span class="at">dim =</span> <span class="dv">0</span>)</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    grads</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>linear <span class="ot">&lt;-</span> <span class="fu">autograd_function</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="at">forward =</span> <span class="cf">function</span>(ctx, input, weight, <span class="at">bias =</span> <span class="cn">NULL</span>) {</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>    ctx<span class="sc">$</span><span class="fu">save_for_backward</span>(<span class="at">input =</span> input, <span class="at">weight =</span> weight, <span class="at">bias =</span> bias)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>    output <span class="ot">&lt;-</span> input<span class="sc">$</span><span class="fu">mm</span>(weight<span class="sc">$</span><span class="fu">t</span>())</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(bias))</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>      output <span class="ot">&lt;-</span> output <span class="sc">+</span> bias<span class="sc">$</span><span class="fu">unsqueeze</span>(<span class="dv">0</span>)<span class="sc">$</span><span class="fu">expand_as</span>(output)</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>    </span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>    output</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  },</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="at">backward =</span> <span class="cf">function</span>(ctx, grad_output) {</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>    </span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>    s <span class="ot">&lt;-</span> ctx<span class="sc">$</span>saved_variables</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>    </span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>    grads <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>      <span class="at">input =</span> <span class="cn">NULL</span>,</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>      <span class="at">weight =</span> <span class="cn">NULL</span>,</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>      <span class="at">bias =</span> <span class="cn">NULL</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>    )</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>    </span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>    <span class="cf">if</span> (ctx<span class="sc">$</span>needs_input_grad<span class="sc">$</span>input)</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>      grads<span class="sc">$</span>input <span class="ot">&lt;-</span> grad_output<span class="sc">$</span><span class="fu">mm</span>(s<span class="sc">$</span>weight)</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>    </span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>    <span class="cf">if</span> (ctx<span class="sc">$</span>needs_input_grad<span class="sc">$</span>weight)</span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>      grads<span class="sc">$</span>weight <span class="ot">&lt;-</span> grad_output<span class="sc">$</span><span class="fu">t</span>()<span class="sc">$</span><span class="fu">mm</span>(s<span class="sc">$</span>input)</span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>    </span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(s<span class="sc">$</span>bias) <span class="sc">&amp;&amp;</span> ctx<span class="sc">$</span>needs_input_grad<span class="sc">$</span>bias)</span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>      grads<span class="sc">$</span>bias <span class="ot">&lt;-</span> grad_output<span class="sc">$</span><span class="fu">sum</span>(<span class="at">dim =</span> <span class="dv">0</span>)</span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a>    </span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a>    grads</span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>  }</span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a>)</span></code></pre></div>
 <p>Here, we give an additional example of a function that is
 parametrized by non-Tensor arguments:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>mul_constant <span class="ot">&lt;-</span> <span class="fu">autograd_function</span>(</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">forward =</span> <span class="cf">function</span>(ctx, tensor, constant) {</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    ctx<span class="sc">$</span><span class="fu">save_for_backward</span>(<span class="at">constant =</span> constant)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    tensor <span class="sc">*</span> constant</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  },</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">backward =</span> <span class="cf">function</span>(ctx, grad_output) {</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    v <span class="ot">&lt;-</span> ctx<span class="sc">$</span>saved_variables</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">tensor =</span> grad_output <span class="sc">*</span> v<span class="sc">$</span>constant</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_tensor</span>(<span class="dv">1</span>, <span class="at">requires_grad =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>o <span class="ot">&lt;-</span> <span class="fu">mul_constant</span>(x, <span class="dv">2</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>o<span class="sc">$</span><span class="fu">backward</span>()</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>x<span class="sc">$</span>grad</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>mul_constant <span class="ot">&lt;-</span> <span class="fu">autograd_function</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="at">forward =</span> <span class="cf">function</span>(ctx, tensor, constant) {</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>    ctx<span class="sc">$</span><span class="fu">save_for_backward</span>(<span class="at">constant =</span> constant)</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>    tensor <span class="sc">*</span> constant</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  },</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="at">backward =</span> <span class="cf">function</span>(ctx, grad_output) {</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>    v <span class="ot">&lt;-</span> ctx<span class="sc">$</span>saved_variables</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>    <span class="fu">list</span>(</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>      <span class="at">tensor =</span> grad_output <span class="sc">*</span> v<span class="sc">$</span>constant</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>    )</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  }</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_tensor</span>(<span class="dv">1</span>, <span class="at">requires_grad =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>o <span class="ot">&lt;-</span> <span class="fu">mul_constant</span>(x, <span class="dv">2</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>o<span class="sc">$</span><span class="fu">backward</span>()</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>x<span class="sc">$</span>grad</span></code></pre></div>
 </div>
 
 

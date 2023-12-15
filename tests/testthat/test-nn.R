@@ -311,7 +311,7 @@ test_that("$<-  works for instances", {
   expect_s3_class(model, "nn_module")
   model$mymodule <- nn_linear(2, 2)
   expect_s3_class(model, "nn_module")
-  expect_equal(model$mymodule$out_feature, 2)
+  expect_equal(model$mymodule$out_features, 2)
   model$new_module <- nn_linear(5, 5)
   expect_s3_class(model, "nn_module")
 
@@ -333,7 +333,7 @@ test_that("[[<- works for instances", {
   expect_s3_class(model, "nn_module")
   model[["mymodule"]] <- nn_linear(2, 2)
   expect_s3_class(model, "nn_module")
-  expect_equal(model$mymodule$out_feature, 2)
+  expect_equal(model$mymodule$out_features, 2)
   model[["new_module"]] <- nn_linear(5, 5)
   expect_s3_class(model, "nn_module")
 
@@ -666,7 +666,7 @@ test_that("deep cloning", {
   y <- x$clone(deep = TRUE)
   
   expect_true(xptr_address(x$parameters$weight) != xptr_address(y$parameters$weight))
-  
+  expect_equal_to_tensor(x(torch_ones(1,1)), y(torch_ones(1,1)))
   
   module <- nn_module(
     initialize = function() {
@@ -773,7 +773,7 @@ test_that("non persistent buffers work correctly", {
     initialize = function() {
       self$x <- nn_parameter(torch_tensor(1))
       self$y <- nn_buffer(torch_tensor(2))
-      self$z <- nn_buffer(torch_tensor(3), persist = FALSE)
+      self$z <- nn_buffer(torch_tensor(3), persistent = FALSE)
     },
     forward = function() {
       self$x + self$y + self$z
@@ -801,4 +801,12 @@ test_that("can use a named module dict", {
   
   expect_tensor_shape(z, c(100, 1))
   expect_equal(length(dict$parameters), 4)
+})
+
+test_that("can clone a module with no state dict", {
+
+  expect_no_error({
+    nn_relu()$clone(TRUE)
+  })
+  
 })

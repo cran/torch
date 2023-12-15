@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(torch)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(torch)</span></code></pre></div>
 <p><a href="https://pytorch.org/docs/stable/jit_language_reference.html#language-reference">TorchScript</a>
 is a statically typed subset of Python that can be interpreted by
 LibTorch without any Python dependency. The torch R package provides
@@ -374,40 +374,40 @@ programs from R code.</p>
 <p>For example, let’s use the <code>jit_trace</code> function to create
 a TorchScript program. We pass a regular R function and example
 inputs.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fn <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">torch_relu</span>(x)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>traced_fn <span class="ot">&lt;-</span> <span class="fu">jit_trace</span>(fn, <span class="fu">torch_tensor</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>)))</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>fn <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="fu">torch_relu</span>(x)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>}</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>traced_fn <span class="ot">&lt;-</span> <span class="fu">jit_trace</span>(fn, <span class="fu">torch_tensor</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>)))</span></code></pre></div>
 <p>The <code>jit_trace</code> function has executed the R function with
 the example input and recorded all torch operations that occurred during
 execution to create a <em>graph</em>. <em>graph</em> is how we call the
 intermediate representation of TorchScript programs, and it can be
 inspected with:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>traced_fn<span class="sc">$</span>graph</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>traced_fn<span class="sc">$</span>graph</span></code></pre></div>
 <p>The traced function can now be invoked as a regular R function:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">traced_fn</span>(<span class="fu">torch_randn</span>(<span class="dv">3</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">traced_fn</span>(<span class="fu">torch_randn</span>(<span class="dv">3</span>))</span></code></pre></div>
 <p>It’s also possible to trace <code>nn_modules()</code> defined in R,
 for example:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>module <span class="ot">&lt;-</span> <span class="fu">nn_module</span>(</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">initialize =</span> <span class="cf">function</span>() {</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>linear1 <span class="ot">&lt;-</span> <span class="fu">nn_linear</span>(<span class="dv">10</span>, <span class="dv">10</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>linear2 <span class="ot">&lt;-</span> <span class="fu">nn_linear</span>(<span class="dv">10</span>, <span class="dv">1</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  },</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">forward =</span> <span class="cf">function</span>(x) {</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    x <span class="sc">%&gt;%</span> </span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>      self<span class="sc">$</span><span class="fu">linear1</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">nnf_relu</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>      self<span class="sc">$</span><span class="fu">linear2</span>()</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>traced_module <span class="ot">&lt;-</span> <span class="fu">jit_trace</span>(<span class="fu">module</span>(), <span class="fu">torch_randn</span>(<span class="dv">10</span>, <span class="dv">10</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>module <span class="ot">&lt;-</span> <span class="fu">nn_module</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="at">initialize =</span> <span class="cf">function</span>() {</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>    self<span class="sc">$</span>linear1 <span class="ot">&lt;-</span> <span class="fu">nn_linear</span>(<span class="dv">10</span>, <span class="dv">10</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    self<span class="sc">$</span>linear2 <span class="ot">&lt;-</span> <span class="fu">nn_linear</span>(<span class="dv">10</span>, <span class="dv">1</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  },</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="at">forward =</span> <span class="cf">function</span>(x) {</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>    x <span class="sc">%&gt;%</span> </span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>      self<span class="sc">$</span><span class="fu">linear1</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>      <span class="fu">nnf_relu</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>      self<span class="sc">$</span><span class="fu">linear2</span>()</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  }</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>)</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>traced_module <span class="ot">&lt;-</span> <span class="fu">jit_trace</span>(<span class="fu">module</span>(), <span class="fu">torch_randn</span>(<span class="dv">10</span>, <span class="dv">10</span>))</span></code></pre></div>
 <p>When using <code>jit_trace</code> with a <code>nn_module</code> only
 the <code>forward</code> method is traced. You can use the
 <code>jit_trace_module</code> function to pass example inputs to other
 methods. Traced modules look like normal <code>nn_modules()</code>, and
 can be called the same way:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">traced_module</span>(<span class="fu">torch_randn</span>(<span class="dv">3</span>, <span class="dv">10</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">traced_module</span>(<span class="fu">torch_randn</span>(<span class="dv">3</span>, <span class="dv">10</span>))</span></code></pre></div>
 <div id="limitations-of-tracing" class="section level4">
 <h4>Limitations of tracing</h4>
 <ol style="list-style-type: decimal">
@@ -418,36 +418,36 @@ control flow is actually part of the model itself. For instance, a
 recurrent network is a loop over the (possibly dynamic) length of an
 input sequence. For example:</li>
 </ol>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fn does does an operation for each dimension of a tensor</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>fn <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  x <span class="sc">%&gt;%</span> </span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">torch_unbind</span>(<span class="at">dim =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">lapply</span>(<span class="cf">function</span>(x) x<span class="sc">$</span><span class="fu">sum</span>()) <span class="sc">%&gt;%</span> </span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">torch_stack</span>(<span class="at">dim =</span> <span class="dv">1</span>)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># we trace using as an example a tensor with size (10, 5, 5)</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>traced_fn <span class="ot">&lt;-</span> <span class="fu">jit_trace</span>(fn, <span class="fu">torch_randn</span>(<span class="dv">10</span>, <span class="dv">5</span>, <span class="dv">5</span>))</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># applying it with a tensor with different size returns an error.</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">traced_fn</span>(<span class="fu">torch_randn</span>(<span class="dv">11</span>, <span class="dv">5</span>, <span class="dv">5</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># fn does does an operation for each dimension of a tensor</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>fn <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  x <span class="sc">%&gt;%</span> </span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>    <span class="fu">torch_unbind</span>(<span class="at">dim =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>    <span class="fu">lapply</span>(<span class="cf">function</span>(x) x<span class="sc">$</span><span class="fu">sum</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>    <span class="fu">torch_stack</span>(<span class="at">dim =</span> <span class="dv">1</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>}</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co"># we trace using as an example a tensor with size (10, 5, 5)</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>traced_fn <span class="ot">&lt;-</span> <span class="fu">jit_trace</span>(fn, <span class="fu">torch_randn</span>(<span class="dv">10</span>, <span class="dv">5</span>, <span class="dv">5</span>))</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co"># applying it with a tensor with different size returns an error.</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="fu">traced_fn</span>(<span class="fu">torch_randn</span>(<span class="dv">11</span>, <span class="dv">5</span>, <span class="dv">5</span>))</span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li>In the returned <code>ScriptModule</code>, operations that have
 different behaviors in training and eval modes will always behave as if
 it were in the mode it was in during tracing, no matter which mode the
 <code>ScriptModule</code> is in. For example:</li>
 </ol>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>traced_dropout <span class="ot">&lt;-</span> <span class="fu">jit_trace</span>(<span class="fu">nn_dropout</span>(), <span class="fu">torch_ones</span>(<span class="dv">5</span>,<span class="dv">5</span>))</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">traced_dropout</span>(<span class="fu">torch_ones</span>(<span class="dv">3</span>,<span class="dv">3</span>))</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>traced_dropout<span class="sc">$</span><span class="fu">eval</span>()</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># even after setting to eval mode, dropout is applied</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">traced_dropout</span>(<span class="fu">torch_ones</span>(<span class="dv">3</span>,<span class="dv">3</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>traced_dropout <span class="ot">&lt;-</span> <span class="fu">jit_trace</span>(<span class="fu">nn_dropout</span>(), <span class="fu">torch_ones</span>(<span class="dv">5</span>,<span class="dv">5</span>))</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">traced_dropout</span>(<span class="fu">torch_ones</span>(<span class="dv">3</span>,<span class="dv">3</span>))</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>traced_dropout<span class="sc">$</span><span class="fu">eval</span>()</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co"># even after setting to eval mode, dropout is applied</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="fu">traced_dropout</span>(<span class="fu">torch_ones</span>(<span class="dv">3</span>,<span class="dv">3</span>))</span></code></pre></div>
 <ol start="3" style="list-style-type: decimal">
 <li>Tracing proegrams can only take tensors and lists of tensors as
 input and return tensors and lists of tensors. For example:</li>
 </ol>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fn <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y) {</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  x <span class="sc">+</span> y</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">jit_trace</span>(fn, <span class="fu">torch_tensor</span>(<span class="dv">1</span>), <span class="dv">1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>fn <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y) {</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  x <span class="sc">+</span> y</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>}</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="fu">jit_trace</span>(fn, <span class="fu">torch_tensor</span>(<span class="dv">1</span>), <span class="dv">1</span>)</span></code></pre></div>
 </div>
 </div>
 <div id="compiling-torchscript" class="section level3">
@@ -455,12 +455,12 @@ input and return tensors and lists of tensors. For example:</li>
 <p>It’s also possible to create TorchScript programs by compiling
 TorchScript code. TorchScript code looks a lot like standard python
 code. For example:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>tr <span class="ot">&lt;-</span> <span class="fu">jit_compile</span>(<span class="st">&quot;</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="st">def fn (x: Tensor):</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="st">  return torch.relu(x)</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;</span>)</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>tr<span class="sc">$</span><span class="fu">fn</span>(<span class="fu">torch_tensor</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>)))</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>tr <span class="ot">&lt;-</span> <span class="fu">jit_compile</span>(<span class="st">&quot;</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="st">def fn (x: Tensor):</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="st">  return torch.relu(x)</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="st">&quot;</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>tr<span class="sc">$</span><span class="fu">fn</span>(<span class="fu">torch_tensor</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>)))</span></code></pre></div>
 </div>
 </div>
 <div id="serializing-and-loading" class="section level2">
@@ -469,14 +469,14 @@ code. For example:</p>
 <code>jit_save</code> function and loaded back from disk with
 <code>jit_load</code>.</p>
 <p>For example:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>fn <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">torch_relu</span>(x)</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>tr_fn <span class="ot">&lt;-</span> <span class="fu">jit_trace</span>(fn, <span class="fu">torch_tensor</span>(<span class="dv">1</span>))</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">jit_save</span>(tr_fn, <span class="st">&quot;path.pt&quot;</span>)</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>loaded <span class="ot">&lt;-</span> <span class="fu">jit_load</span>(<span class="st">&quot;path.pt&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>fn <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  <span class="fu">torch_relu</span>(x)</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>}</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>tr_fn <span class="ot">&lt;-</span> <span class="fu">jit_trace</span>(fn, <span class="fu">torch_tensor</span>(<span class="dv">1</span>))</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="fu">jit_save</span>(tr_fn, <span class="st">&quot;path.pt&quot;</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>loaded <span class="ot">&lt;-</span> <span class="fu">jit_load</span>(<span class="st">&quot;path.pt&quot;</span>)</span></code></pre></div>
 <p>Loaded programs can be executed as usual:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">loaded</span>(<span class="fu">torch_tensor</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>)))</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">loaded</span>(<span class="fu">torch_tensor</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>)))</span></code></pre></div>
 <p><strong>Note</strong> You can load TorchScript programs that were
 created in libraries different than <code>torch</code> for R. Eg, a
 TorchScript program can be created in PyTorch with

@@ -62,7 +62,7 @@ test_that("Integer tensors", {
   expect_s3_class(o, "array")
   expect_equal(dim(o), dim(x))
 
-  x <- as.integer64(.Machine$integer) * 2
+  x <- as.integer64(.Machine$integer.max) * 2
   y <- torch_tensor(x)
   z <- as.integer64(y)
 
@@ -361,7 +361,7 @@ test_that("tensor identity works as expected", {
   gc()
 
   class(y) <- class(torch_tensor(1))
-  expect_equal_to_r(y, v, tol = 1e-7)
+  expect_equal_to_r(y, v, tolerance = 1e-7)
 
   x <- y$abs_()
 
@@ -467,7 +467,7 @@ test_that("create complex from and to R", {
   y <- as.array(x)
   z <- torch_tensor(y)
   expect_true(torch_allclose(x, z))
-  expect_equal(as.complex(x), complex(real = 1,imag = 1))
+  expect_equal(as.complex(x), complex(real = 1,imaginary = 1))
   
 })
 
@@ -539,4 +539,13 @@ test_that("can create a buffer from a tensor", {
   y <- buffer_from_torch_tensor(x)
   z <- torch_tensor_from_buffer(y, shape = c(10, 10), dtype="float")
   expect_true(torch_allclose(x, z))
+})
+
+test_that("can copy a mps tensor", {
+  skip_if_not_m1_mac()
+  x <- array(runif(100), dim = c(10, 10))
+  y <- torch_tensor(x, device="mps")
+  x_ <- as.array(y)
+  
+  expect_true(all.equal(x, x_, tolerance = 1e-5))
 })

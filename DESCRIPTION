@@ -1,7 +1,7 @@
 Package: torch
 Type: Package
 Title: Tensors and Neural Networks with 'GPU' Acceleration
-Version: 0.11.0
+Version: 0.12.0
 Authors@R: c(
     person("Daniel", "Falbel", email = "daniel@rstudio.com", role = c("aut", "cre", "cph")),
     person("Javier", "Luraschi", email = "jluraschi@gmail.com", role = c("aut")),
@@ -27,7 +27,7 @@ Config/build/copy-method: copy
 LinkingTo: Rcpp
 Imports: Rcpp, R6, withr, rlang, methods, utils, stats, bit64,
         magrittr, tools, coro (>= 1.0.2), callr, cli (>= 3.0.0), glue,
-        ellipsis, desc
+        ellipsis, desc, safetensors (>= 0.1.1), jsonlite
 RoxygenNote: 7.2.3
 Suggests: testthat (>= 3.0.0), covr, knitr (>= 1.36), rmarkdown,
         palmerpenguins, mvtnorm, numDeriv, katex
@@ -69,7 +69,7 @@ Collate: 'R7.R' 'RcppExports.R' 'autocast.R' 'tensor.R' 'autograd.R'
         'utils-data-sampler.R' 'utils-pipe.R' 'variable_list.R'
         'with-indices.R' 'wrapers.R'
 NeedsCompilation: yes
-Packaged: 2023-06-06 16:30:47 UTC; dfalbel
+Packaged: 2023-12-15 12:08:27 UTC; dfalbel
 Author: Daniel Falbel [aut, cre, cph],
   Javier Luraschi [aut],
   Dmitriy Selivanov [ctb],
@@ -80,4 +80,4 @@ Author: Daniel Falbel [aut, cre, cph],
   RStudio [cph]
 Maintainer: Daniel Falbel <daniel@rstudio.com>
 Repository: CRAN
-Date/Publication: 2023-06-06 17:30:02 UTC
+Date/Publication: 2023-12-15 16:00:02 UTC

@@ -4,12 +4,62 @@ Dataset <- R6::R6Class(
   public = list(
     .getitem = function(index) {
       not_implemented_error()
+    },
+    state_dict = function() {
+      # the default implementation will walk trough the public fields and try to
+      # find tensors. It won't do it recursively, only flat fields will be 
+      # considered.
+      fields <- names(self)
+      tensors <- list()
+      for (f in fields) {
+        value <- .subset2(self, f)
+        if (inherits(value, "torch_tensor")) {
+          tensors[[f]] <- value
+        }
+      }
+      tensors
+    },
+    load_state_dict = function(x, ..., .refer_to_state_dict = FALSE) {
+      # specially when using torch_load, it's possible to optimize by using the
+      # .refer_to_state_dict field, so you don't need an extra copy.
+      # you are not required to implement it, though, but add `...` to the
+      # signature.
+      if (.refer_to_state_dict) {
+        for (nm in names(x)) {
+          assign(nm, x[[nm]], envir = self)
+        }
+        invisible(NULL)
+      } else {
+        cli::cli_abort("Loading the state_dict is only implemented when {.arg .refer_to_state_dict} is {.val TRUE}")
+      }
+    }
+  )
+)
+
+IterableDataset <- R6::R6Class(
+  classname = "iterable_dataset",
+  lock_objects = FALSE,
+  public = list(
+    .iter = function() {
+      not_implemented_error()
+    },
+    .length = function() {
+      NA_integer_
     }
   )
 )
 
 is_map_dataset <- function(x) {
   inherits(x, "dataset")
+}
+
+is_iterable_dataset <- function(x) {
+  inherits(x, "iterable_dataset")
+}
+
+#' @export
+as_iterator.iterable_dataset <- function(x) {
+  x$.iter()
 }
 
 get_init <- function(x) {
@@ -79,10 +129,56 @@ dataset <- function(name = NULL, inherit = Dataset, ...,
   )
 }
 
+
+#' Creates an iterable dataset
+#' 
+#' @inheritParams dataset
+#' @examples
+#' ids <- iterable_dataset(
+#'   name = "hello",
+#'   initialize = function(n = 5) {
+#'     self$n <- n
+#'     self$i <- 0
+#'   },
+#'   .iter = function() {
+#'     i <- 0
+#'     function() {
+#'       i <<- i + 1
+#'       if (i > self$n) {
+#'         coro::exhausted()
+#'       } else {
+#'         i
+#'       }
+#'     }
+#'   }
+#' )
+#' coro::collect(ids()$.iter())
+#' @export
+iterable_dataset <- function(name, inherit = IterableDataset, ..., 
+                             private = NULL, active = NULL,
+                             parent_env = parent.frame()) {
+  create_class(
+    name = name,
+    inherit = inherit,
+    ...,
+    private = private,
+    active = active,
+    parent_env = parent_env,
+    attr_name = "Dataset",
+    constructor_class = "iterable_dataset_generator"
+  )
+}
+
 #' @export
 print.dataset_generator <- function(x, ...) {
   cli::cat_line("<dataset_generator>")
   print(attr(x, "Dataset"))
+}
+
+#' @export
+print.iterable_dataset_generator <- function(x, ...) {
+  cli::cat_line("<iterable_dataset_generator>")
+  print(attr(x, "IterableDataset"))
 }
 
 #' @export
@@ -105,6 +201,11 @@ print.dataset_generator <- function(x, ...) {
 
 #' @export
 length.dataset <- function(x) {
+  x$.length()
+}
+
+#' @export
+length.iterable_dataset <- function(x) {
   x$.length()
 }
 
