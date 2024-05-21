@@ -49,7 +49,7 @@ overflow: visible;
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +60,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -395,9 +395,14 @@ to force an specific version of the CUDA toolkit.</p>
 <h2>MacOS</h2>
 <div id="cpu-1" class="section level3">
 <h3>CPU</h3>
-<p>We only support CPU builds of torch on MacOS. On MacOS you can
-install torch with:</p>
+<p>We support CPU builds of torch on MacOS. On MacOS you can install
+torch with:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;torch&quot;</span>)</span></code></pre></div>
+</div>
+<div id="gpu-1" class="section level3">
+<h3>GPU</h3>
+<p>On Apple Silicon architecture we support GPU through MPS:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;torch&quot;</span>)</span></code></pre></div>
 </div>
 </div>
 <div id="linux" class="section level2">
@@ -405,9 +410,9 @@ install torch with:</p>
 <div id="cpu-2" class="section level3">
 <h3>CPU</h3>
 <p>To install the cpu version of <code>torch</code> you can run:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;torch&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;torch&quot;</span>)</span></code></pre></div>
 </div>
-<div id="gpu-1" class="section level3">
+<div id="gpu-2" class="section level3">
 <h3>GPU</h3>
 <p>To install the GPU version of <code>torch</code> on linux you must
 verify that:</p>
@@ -421,7 +426,7 @@ version). Follow the installation instructions available <a href="https://develo
 </ul>
 <p>Once you have installed all pre-requisites you can install
 <code>torch</code> with:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;torch&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;torch&quot;</span>)</span></code></pre></div>
 <p>If you have followed default installation locations we will detect
 that you have CUDA software installed and automatically download the GPU
 enabled Lantern binaries. You can also specify the <code>CUDA</code> env
@@ -447,16 +452,16 @@ installed, it doesn’t need to match the installation <em>‘kind’</em>
 chosen below.</p>
 <p>To install from the pre-built binaries, you can use the
 following:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">options</span>(<span class="at">timeout =</span> <span class="dv">600</span>) <span class="co"># increasing timeout is recommended since we will be downloading a 2GB file.</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co"># For Windows and Linux: &quot;cpu&quot;, &quot;cu117&quot; are the only currently supported</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co"># For MacOS the supported are: &quot;cpu-intel&quot; or &quot;cpu-m1&quot;</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>kind <span class="ot">&lt;-</span> <span class="st">&quot;cu117&quot;</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>version <span class="ot">&lt;-</span> <span class="fu">available.packages</span>()[<span class="st">&quot;torch&quot;</span>,<span class="st">&quot;Version&quot;</span>]</span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="fu">options</span>(<span class="at">repos =</span> <span class="fu">c</span>(</span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="at">torch =</span> <span class="fu">sprintf</span>(<span class="st">&quot;https://storage.googleapis.com/torch-lantern-builds/packages/%s/%s/&quot;</span>, kind, version),</span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  <span class="at">CRAN =</span> <span class="st">&quot;https://cloud.r-project.org&quot;</span> <span class="co"># or any other from which you want to install the other R dependencies.</span></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>))</span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;torch&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">options</span>(<span class="at">timeout =</span> <span class="dv">600</span>) <span class="co"># increasing timeout is recommended since we will be downloading a 2GB file.</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co"># For Windows and Linux: &quot;cpu&quot;, &quot;cu117&quot; are the only currently supported</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co"># For MacOS the supported are: &quot;cpu-intel&quot; or &quot;cpu-m1&quot;</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>kind <span class="ot">&lt;-</span> <span class="st">&quot;cu118&quot;</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>version <span class="ot">&lt;-</span> <span class="fu">available.packages</span>()[<span class="st">&quot;torch&quot;</span>,<span class="st">&quot;Version&quot;</span>]</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="fu">options</span>(<span class="at">repos =</span> <span class="fu">c</span>(</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="at">torch =</span> <span class="fu">sprintf</span>(<span class="st">&quot;https://torch-cdn.mlverse.org/packages/%s/%s/&quot;</span>, kind, version),</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  <span class="at">CRAN =</span> <span class="st">&quot;https://cloud.r-project.org&quot;</span> <span class="co"># or any other from which you want to install the other R dependencies.</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>))</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;torch&quot;</span>, <span class="at">type =</span> <span class="st">&quot;binary&quot;</span>)</span></code></pre></div>
 </div>
 <div id="troubleshooting" class="section level2">
 <h2>Troubleshooting</h2>
@@ -472,7 +477,7 @@ while, downloads end-up with a warning such as:</p>
 3: Failed to install Torch, manually run install_torch(). download from &#39;https://download.pytorch.org/libtorch/cpu/libtorch-macos-1.7.1.zip&#39; failed</code></pre>
 <p>This means you encounter a download timeout. then, you should
 increase the timeout value in <code>install_torch()</code> like</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">install_torch</span>(<span class="at">timeout =</span> <span class="dv">600</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">install_torch</span>(<span class="at">timeout =</span> <span class="dv">600</span>)</span></code></pre></div>
 </div>
 <div id="file-based-download" class="section level3">
 <h3>File based download</h3>
@@ -480,14 +485,33 @@ increase the timeout value in <code>install_torch()</code> like</p>
 intend to install torch on, last resort is to install Torch and Lantern
 library from files. This is done in 3 steps :</p>
 <p>1- get the download URLs of the files.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">get_install_libs_url</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">get_install_libs_url</span>()</span></code></pre></div>
 <p>2- save those files into the machine filesystem. We will use
 <code>/tmp/</code> here as an example .</p>
 <p>3- install torch from files</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># then after making both files available into /tmp/</span></span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">TORCH_URL=</span><span class="st">&quot;/tmp/libtorch-v1.13.1.zip&quot;</span>)</span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">LANTERN_URL=</span><span class="st">&quot;/tmp/lantern-0.9.1.9001+cpu+arm64-Darwin.zip&quot;</span>)</span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>torch<span class="sc">::</span><span class="fu">install_torch</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co"># then after making both files available into /tmp/</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">TORCH_URL=</span><span class="st">&quot;/tmp/libtorch-v1.13.1.zip&quot;</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">LANTERN_URL=</span><span class="st">&quot;/tmp/lantern-0.9.1.9001+cpu+arm64-Darwin.zip&quot;</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>torch<span class="sc">::</span><span class="fu">install_torch</span>()</span></code></pre></div>
+</div>
+<div id="installing-older-versions" class="section level3">
+<h3>Installing older versions</h3>
+<p>As of v0.13.0 torch shifted from using Google Cloud Storage service
+to AWS S3 as the storage service for the required Lantern binaries.</p>
+<p>We will keep the files in the GCS bucket for as long as possible, but
+we might need to remove them at some point in time. Those files have
+been backed up in the new AWS S3 bucket using the same file structure,
+so if torch tries to download some from a URL starting with
+<code>https://storage.googleapis.com/torch-lantern-builds</code>, you
+should now replace it with
+<code>https://torch-cdn.mlverse.org</code>.</p>
+<p>For torch versions between v0.10.0 and v0.12.0 (both included), you
+should be able to set the environment variable
+<code>LANTERN_BASE_URL=https://torch-cdn.mlverse.org/binaries/</code> to
+point to the new address of the binaries. For older versions of torch,
+you might need to manually download the file from the new address and
+extract it to the expected <code>TORCH_HOME</code> directory. Feel free
+to open an issue on GitHub if you need help with this.</p>
 </div>
 </div>
 

@@ -49,7 +49,7 @@ overflow: visible;
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +60,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -637,7 +637,7 @@ readability of your code and convenience for speed.</p>
 <span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="cf">for</span>(epoch <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>){</span>
 <span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a></span>
 <span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a>  <span class="co"># rearrange the data each epoch</span></span>
-<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a>  permute <span class="ot">&lt;-</span> <span class="fu">torch_randperm</span>(num_data_points) <span class="sc">+</span> 1L</span>
+<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a>  permute <span class="ot">&lt;-</span> <span class="fu">torch_randperm</span>(num_data_points) <span class="sc">+</span> <span class="dv">1</span><span class="dt">L</span></span>
 <span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a>  data_x <span class="ot">&lt;-</span> data_x[permute]</span>
 <span id="cb13-22"><a href="#cb13-22" tabindex="-1"></a>  data_y <span class="ot">&lt;-</span> data_y[permute]</span>
 <span id="cb13-23"><a href="#cb13-23" tabindex="-1"></a>  </span>
