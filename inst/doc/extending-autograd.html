@@ -433,7 +433,10 @@ parametrized by non-Tensor arguments:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">torch_tensor</span>(<span class="dv">1</span>, <span class="at">requires_grad =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>o <span class="ot">&lt;-</span> <span class="fu">mul_constant</span>(x, <span class="dv">2</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>o<span class="sc">$</span><span class="fu">backward</span>()</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>x<span class="sc">$</span>grad</span></code></pre></div>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>x<span class="sc">$</span>grad</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; torch_tensor</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt;  2</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; [ CPUFloatType{1} ]</span></span></code></pre></div>
 </div>
 
 

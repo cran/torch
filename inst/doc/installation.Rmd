@@ -43,6 +43,9 @@ See [here](https://github.com/mlverse/torch/issues/246#issuecomment-695097121) f
 
 ### GPU
 
+torch has very specific requirements in terms of CUDA and CUDNN versions it supports. We recomment installing torch
+using pre-built binaries. See (#pre-built) for more information.
+
 Since version 0.1.1 torch supports GPU installation on Windows. In order to use GPU's with torch you need to:
 
 -   Have a CUDA compatible NVIDIA GPU. You can find if you have a CUDA compatible GPU [here](https://developer.nvidia.com/cuda-gpus#compute).
@@ -89,6 +92,9 @@ install.packages("torch")
 
 ### GPU
 
+torch has very specific requirements in terms of CUDA and CUDNN versions it supports. We recomment installing torch
+using pre-built binaries. See (#pre-built) for more information.
+
 To install the GPU version of `torch` on linux you must verify that:
 
 -   You have a NVIDIA CUDA compatible GPU. You can find if you have a CUDA compatible GPU [here](https://developer.nvidia.com/cuda-gpus#compute).
@@ -131,7 +137,7 @@ options(repos = c(
   torch = sprintf("https://torch-cdn.mlverse.org/packages/%s/%s/", kind, version),
   CRAN = "https://cloud.r-project.org" # or any other from which you want to install the other R dependencies.
 ))
-install.packages("torch", type = "binary")
+install.packages("torch")
 ```
 
 ## Troubleshooting

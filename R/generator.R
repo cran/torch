@@ -10,7 +10,7 @@ Generator <- R7Class(
       cpp_torch_generator()
     },
     print = function() {
-      cat("torch_generator()")
+      cat("torch_generator()\n")
     },
     current_seed = function() {
       if (!requireNamespace("bit64")) {
@@ -99,7 +99,7 @@ local_torch_manual_seed <- function(seed, .env = parent.frame()) {
 #' @describeIn torch_manual_seed A with context to change the seed during the function execution.
 #' @export
 with_torch_manual_seed <- function(code, ..., seed) {
-  ellipsis::check_dots_empty()
+  rlang::check_dots_empty()
   local_torch_manual_seed(seed)
   force(code)
 }
