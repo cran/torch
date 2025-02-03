@@ -1,7 +1,7 @@
-20b284ee79c47e2a660788638bc9dd51 *DESCRIPTION
+97ac1983e46435ddd02d67b244cadb90 *DESCRIPTION
 7550b0d0d86781397172269c414715ca *LICENSE
 6a9053d1ad0c1ed0213f6c3b16a45a9b *NAMESPACE
-e74a0bc3292a3ed595ae41e793726b26 *NEWS.md
+150201b8959b850c8d773a2d167cc6a8 *NEWS.md
 c2b3cfc8c9b1d0be5cacab6e9a21f451 *R/R7.R
 f24b3d0f11b57e2495ab6dd196205aa0 *R/RcppExports.R
 71baed85af639d7c0bda47cbb2a3de5e *R/autocast.R
@@ -39,7 +39,7 @@ d28dbd1e47c04525d523573985a68e15 *R/generator.R
 3f96910e7555484cfcc77025270f4d4e *R/help.R
 82cfbc9bf8a217b05e0e9fcbf054f8bc *R/ignite.R
 d7a002f212f89e02b9e3fc14d0dab2f3 *R/indexing.R
-25d00e19a9728497a613d4d600ed0dbf *R/install.R
+2c3ced958f0251f5b34bd6da7b679be6 *R/install.R
 1ec05e5f4884ad812a9ed6be1b04db7d *R/ivalue.R
 59f51bcc97a49f8139c88e5269f08e02 *R/jit-compile.R
 15f64b76c6b29960f8008daa05755115 *R/jit-execute.R
@@ -124,7 +124,7 @@ a57670e3693f183128299f130ce4235d *R/variable_list.R
 5eab2c34dc1a5ee8bcd7b5732fbeed8f *R/with-indices.R
 84c69c4443c33364c808168a6b7a26e6 *R/wrapers.R
 cc7b480d682473c7a5debe6d67168a4e *README.md
-18cc01c1c82369b67fe843b761ed29c6 *build/partial.rdb
+0334794724a6c25cc9a4bcf159f5d42b *build/partial.rdb
 80316bcf7b326c70bf221982d8d0b11c *build/vignette.rds
 91f3eec2c9f616f72bda2cf79bed00ef *configure
 51940d040742d822cd537e47f235e806 *configure.win
@@ -151,14 +151,14 @@ bd1bf51fbbafbd8d93ad46c7d3855d76 *inst/doc/serialization.Rmd
 98ec8bb6b143aeec33d8840c7cb8a7c9 *inst/doc/serialization.html
 9a3c61cb0d5d0e7ed7e02f39a95009d0 *inst/doc/tensor-creation.R
 6f6a7deae142cd42aa1208fec73a7b5b *inst/doc/tensor-creation.Rmd
-4180b94756b78e5ddbdc8428ab31dbb2 *inst/doc/tensor-creation.html
+0fbd3ac6939ed81623a26a722dc40e84 *inst/doc/tensor-creation.html
 9a3c61cb0d5d0e7ed7e02f39a95009d0 *inst/doc/torchscript.R
 99dfcea1079a803e3b4c098552fbde6b *inst/doc/torchscript.Rmd
-0517a1c65faa0715533d38b158233a18 *inst/doc/torchscript.html
+4555b878f43e395ee92a0ec3ca4bf8ea *inst/doc/torchscript.html
 9a3c61cb0d5d0e7ed7e02f39a95009d0 *inst/doc/using-autograd.R
 104306ea76c848d23843c1ed240dc505 *inst/doc/using-autograd.Rmd
 3de7eef9e65ad071f16e69060c890fda *inst/doc/using-autograd.html
-aa674a1380c5370df280e4d6945ae32a *inst/include/lantern/lantern.h
+dd5d96151c84fee69a27f4c7067a76af *inst/include/lantern/lantern.h
 76c651f199130ab71a656ac9f62f870c *inst/include/lantern/types.h
 a1d34d49ddd380da788cfe36d6a4c0b8 *inst/include/torch.h
 13c632a3903674bfe84801a44a706eec *inst/include/torch_api.h
@@ -167,7 +167,7 @@ c7664a4d1423b5a24075a6cdaf8747d1 *inst/include/torch_impl.h
 273e2447cf4254ae97201665a5d9615e *inst/include/torch_imports.h
 ae92f5b4944eb04646484df3796accbd *inst/include/torch_types.h
 32dcb0885d0edf2f3d94f0419a18fe0c *inst/include/utils.h
-6ea90d07d7eef5728bd34f53c752e877 *inst/po/fr/LC_MESSAGES/R-torch.mo
+cf7f3c04166be6c03a5e2fb9b15b9329 *inst/po/fr/LC_MESSAGES/R-torch.mo
 a8b79379354d7e113fa07bc7a2941438 *man/AutogradContext.Rd
 32c71592fde64bcf1c5cd8d200bcf691 *man/Constraint.Rd
 0603cd23b244bd8130966426c429e045 *man/Distribution.Rd
@@ -864,7 +864,7 @@ d990c132a399fd450649a126b4e40d2c *man/torch_zeros.Rd
 2fc57c01eda3e93b0c2212ca2881bf7c *man/with_detect_anomaly.Rd
 1467af821aba57c4b001e8913119f3db *man/with_enable_grad.Rd
 a4fe2a7f1e3e6072ce16fab041ffcec6 *man/with_no_grad.Rd
-c4b2196b7df47d2121eeffc0681a361c *po/R-fr.po
+821c2164b5cdc976edc09599dac18b21 *po/R-fr.po
 3c24066e6039ad324e268025dbcab441 *src/Makevars.in
 33cc1fa086a82cf8de7d242b61d75c6a *src/RcppExports.cpp
 4aa9c7e9ef1fb223217fb28ed1ea58ff *src/amp.cpp

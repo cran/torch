@@ -481,62 +481,62 @@ input and return tensors and lists of tensors. For example:</li>
 <span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="fu">jit_trace</span>(fn, <span class="fu">torch_tensor</span>(<span class="dv">1</span>), <span class="dv">1</span>)</span>
 <span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; Error in cpp_trace_function(tr_fn, list(...), .compilation_unit, strict, : Only tensors or (possibly nested) dict or tuples of tensors can be inputs to traced functions. Got float</span></span>
 <span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; Exception raised from addInput at /Users/runner/work/libtorch-mac-m1/libtorch-mac-m1/pytorch/torch/csrc/jit/frontend/tracer.cpp:422 (most recent call first):</span></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; frame #0: c10::Error::Error(c10::SourceLocation, std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt;&gt;) + 52 (0x10775c11c in libc10.dylib)</span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt; frame #1: c10::detail::torchCheckFail(char const*, char const*, unsigned int, std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt;&gt; const&amp;) + 140 (0x107758d6c in libc10.dylib)</span></span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; frame #2: torch::jit::tracer::addInput(std::__1::shared_ptr&lt;torch::jit::tracer::TracingState&gt; const&amp;, c10::IValue const&amp;, c10::Type::SingletonOrSharedTypePtr&lt;c10::Type&gt; const&amp;, torch::jit::Value*) + 6060 (0x3041dc984 in libtorch_cpu.dylib)</span></span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; frame #3: torch::jit::tracer::addInput(std::__1::shared_ptr&lt;torch::jit::tracer::TracingState&gt; const&amp;, c10::IValue const&amp;, c10::Type::SingletonOrSharedTypePtr&lt;c10::Type&gt; const&amp;, torch::jit::Value*) + 4656 (0x3041dc408 in libtorch_cpu.dylib)</span></span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; frame #4: torch::jit::tracer::trace(std::__1::vector&lt;c10::IValue, std::__1::allocator&lt;c10::IValue&gt;&gt;, std::__1::function&lt;std::__1::vector&lt;c10::IValue, std::__1::allocator&lt;c10::IValue&gt;&gt; (std::__1::vector&lt;c10::IValue, std::__1::allocator&lt;c10::IValue&gt;&gt;)&gt; const&amp;, std::__1::function&lt;std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt;&gt; (at::Tensor const&amp;)&gt;, bool, bool, torch::jit::Module*, std::__1::vector&lt;std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt;&gt;, std::__1::allocator&lt;std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt;&gt;&gt;&gt; const&amp;) + 680 (0x3041d9cb0 in libtorch_cpu.dylib)</span></span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; frame #5: _lantern_trace_fn + 292 (0x165030444 in liblantern.dylib)</span></span>
-<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; frame #6: cpp_trace_function(Rcpp::Function_Impl&lt;Rcpp::PreserveStorage&gt;, XPtrTorchStack, XPtrTorchCompilationUnit, XPtrTorchstring, bool, XPtrTorchScriptModule, bool, bool) + 536 (0x121c87f98 in torchpkg.so)</span></span>
-<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt; frame #7: _torch_cpp_trace_function + 692 (0x121a72374 in torchpkg.so)</span></span>
-<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt; frame #8: R_doDotCall + 3356 (0x102cb461c in libR.dylib)</span></span>
-<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt; frame #9: bcEval_loop + 128100 (0x102d102a4 in libR.dylib)</span></span>
-<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; frame #10: bcEval + 684 (0x102ce346c in libR.dylib)</span></span>
-<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt; frame #11: Rf_eval + 556 (0x102ce2b6c in libR.dylib)</span></span>
-<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt; frame #12: R_execClosure + 812 (0x102ce572c in libR.dylib)</span></span>
-<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; frame #13: applyClosure_core + 164 (0x102ce4824 in libR.dylib)</span></span>
-<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt; frame #14: Rf_eval + 1224 (0x102ce2e08 in libR.dylib)</span></span>
-<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt; frame #15: do_eval + 1352 (0x102cea048 in libR.dylib)</span></span>
-<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt; frame #16: bcEval_loop + 40204 (0x102cfab4c in libR.dylib)</span></span>
-<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt; frame #17: bcEval + 684 (0x102ce346c in libR.dylib)</span></span>
-<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt; frame #18: Rf_eval + 556 (0x102ce2b6c in libR.dylib)</span></span>
-<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt; frame #19: forcePromise + 232 (0x102ce36a8 in libR.dylib)</span></span>
-<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="co">#&gt; frame #20: Rf_eval + 660 (0x102ce2bd4 in libR.dylib)</span></span>
-<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt; frame #21: do_withVisible + 64 (0x102cea380 in libR.dylib)</span></span>
-<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="co">#&gt; frame #22: do_internal + 400 (0x102d53190 in libR.dylib)</span></span>
-<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a><span class="co">#&gt; frame #23: bcEval_loop + 40764 (0x102cfad7c in libR.dylib)</span></span>
-<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a><span class="co">#&gt; frame #24: bcEval + 684 (0x102ce346c in libR.dylib)</span></span>
-<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a><span class="co">#&gt; frame #25: Rf_eval + 556 (0x102ce2b6c in libR.dylib)</span></span>
-<span id="cb9-33"><a href="#cb9-33" tabindex="-1"></a><span class="co">#&gt; frame #26: forcePromise + 232 (0x102ce36a8 in libR.dylib)</span></span>
-<span id="cb9-34"><a href="#cb9-34" tabindex="-1"></a><span class="co">#&gt; frame #27: Rf_eval + 660 (0x102ce2bd4 in libR.dylib)</span></span>
-<span id="cb9-35"><a href="#cb9-35" tabindex="-1"></a><span class="co">#&gt; frame #28: forcePromise + 232 (0x102ce36a8 in libR.dylib)</span></span>
-<span id="cb9-36"><a href="#cb9-36" tabindex="-1"></a><span class="co">#&gt; frame #29: bcEval_loop + 19728 (0x102cf5b50 in libR.dylib)</span></span>
-<span id="cb9-37"><a href="#cb9-37" tabindex="-1"></a><span class="co">#&gt; frame #30: bcEval + 684 (0x102ce346c in libR.dylib)</span></span>
-<span id="cb9-38"><a href="#cb9-38" tabindex="-1"></a><span class="co">#&gt; frame #31: Rf_eval + 556 (0x102ce2b6c in libR.dylib)</span></span>
-<span id="cb9-39"><a href="#cb9-39" tabindex="-1"></a><span class="co">#&gt; frame #32: R_execClosure + 812 (0x102ce572c in libR.dylib)</span></span>
-<span id="cb9-40"><a href="#cb9-40" tabindex="-1"></a><span class="co">#&gt; frame #33: applyClosure_core + 164 (0x102ce4824 in libR.dylib)</span></span>
-<span id="cb9-41"><a href="#cb9-41" tabindex="-1"></a><span class="co">#&gt; frame #34: Rf_eval + 1224 (0x102ce2e08 in libR.dylib)</span></span>
-<span id="cb9-42"><a href="#cb9-42" tabindex="-1"></a><span class="co">#&gt; frame #35: do_eval + 1352 (0x102cea048 in libR.dylib)</span></span>
-<span id="cb9-43"><a href="#cb9-43" tabindex="-1"></a><span class="co">#&gt; frame #36: bcEval_loop + 40204 (0x102cfab4c in libR.dylib)</span></span>
-<span id="cb9-44"><a href="#cb9-44" tabindex="-1"></a><span class="co">#&gt; frame #37: bcEval + 684 (0x102ce346c in libR.dylib)</span></span>
-<span id="cb9-45"><a href="#cb9-45" tabindex="-1"></a><span class="co">#&gt; frame #38: Rf_eval + 556 (0x102ce2b6c in libR.dylib)</span></span>
-<span id="cb9-46"><a href="#cb9-46" tabindex="-1"></a><span class="co">#&gt; frame #39: R_execClosure + 812 (0x102ce572c in libR.dylib)</span></span>
-<span id="cb9-47"><a href="#cb9-47" tabindex="-1"></a><span class="co">#&gt; frame #40: applyClosure_core + 164 (0x102ce4824 in libR.dylib)</span></span>
-<span id="cb9-48"><a href="#cb9-48" tabindex="-1"></a><span class="co">#&gt; frame #41: Rf_eval + 1224 (0x102ce2e08 in libR.dylib)</span></span>
-<span id="cb9-49"><a href="#cb9-49" tabindex="-1"></a><span class="co">#&gt; frame #42: R_execClosure + 812 (0x102ce572c in libR.dylib)</span></span>
-<span id="cb9-50"><a href="#cb9-50" tabindex="-1"></a><span class="co">#&gt; frame #43: applyClosure_core + 164 (0x102ce4824 in libR.dylib)</span></span>
-<span id="cb9-51"><a href="#cb9-51" tabindex="-1"></a><span class="co">#&gt; frame #44: bcEval_loop + 37320 (0x102cfa008 in libR.dylib)</span></span>
-<span id="cb9-52"><a href="#cb9-52" tabindex="-1"></a><span class="co">#&gt; frame #45: bcEval + 684 (0x102ce346c in libR.dylib)</span></span>
-<span id="cb9-53"><a href="#cb9-53" tabindex="-1"></a><span class="co">#&gt; frame #46: Rf_eval + 556 (0x102ce2b6c in libR.dylib)</span></span>
-<span id="cb9-54"><a href="#cb9-54" tabindex="-1"></a><span class="co">#&gt; frame #47: R_execClosure + 812 (0x102ce572c in libR.dylib)</span></span>
-<span id="cb9-55"><a href="#cb9-55" tabindex="-1"></a><span class="co">#&gt; frame #48: applyClosure_core + 164 (0x102ce4824 in libR.dylib)</span></span>
-<span id="cb9-56"><a href="#cb9-56" tabindex="-1"></a><span class="co">#&gt; frame #49: Rf_eval + 1224 (0x102ce2e08 in libR.dylib)</span></span>
-<span id="cb9-57"><a href="#cb9-57" tabindex="-1"></a><span class="co">#&gt; frame #50: Rf_ReplIteration + 756 (0x102d3f034 in libR.dylib)</span></span>
-<span id="cb9-58"><a href="#cb9-58" tabindex="-1"></a><span class="co">#&gt; frame #51: R_ReplConsole + 168 (0x102d40668 in libR.dylib)</span></span>
-<span id="cb9-59"><a href="#cb9-59" tabindex="-1"></a><span class="co">#&gt; frame #52: run_Rmainloop + 100 (0x102d405a4 in libR.dylib)</span></span>
-<span id="cb9-60"><a href="#cb9-60" tabindex="-1"></a><span class="co">#&gt; frame #53: Rf_mainloop + 16 (0x102d40710 in libR.dylib)</span></span>
-<span id="cb9-61"><a href="#cb9-61" tabindex="-1"></a><span class="co">#&gt; frame #54: main + 32 (0x102723ea0 in R)</span></span>
-<span id="cb9-62"><a href="#cb9-62" tabindex="-1"></a><span class="co">#&gt; frame #55: start + 2840 (0x19ddd4274 in dyld)</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; frame #0: c10::Error::Error(c10::SourceLocation, std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt;&gt;) + 52 (0x10685811c in libc10.dylib)</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt; frame #1: c10::detail::torchCheckFail(char const*, char const*, unsigned int, std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt;&gt; const&amp;) + 140 (0x106854d6c in libc10.dylib)</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; frame #2: torch::jit::tracer::addInput(std::__1::shared_ptr&lt;torch::jit::tracer::TracingState&gt; const&amp;, c10::IValue const&amp;, c10::Type::SingletonOrSharedTypePtr&lt;c10::Type&gt; const&amp;, torch::jit::Value*) + 6060 (0x30f248984 in libtorch_cpu.dylib)</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; frame #3: torch::jit::tracer::addInput(std::__1::shared_ptr&lt;torch::jit::tracer::TracingState&gt; const&amp;, c10::IValue const&amp;, c10::Type::SingletonOrSharedTypePtr&lt;c10::Type&gt; const&amp;, torch::jit::Value*) + 4656 (0x30f248408 in libtorch_cpu.dylib)</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; frame #4: torch::jit::tracer::trace(std::__1::vector&lt;c10::IValue, std::__1::allocator&lt;c10::IValue&gt;&gt;, std::__1::function&lt;std::__1::vector&lt;c10::IValue, std::__1::allocator&lt;c10::IValue&gt;&gt; (std::__1::vector&lt;c10::IValue, std::__1::allocator&lt;c10::IValue&gt;&gt;)&gt; const&amp;, std::__1::function&lt;std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt;&gt; (at::Tensor const&amp;)&gt;, bool, bool, torch::jit::Module*, std::__1::vector&lt;std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt;&gt;, std::__1::allocator&lt;std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt;&gt;&gt;&gt; const&amp;) + 680 (0x30f245cb0 in libtorch_cpu.dylib)</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; frame #5: _lantern_trace_fn + 292 (0x135830444 in liblantern.dylib)</span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; frame #6: cpp_trace_function(Rcpp::Function_Impl&lt;Rcpp::PreserveStorage&gt;, XPtrTorchStack, XPtrTorchCompilationUnit, XPtrTorchstring, bool, XPtrTorchScriptModule, bool, bool) + 536 (0x122487f98 in torchpkg.so)</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt; frame #7: _torch_cpp_trace_function + 692 (0x122272374 in torchpkg.so)</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt; frame #8: R_doDotCall + 3356 (0x10460861c in libR.dylib)</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt; frame #9: bcEval_loop + 128100 (0x1046642a4 in libR.dylib)</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; frame #10: bcEval + 684 (0x10463746c in libR.dylib)</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt; frame #11: Rf_eval + 556 (0x104636b6c in libR.dylib)</span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt; frame #12: R_execClosure + 812 (0x10463972c in libR.dylib)</span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; frame #13: applyClosure_core + 164 (0x104638824 in libR.dylib)</span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt; frame #14: Rf_eval + 1224 (0x104636e08 in libR.dylib)</span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt; frame #15: do_eval + 1352 (0x10463e048 in libR.dylib)</span></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt; frame #16: bcEval_loop + 40204 (0x10464eb4c in libR.dylib)</span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt; frame #17: bcEval + 684 (0x10463746c in libR.dylib)</span></span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt; frame #18: Rf_eval + 556 (0x104636b6c in libR.dylib)</span></span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt; frame #19: forcePromise + 232 (0x1046376a8 in libR.dylib)</span></span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="co">#&gt; frame #20: Rf_eval + 660 (0x104636bd4 in libR.dylib)</span></span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt; frame #21: do_withVisible + 64 (0x10463e380 in libR.dylib)</span></span>
+<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="co">#&gt; frame #22: do_internal + 400 (0x1046a7190 in libR.dylib)</span></span>
+<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a><span class="co">#&gt; frame #23: bcEval_loop + 40764 (0x10464ed7c in libR.dylib)</span></span>
+<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a><span class="co">#&gt; frame #24: bcEval + 684 (0x10463746c in libR.dylib)</span></span>
+<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a><span class="co">#&gt; frame #25: Rf_eval + 556 (0x104636b6c in libR.dylib)</span></span>
+<span id="cb9-33"><a href="#cb9-33" tabindex="-1"></a><span class="co">#&gt; frame #26: forcePromise + 232 (0x1046376a8 in libR.dylib)</span></span>
+<span id="cb9-34"><a href="#cb9-34" tabindex="-1"></a><span class="co">#&gt; frame #27: Rf_eval + 660 (0x104636bd4 in libR.dylib)</span></span>
+<span id="cb9-35"><a href="#cb9-35" tabindex="-1"></a><span class="co">#&gt; frame #28: forcePromise + 232 (0x1046376a8 in libR.dylib)</span></span>
+<span id="cb9-36"><a href="#cb9-36" tabindex="-1"></a><span class="co">#&gt; frame #29: bcEval_loop + 19728 (0x104649b50 in libR.dylib)</span></span>
+<span id="cb9-37"><a href="#cb9-37" tabindex="-1"></a><span class="co">#&gt; frame #30: bcEval + 684 (0x10463746c in libR.dylib)</span></span>
+<span id="cb9-38"><a href="#cb9-38" tabindex="-1"></a><span class="co">#&gt; frame #31: Rf_eval + 556 (0x104636b6c in libR.dylib)</span></span>
+<span id="cb9-39"><a href="#cb9-39" tabindex="-1"></a><span class="co">#&gt; frame #32: R_execClosure + 812 (0x10463972c in libR.dylib)</span></span>
+<span id="cb9-40"><a href="#cb9-40" tabindex="-1"></a><span class="co">#&gt; frame #33: applyClosure_core + 164 (0x104638824 in libR.dylib)</span></span>
+<span id="cb9-41"><a href="#cb9-41" tabindex="-1"></a><span class="co">#&gt; frame #34: Rf_eval + 1224 (0x104636e08 in libR.dylib)</span></span>
+<span id="cb9-42"><a href="#cb9-42" tabindex="-1"></a><span class="co">#&gt; frame #35: do_eval + 1352 (0x10463e048 in libR.dylib)</span></span>
+<span id="cb9-43"><a href="#cb9-43" tabindex="-1"></a><span class="co">#&gt; frame #36: bcEval_loop + 40204 (0x10464eb4c in libR.dylib)</span></span>
+<span id="cb9-44"><a href="#cb9-44" tabindex="-1"></a><span class="co">#&gt; frame #37: bcEval + 684 (0x10463746c in libR.dylib)</span></span>
+<span id="cb9-45"><a href="#cb9-45" tabindex="-1"></a><span class="co">#&gt; frame #38: Rf_eval + 556 (0x104636b6c in libR.dylib)</span></span>
+<span id="cb9-46"><a href="#cb9-46" tabindex="-1"></a><span class="co">#&gt; frame #39: R_execClosure + 812 (0x10463972c in libR.dylib)</span></span>
+<span id="cb9-47"><a href="#cb9-47" tabindex="-1"></a><span class="co">#&gt; frame #40: applyClosure_core + 164 (0x104638824 in libR.dylib)</span></span>
+<span id="cb9-48"><a href="#cb9-48" tabindex="-1"></a><span class="co">#&gt; frame #41: Rf_eval + 1224 (0x104636e08 in libR.dylib)</span></span>
+<span id="cb9-49"><a href="#cb9-49" tabindex="-1"></a><span class="co">#&gt; frame #42: R_execClosure + 812 (0x10463972c in libR.dylib)</span></span>
+<span id="cb9-50"><a href="#cb9-50" tabindex="-1"></a><span class="co">#&gt; frame #43: applyClosure_core + 164 (0x104638824 in libR.dylib)</span></span>
+<span id="cb9-51"><a href="#cb9-51" tabindex="-1"></a><span class="co">#&gt; frame #44: bcEval_loop + 37320 (0x10464e008 in libR.dylib)</span></span>
+<span id="cb9-52"><a href="#cb9-52" tabindex="-1"></a><span class="co">#&gt; frame #45: bcEval + 684 (0x10463746c in libR.dylib)</span></span>
+<span id="cb9-53"><a href="#cb9-53" tabindex="-1"></a><span class="co">#&gt; frame #46: Rf_eval + 556 (0x104636b6c in libR.dylib)</span></span>
+<span id="cb9-54"><a href="#cb9-54" tabindex="-1"></a><span class="co">#&gt; frame #47: R_execClosure + 812 (0x10463972c in libR.dylib)</span></span>
+<span id="cb9-55"><a href="#cb9-55" tabindex="-1"></a><span class="co">#&gt; frame #48: applyClosure_core + 164 (0x104638824 in libR.dylib)</span></span>
+<span id="cb9-56"><a href="#cb9-56" tabindex="-1"></a><span class="co">#&gt; frame #49: Rf_eval + 1224 (0x104636e08 in libR.dylib)</span></span>
+<span id="cb9-57"><a href="#cb9-57" tabindex="-1"></a><span class="co">#&gt; frame #50: Rf_ReplIteration + 756 (0x104693034 in libR.dylib)</span></span>
+<span id="cb9-58"><a href="#cb9-58" tabindex="-1"></a><span class="co">#&gt; frame #51: R_ReplConsole + 168 (0x104694668 in libR.dylib)</span></span>
+<span id="cb9-59"><a href="#cb9-59" tabindex="-1"></a><span class="co">#&gt; frame #52: run_Rmainloop + 100 (0x1046945a4 in libR.dylib)</span></span>
+<span id="cb9-60"><a href="#cb9-60" tabindex="-1"></a><span class="co">#&gt; frame #53: Rf_mainloop + 16 (0x104694710 in libR.dylib)</span></span>
+<span id="cb9-61"><a href="#cb9-61" tabindex="-1"></a><span class="co">#&gt; frame #54: main + 32 (0x104077ea0 in R)</span></span>
+<span id="cb9-62"><a href="#cb9-62" tabindex="-1"></a><span class="co">#&gt; frame #55: start + 2840 (0x19f9d8274 in dyld)</span></span>
 <span id="cb9-63"><a href="#cb9-63" tabindex="-1"></a><span class="co">#&gt; :</span></span></code></pre></div>
 </div>
 </div>
